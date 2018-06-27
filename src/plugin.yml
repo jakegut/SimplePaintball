@@ -1,8 +1,8 @@
 author: Borgdude
-description: "Paintball Thing"
+description: "Simple Paintball"
 main: com.borgdude.paintball.Main
-name: PaintBall
-version: "0.0.1"
+name: Simple_PaintBall
+version: "0.1.0"
 
 commands:
   gun:
