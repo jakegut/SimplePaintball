@@ -1,0 +1,18 @@
+author: Borgdude
+description: "Paintball Thing"
+main: com.borgdude.paintball.Main
+name: PaintBall
+version: "0.0.1"
+
+commands:
+  gun:
+    description: Gives paintball gun
+    usage: /<command>
+  pb:
+    description: Commands
+    usage: /<command> <option>
+
+permissions:
+  paintball.admin:
+    default: op
+    description: admin commands
