@@ -4,6 +4,10 @@ import com.borgdude.paintball.Main;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.*;
 import org.bukkit.block.Sign;
+import org.bukkit.boss.BarColor;
+import org.bukkit.boss.BarFlag;
+import org.bukkit.boss.BarStyle;
+import org.bukkit.boss.BossBar;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -27,6 +31,65 @@ public class Arena {
     private Set<UUID> players;
     private HashMap<UUID, Integer> kills;
     private int timer;
+
+    public BossBar getBossBar() {
+        return bossBar;
+    }
+
+    private BossBar bossBar;
+
+    private void updateBossbar(){
+        if(bossBar == null){
+            bossBar = Bukkit.createBossBar("TEMP", BarColor.BLUE, BarStyle.SOLID, new BarFlag[0]);
+            bossBar.setVisible(true);
+        }
+
+        bossBar.setVisible(true);
+
+        Bukkit.getScheduler().runTaskAsynchronously(plugin, new Runnable() {
+            @Override
+            public void run() {
+                String m = String.valueOf(getTimer() / 60);
+                String s = String.valueOf(getTimer() % 60);
+                if (Integer.valueOf(s) < 10){
+                    s = "0" + s;
+                }
+
+                double progress = (getTimer() / (double) getTotalTime());
+                bossBar.setTitle(m + ":" + s);
+                bossBar.setProgress(progress);
+
+                for(UUID id : getPlayers()){
+                    Player p = Bukkit.getPlayer(id);
+                    if (p != null){
+                        bossBar.addPlayer(p);
+                    }
+                }
+            }
+        });
+    }
+
+    private void removeBossbar(){
+        if(bossBar == null) return;
+
+        for(UUID id : getPlayers()){
+            Player p = Bukkit.getPlayer(id);
+            if (p != null){
+                bossBar.removePlayer(p);
+            }
+        }
+    }
+
+    public int getTotalTime() {
+        return totalTime;
+    }
+
+    public void setTotalTime(int totalTime) {
+        this.totalTime = totalTime;
+        this.timer = totalTime;
+    }
+
+    private int totalTime;
 
     private Main plugin;
 
@@ -66,8 +129,8 @@ public class Arena {
             s.setLine(2, ChatColor.RED + getArenaState().getFormattedName());
             s.setLine(3, String.valueOf(getPlayers().size()) + "/" + String.valueOf(getMaxPlayers()));
             s.update(true);
-            i++;
-            Bukkit.getConsoleSender().sendMessage("Updated sign number " + i + "for arena " + getTitle());
+//            i++;
+//            Bukkit.getConsoleSender().sendMessage("Updated sign number " + i + "for arena " + getTitle());
         }
     }
 
@@ -80,22 +143,28 @@ public class Arena {
         if (getPlayers().size() >= minPlayers) {
             Bukkit.getConsoleSender().sendMessage("Starting arena " + getTitle());
             setArenaState(ArenaState.STARTING);
-            setTimer(60);
+            setTotalTime(60);
             BukkitRunnable runnable = new BukkitRunnable() {
                 @Override
                 public void run() {
                     updateSigns();
+
                     if(getPlayers().size() < minPlayers){
                         setArenaState(ArenaState.WAITING_FOR_PLAYERS);
+                        bossBar.setVisible(false);
                         cancel();
                     }
 
                     if(getTimer() % 10 == 0){
                         for(UUID id : getPlayers()){
-                            Bukkit.getServer().getPlayer(id).sendMessage(ChatColor.AQUA + "Game starting in " +
-                                    getTimer() + " seconds.");
+                            Player p = Bukkit.getPlayer(id);
+                            if (p != null){
+                                p.sendMessage(ChatColor.AQUA + "Game starting in " + getTimer() + " seconds.");
+                            }
                         }
                     }
+
+                    updateBossbar();
                     setTimer(getTimer() - 1);
 
                     if(getTimer() == 0){
@@ -120,7 +189,8 @@ public class Arena {
         redTeam.giveArmor(Color.RED);
         spawnPlayers();
         generateKills();
-        setTimer(80);
+        setListNames();
+        setTotalTime(plugin.getConfig().getInt("game-time"));
         BukkitRunnable runnable = new BukkitRunnable() {
             @Override
             public void run() {
@@ -137,11 +207,13 @@ public class Arena {
                     cancel();
                 }
 
-                if(getTimer() == 80){
+                if(getTimer() == getTotalTime()){
                     for(UUID id : getPlayers()){
                         Bukkit.getServer().getPlayer(id).sendMessage(ChatColor.GREEN + "Game has started!");
                     }
                 }
+
+                setTimer(getTimer() - 1);
 
                 if (getTimer() % 60 == 0){
                     for(UUID id : getPlayers()){
@@ -155,7 +227,7 @@ public class Arena {
                     }
                 }
 
-                setTimer(getTimer() - 1);
+                updateBossbar();
 
                 if(getTimer() == 0){
                     stopGame();
@@ -215,10 +287,25 @@ public class Arena {
             is.setItemMeta(im);
             p.getInventory().addItem(is);
 
-
-
             Team team = getPlayerTeam(p);
             p.teleport(team.getRandomLocation());
+        }
+    }
+
+    public void setListNames(){
+        for(UUID pID : redTeam.getMembers()){
+            Player p = Bukkit.getPlayer(pID);
+            if (p != null){
+                p.setDisplayName(ChatColor.RED + p.getName() + ChatColor.RESET);
+                p.setPlayerListName(ChatColor.RED + p.getName() + ChatColor.RESET);
+            }
+        }
+        for(UUID pID : blueTeam.getMembers()){
+            Player p = Bukkit.getPlayer(pID);
+            if (p != null){
+                p.setDisplayName(ChatColor.BLUE + p.getName() + ChatColor.RESET);
+                p.setPlayerListName(ChatColor.BLUE + p.getName() + ChatColor.RESET);
+            }
         }
     }
 
@@ -295,19 +382,30 @@ public class Arena {
             p.teleport(getEndLocation());
             p.getInventory().clear();
             p.setLevel(0);
+            p.setPlayerListName(ChatColor.RESET + p.getName());
+            p.setDisplayName(ChatColor.RESET + p.getName());
         }
+
+        removeBossbar();
 
         getPlayers().clear();
     }
 
     public void removePlayerInGame(Player p){
         Team team = getPlayerTeam(p);
-        team.getMembers().remove(p);
-        getPlayers().remove(p);
+        team.getMembers().remove(p.getUniqueId());
+        getPlayers().remove(p.getUniqueId());
         p.teleport(getEndLocation());
         p.removePotionEffect(PotionEffectType.SATURATION);
         p.getInventory().clear();
         p.sendMessage(ChatColor.GREEN + "You have left the game and teleported to the start.");
+        p.setPlayerListName(ChatColor.RESET + p.getName());
+        p.setDisplayName(ChatColor.RESET + p.getName());
+        p.setLevel(0);
+        if(bossBar != null){
+            bossBar.removePlayer(p);
+        }
+        updateSigns();
     }
 
     public boolean isActivated() {

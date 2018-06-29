@@ -20,25 +20,51 @@ import org.bukkit.event.block.SignChangeEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.UUID;
 
 public class EventClass implements Listener {
 
     private ArenaManager arenaManager = Main.arenaManager;
     private Main plugin = Main.plugin;
+    //private HashMap<Player, Boolean> cooldown;
+    private ArrayList<Player> cooldown;
+
+    public EventClass(){
+        super();
+        cooldown = new ArrayList<>();
+    }
 
     @EventHandler
     public void onPlayerInteract(PlayerInteractEvent event){
         if(event.getAction() == Action.RIGHT_CLICK_AIR || event.getAction() == Action.RIGHT_CLICK_BLOCK){
             if(event.getItem() != null && event.getItem().getType().equals(Material.GOLD_HOE) &&
                     isNamedItem(event.getItem(), ChatColor.GOLD + "PaintBall Gun")){
-                Player player = event.getPlayer();
+                final Player player = event.getPlayer();
                 Snowball s = player.launchProjectile(Snowball.class);
                 s.setVelocity(player.getLocation().getDirection().multiply(1.5D));
                 player.getLocation().getWorld().playSound(player.getLocation(), Sound.BLOCK_ANVIL_HIT, 2, 0.5f);
+
+                // Cooldown system
+//                if (!cooldown.contains(player)){
+//                    cooldown.add(player);
+//                    Snowball s = player.launchProjectile(Snowball.class);
+//                    s.setVelocity(player.getLocation().getDirection().multiply(2D));
+//                    plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
+//                        @Override
+//                        public void run() {
+//                            cooldown.remove(player);
+//                        }
+//                    }, 1L);
+//                } else {
+//                    player.sendMessage("You cant fire right now");
+//                }
+
             }
         }
     }
@@ -70,8 +96,8 @@ public class EventClass implements Listener {
                     int prevKills = shooterA.getKills().get(shooter.getUniqueId());
                     shooterA.getKills().replace(shooter.getUniqueId(), prevKills + 1);
                     shooter.setLevel(prevKills + 1);
-                    hit.getWorld().playSound(hit.getLocation(), Sound.BLOCK_STONE_HIT, 2, 0.5f);
                     hit.teleport(hitTeam.getRandomLocation());
+                    hit.playSound(hit.getLocation(), Sound.ITEM_SHIELD_BREAK, 2, 0.5f);
 
                     Bukkit.getScheduler().runTaskAsynchronously(plugin, new Runnable() {
                         @Override
@@ -112,14 +138,13 @@ public class EventClass implements Listener {
             } else {
                 event.getPlayer().sendMessage(ChatColor.GREEN + "Added sign for arena " + ChatColor.AQUA + a.getTitle());
                 a.getSigns().add((Sign) event.getBlock().getState());
+                new BukkitRunnable() {
+                    @Override
+                    public void run() {
+                        a.updateSigns();
+                    }
+                }.runTaskLater(this.plugin, 10);
             }
-
-            new BukkitRunnable() {
-                @Override
-                public void run() {
-                    a.updateSigns();
-                }
-            }.runTaskLater(this.plugin, 10);
         }
     }
 
@@ -143,6 +168,15 @@ public class EventClass implements Listener {
             }
         }
 
+    }
+
+    @EventHandler
+    public void onQuit(PlayerQuitEvent event){
+        Player p = event.getPlayer();
+        Arena a = this.arenaManager.getPlayerArena(p);
+        if(a != null){
+            this.arenaManager.removePlayerFromArena(p);
+        }
     }
 
     public static boolean isNamedItem(ItemStack item, String name) {

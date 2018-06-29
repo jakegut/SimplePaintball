@@ -37,7 +37,7 @@ public class ArenaManager {
             return;
         }
 
-        if(a.getArenaState() != ArenaState.WAITING_FOR_PLAYERS){
+        if(a.getArenaState() == ArenaState.IN_GAME || a.getArenaState() == ArenaState.RESTARTING || a.getArenaState() == ArenaState.RESTARTING){
             player.sendMessage(ChatColor.YELLOW + "The arena is currently in a game, or something. Please wait");
             return;
         }
@@ -63,10 +63,12 @@ public class ArenaManager {
             player.sendMessage(ChatColor.YELLOW + "You have left the arena.");
             player.teleport(a.getEndLocation());
             a.getPlayers().remove(player.getUniqueId());
+            if(a.getBossBar() != null){
+                a.getBossBar().removePlayer(player);
+            }
+            a.updateSigns();
             return;
         }
-
-
 
     }
 
