@@ -3,14 +3,17 @@ package com.borgdude.paintball.managers;
 import com.borgdude.paintball.Main;
 import com.borgdude.paintball.objects.Arena;
 import com.borgdude.paintball.objects.ArenaState;
+import com.borgdude.paintball.objects.GunKit;
 import com.borgdude.paintball.objects.Team;
 import com.borgdude.paintball.utils.LocationUtil;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
-import org.bukkit.configuration.Configuration;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.material.Wool;
 
 import java.util.*;
 
@@ -44,9 +47,48 @@ public class ArenaManager {
 
         player.teleport(a.getLobbyLocation());
         a.getPlayers().add(player.getUniqueId());
+        a.setGunKit(player, GunKit.REGULAR);
         player.sendMessage(ChatColor.GREEN + "You have joined arena: " + ChatColor.AQUA + a.getTitle());
         player.setGameMode(GameMode.ADVENTURE);
+        addLobbyItems(player);
         a.checkToStart();
+    }
+
+    private void addLobbyItems(Player player){
+        ItemStack is = new ItemStack(Material.BED);
+        ItemMeta im = is.getItemMeta();
+        im.setDisplayName(ChatColor.AQUA + "Leave Arena");
+        is.setItemMeta(im);
+        player.getInventory().setItem(2, is);
+        
+        
+        Wool wReg = new Wool(DyeColor.YELLOW);
+        ItemStack reg = wReg.toItemStack(1);
+        ItemMeta rm = reg.getItemMeta();
+        rm.setDisplayName(ChatColor.YELLOW + GunKit.REGULAR.getFormattedName());
+        reg.setItemMeta(rm);
+        player.getInventory().setItem(3, reg);
+        
+        Wool wShot = new Wool(DyeColor.GRAY);
+        ItemStack shot = wShot.toItemStack(1);
+        ItemMeta sm = shot.getItemMeta();
+        sm.setDisplayName(ChatColor.GRAY + GunKit.SHOTGUN.getFormattedName());
+        shot.setItemMeta(sm);
+        player.getInventory().setItem(4, shot);
+        
+        Wool wMini = new Wool(DyeColor.PURPLE);
+        ItemStack mini = wMini.toItemStack(1);
+        ItemMeta mm = mini.getItemMeta();
+        mm.setDisplayName(ChatColor.LIGHT_PURPLE + GunKit.MINIGUN.getFormattedName());
+        mini.setItemMeta(mm);
+        player.getInventory().setItem(5, mini);
+        
+        Wool wRocket = new Wool(DyeColor.GREEN);
+        ItemStack rocket = wRocket.toItemStack(1);
+        ItemMeta rocketM = rocket.getItemMeta();
+        rocketM.setDisplayName(ChatColor.DARK_GREEN + GunKit.LAUNCHER.getFormattedName());
+        rocket.setItemMeta(rocketM);
+        player.getInventory().setItem(6, rocket);
     }
 
     public void removePlayerFromArena(Player player){
@@ -62,6 +104,7 @@ public class ArenaManager {
         } else {
             player.sendMessage(ChatColor.YELLOW + "You have left the arena.");
             player.teleport(a.getEndLocation());
+            player.getInventory().clear();
             a.getPlayers().remove(player.getUniqueId());
             if(a.getBossBar() != null){
                 a.getBossBar().removePlayer(player);

@@ -4,6 +4,7 @@ import com.borgdude.paintball.commands.GunCommand;
 import com.borgdude.paintball.commands.PaintballCommand;
 import com.borgdude.paintball.events.EventClass;
 import com.borgdude.paintball.managers.ArenaManager;
+import com.borgdude.paintball.objects.Arena;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -17,8 +18,7 @@ public class Main extends JavaPlugin {
     @Override
     public void onEnable(){
         plugin = this;
-        getConfig().options().copyDefaults(true);
-        saveConfig();
+        saveDefaultConfig();
         arenaManager = new ArenaManager(new ArrayList<>(), this);
         arenaManager.getArenas();
         getCommand("gun").setExecutor(new GunCommand());
@@ -29,6 +29,9 @@ public class Main extends JavaPlugin {
 
     @Override
     public void onDisable(){
+    	for(Arena arena : arenaManager.getArena()) {
+			arena.kickPlayers();
+    	}
         arenaManager.saveArenas();
         getServer().getConsoleSender().sendMessage(ChatColor.RED + "PaintBall Disabled");
     }
