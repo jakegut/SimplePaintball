@@ -8,7 +8,7 @@ import net.md_5.bungee.api.ChatColor;
 
 public enum GunKit {
 	
-    ADMIN("Admin", 35), REGULAR("Regular", 8), SHOTGUN("Shotgun", 15), MINIGUN("Minigun", 2), LAUNCHER("Rocket Launcher", 35);
+    ADMIN("Admin", 2), REGULAR("Sniper", 8), SHOTGUN("Shotgun", 15), MINIGUN("Minigun", 2), LAUNCHER("Rocket Launcher", 35);
 
     String formattedName;
     int fireRate;
@@ -40,7 +40,7 @@ public enum GunKit {
 		case REGULAR:
 			is = new ItemStack(Material.GOLD_HOE);
             im = is.getItemMeta();
-            im.setDisplayName(ChatColor.GOLD + "PaintBall Gun");
+            im.setDisplayName(ChatColor.GOLD + "PaintBall Sniper");
             is.setItemMeta(im);
             break;
 		case SHOTGUN:

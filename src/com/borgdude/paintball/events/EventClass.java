@@ -13,6 +13,7 @@ import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
 import org.bukkit.entity.Snowball;
@@ -21,6 +22,8 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.SignChangeEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
+import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryInteractEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
@@ -79,19 +82,31 @@ public class EventClass implements Listener {
     public void onPlayerInteract(PlayerInteractEvent event){
         if(event.getAction() == Action.RIGHT_CLICK_AIR || event.getAction() == Action.RIGHT_CLICK_BLOCK){
             if(event.getItem() != null && event.getItem().getType().equals(Material.GOLD_HOE)){
-                if(isNamedItem(event.getItem(), ChatColor.GOLD + "PaintBall Gun")){
+                if(isNamedItem(event.getItem(), ChatColor.GOLD + "PaintBall Sniper")){
                     final Player player = event.getPlayer();
                     
                     if(cooldown.containsKey(player)) return;
                     
-                    final float fireRate = GunKit.REGULAR.getFireRate();
+                	final float fireRate = GunKit.LAUNCHER.getFireRate();
+                	
+                	cooldown.put(player, (int)fireRate);
                     
-                    cooldown.put(player, (int)fireRate);
+                    final Snowball snowball = player.launchProjectile(Snowball.class);
+                    final Vector velocity = player.getLocation().getDirection().multiply(2);//set the velocity variable
+                    snowball.setVelocity(velocity);
                     
-                    Snowball s = player.launchProjectile(Snowball.class);
-                    s.setVelocity(player.getLocation().getDirection().multiply(1.5D));
+                    projectiles.put(snowball.getEntityId(), new BukkitRunnable() {
+                    	 
+                        @Override
+                        public void run() {
+                            snowball.setVelocity(velocity);
+                        }
+                    }.runTaskTimer(plugin, 1, 1));
+                    
                     player.getLocation().getWorld().playSound(player.getLocation(), Sound.BLOCK_ANVIL_HIT, 2, 0.5f);
-
+                    
+                    
+                    
                     runTimer(player, fireRate);
 
                 }
@@ -169,7 +184,7 @@ final Player player = event.getPlayer();
                 
                 if(cooldown.containsKey(player)) return;
                 
-            	final float fireRate = GunKit.ADMIN.getFireRate();
+            	final float fireRate = GunKit.LAUNCHER.getFireRate();
             	
             	cooldown.put(player, (int)fireRate);
                 
@@ -189,11 +204,15 @@ final Player player = event.getPlayer();
 
             }else if(event.getItem() != null && event.getItem().getType().equals(Material.DIAMOND_HOE) &&
                     isNamedItem(event.getItem(), ChatColor.AQUA + "Admin Gun")){
+            
+            	
                 final Player player = event.getPlayer();
+                
+                if(!player.hasPermission("paintball.admin")) return;
                 
                 if(cooldown.containsKey(player)) return;
                 
-            	final float fireRate = GunKit.LAUNCHER.getFireRate();
+            	final float fireRate = GunKit.ADMIN.getFireRate();
             	
             	cooldown.put(player, (int)fireRate);
                 
@@ -208,6 +227,28 @@ final Player player = event.getPlayer();
                         snowball.setVelocity(velocity);
                     }
                 }.runTaskTimer(plugin, 1, 1));
+                
+                Bukkit.getScheduler().runTaskLater(plugin, new Runnable() {
+
+					@Override
+					public void run() {
+						// TODO Auto-generated method stub
+						final Snowball snowball = player.launchProjectile(Snowball.class);
+		                final Vector velocity = player.getLocation().getDirection().multiply(2);//set the velocity variable
+		                snowball.setVelocity(velocity);
+		                
+		                projectiles.put(snowball.getEntityId(), new BukkitRunnable() {
+		                	 
+		                    @Override
+		                    public void run() {
+		                        snowball.setVelocity(velocity);
+		                    }
+		                }.runTaskTimer(plugin, 1, 1));
+		                
+		                player.getLocation().getWorld().playSound(player.getLocation(), Sound.BLOCK_ANVIL_HIT, 2, 0.5f); 
+					}
+                	
+                }, 2L);
                 
                 player.getLocation().getWorld().playSound(player.getLocation(), Sound.BLOCK_ANVIL_HIT, 2, 0.5f);
                 
@@ -227,6 +268,20 @@ final Player player = event.getPlayer();
                 projectiles.get(projectile.getEntityId()).cancel();
             }
         }
+    }
+    
+    @EventHandler
+    public void onInventoryInteract(InventoryClickEvent event) {
+    	if(!(event.getWhoClicked() instanceof Player)) return;
+    	
+    	Player player = (Player) event.getWhoClicked();
+    	
+    	Arena arena = this.arenaManager.getPlayerArena(player);
+    	
+    	if(arena == null) return;
+    	else {
+    		event.setCancelled(true);
+    	}
     }
     
     public Vector getRandomVector(float accuracy) {
@@ -270,6 +325,12 @@ final Player player = event.getPlayer();
     public void onHit(ProjectileHitEvent event){
         Player shooter;
         Player hit;
+        
+//        if (event.getHitEntity() instanceof LivingEntity){
+//        	LivingEntity ent = (LivingEntity) event.getHitEntity();
+//        	ent.damage(100);
+//        }
+        
         if(event.getHitEntity() instanceof Player && event.getEntity().getShooter() instanceof Player){
             shooter = (Player) event.getEntity().getShooter();
             hit = (Player) event.getHitEntity();
@@ -335,7 +396,9 @@ final Player player = event.getPlayer();
                     });
                 }
             }
-        }
+        } 
+        
+
     }
     
     @EventHandler
