@@ -2,10 +2,9 @@ package com.borgdude.paintball.events;
 
 import com.borgdude.paintball.Main;
 import com.borgdude.paintball.managers.ArenaManager;
-import com.borgdude.paintball.objects.Arena;
-import com.borgdude.paintball.objects.ArenaState;
-import com.borgdude.paintball.objects.GunKit;
-import com.borgdude.paintball.objects.Team;
+import com.borgdude.paintball.managers.PaintballManager;
+import com.borgdude.paintball.objects.*;
+import com.borgdude.paintball.utils.MathUtil;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -21,13 +20,16 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.SignChangeEvent;
+import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryInteractEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.metadata.MetadataValue;
 import org.bukkit.plugin.Plugin;
@@ -44,20 +46,18 @@ import java.util.UUID;
 public class EventClass implements Listener {
 
     private ArenaManager arenaManager = Main.arenaManager;
+    private PaintballManager paintballManager = Main.paintballManager;
     private Main plugin = Main.plugin;
-    private HashMap<Player, Integer> cooldown;
-    private Map<Integer, BukkitTask> projectiles = new HashMap<Integer, BukkitTask>();
 
     public EventClass(){
         super();
-        cooldown = new HashMap<>();
     }
     
     public void runTimer(final Player player, float fireRate) {
     	BukkitRunnable runnable = new BukkitRunnable() {
         	@Override
             public void run() {
-                int timeLeft = cooldown.get(player);
+                int timeLeft = paintballManager.getCooldown().get(player);
                 
                 float exp = (float) (1 - timeLeft / fireRate);
                 
@@ -66,196 +66,72 @@ public class EventClass implements Listener {
                 player.setExp(exp);
           	  
                 if(timeLeft <= 0) {
-              	  cooldown.remove(player);
+              	  paintballManager.getCooldown().remove(player);
               	  player.setExp(0);
               	  cancel();
                 }
                 
-          	  cooldown.replace(player, timeLeft - 1);
+          	  paintballManager.getCooldown().replace(player, timeLeft - 1);
     		}
         };
         
         runnable.runTaskTimer(plugin, 0, 1);
     }
+    
+    @EventHandler
+    public void onRespawn(PlayerRespawnEvent event) {
+    	Player player = event.getPlayer();
+    	
+    	Arena arena = this.arenaManager.getPlayerArena(player);
+    	
+    	System.out.println("Finding arena...");
+    	
+    	if (arena == null) return;
+    	
+    	Team team = arena.getPlayerTeam(player);
+    	
+    	if (team != null) 
+    		event.setRespawnLocation(team.getRandomLocation());
+    	else
+    		event.setRespawnLocation(arena.getLobbyLocation());
+    	
+    }
+    
+   // @EventHandler
+    public void onEntityDamange(EntityDamageEvent event) {
+    	if(event.getEntity() instanceof Player) {
+    		Player player = (Player) event.getEntity();
+    		
+    		Arena arena = this.arenaManager.getPlayerArena(player);
+    		
+    		if(arena == null) return;
+    		
+    		player.setHealth(20);
+    	}
+    }
 
     @EventHandler
     public void onPlayerInteract(PlayerInteractEvent event){
         if(event.getAction() == Action.RIGHT_CLICK_AIR || event.getAction() == Action.RIGHT_CLICK_BLOCK){
-            if(event.getItem() != null && event.getItem().getType().equals(Material.GOLD_HOE)){
-                if(isNamedItem(event.getItem(), ChatColor.GOLD + "PaintBall Sniper")){
-                    final Player player = event.getPlayer();
-                    
-                    if(cooldown.containsKey(player)) return;
-                    
-                	final float fireRate = GunKit.LAUNCHER.getFireRate();
-                	
-                	cooldown.put(player, (int)fireRate);
-                    
-                    final Snowball snowball = player.launchProjectile(Snowball.class);
-                    final Vector velocity = player.getLocation().getDirection().multiply(2);//set the velocity variable
-                    snowball.setVelocity(velocity);
-                    
-                    projectiles.put(snowball.getEntityId(), new BukkitRunnable() {
-                    	 
-                        @Override
-                        public void run() {
-                            snowball.setVelocity(velocity);
-                        }
-                    }.runTaskTimer(plugin, 1, 1));
-                    
-                    player.getLocation().getWorld().playSound(player.getLocation(), Sound.BLOCK_ANVIL_HIT, 2, 0.5f);
-                    
-                    
-                    
-                    runTimer(player, fireRate);
-
-                }
-            }else if(event.getItem() != null && event.getItem().getType().equals(Material.IRON_HOE) &&
-                    isNamedItem(event.getItem(), ChatColor.GRAY + "PaintBall Shotgun")){
-            	final Player player = event.getPlayer();
-                
-                if(cooldown.containsKey(player)) return;
-                
-            	final float fireRate = GunKit.SHOTGUN.getFireRate();
-            	
-            	cooldown.put(player, (int)fireRate);
-            	
-            	float accuracy = 0.15F;
-                
-                Snowball snowball = null;
-                Vector velocity = null;
-                
-                for (int i = 0; i < 3; i++) { //Set i to 0 and as long as it is less than 5 add one to it then run the loop
-                    snowball = player.launchProjectile(Snowball.class); //set the snowball variable
-                    velocity = player.getLocation().getDirection().multiply(1.2); //set the velocity variable
-                    velocity.add(getRandomVector(accuracy)); //set it's modified velocity
-//                    velocity.add(new Vector(0.25, 0.12, 0.25));
-                    snowball.setVelocity(velocity); //set the snowball's new velocity
-//                        System.out.print(velocity.toString());
-                }
-                player.getLocation().getWorld().playSound(player.getLocation(), Sound.BLOCK_ANVIL_HIT, 2, 0.5f);
-                
-                runTimer(player, fireRate);
-            } else if(event.getItem() != null && event.getItem().getType().equals(Material.STONE_HOE) &&
-                    isNamedItem(event.getItem(), ChatColor.LIGHT_PURPLE + "PaintBall MiniGun")){
-final Player player = event.getPlayer();
-                
-                if(cooldown.containsKey(player)) return;
-                
-            	final float fireRate = GunKit.MINIGUN.getFireRate();
-            	
-            	cooldown.put(player, (int)fireRate);
-            	
-            	float accuracy = 0.3F;
-                
-                Snowball snowball = null;
-                Vector velocity = null;
-                
-                snowball = player.launchProjectile(Snowball.class); //set the snowball variable
-                velocity = player.getLocation().getDirection().multiply(0.9); //set the velocity variable
-                velocity.add(getRandomVector(accuracy)); //set it's modified velocity
-//                velocity.add(new Vector(0.25, 0.12, 0.25));
-                snowball.setVelocity(velocity);
-                
-                player.getLocation().getWorld().playSound(player.getLocation(), Sound.BLOCK_ANVIL_HIT, 2, 0.5f);
-                
-                Bukkit.getScheduler().runTaskLater(plugin, new Runnable() {
-
-					@Override
-					public void run() {
-						// TODO Auto-generated method stub
-						Snowball snowball = player.launchProjectile(Snowball.class); //set the snowball variable
-		                Vector velocity = player.getLocation().getDirection().multiply(0.9); //set the velocity variable
-		                velocity.add(getRandomVector(accuracy)); //set it's modified velocity
-//		                velocity.add(new Vector(0.25, 0.12, 0.25));
-		                snowball.setVelocity(velocity);
-		                
-		                player.getLocation().getWorld().playSound(player.getLocation(), Sound.BLOCK_ANVIL_HIT, 2, 0.5f); 
-					}
-                	
-                }, 2L);
-
-                runTimer(player, fireRate);
-            	
-            	
-            }else if(event.getItem() != null && event.getItem().getType().equals(Material.IRON_SPADE) &&
-                    isNamedItem(event.getItem(), ChatColor.DARK_GREEN + "PaintBall Rocket Launcher")){
-                final Player player = event.getPlayer();
-                
-                if(cooldown.containsKey(player)) return;
-                
-            	final float fireRate = GunKit.LAUNCHER.getFireRate();
-            	
-            	cooldown.put(player, (int)fireRate);
-                
-                Snowball snowball = null;
-                Vector velocity = null;
-                
-                snowball = player.launchProjectile(Snowball.class); //set the snowball variable
-                velocity = player.getLocation().getDirection();//set the velocity variable
-//                velocity.add(new Vector(0.25, 0.12, 0.25));
-                snowball.setVelocity(velocity);
-                
-                player.getLocation().getWorld().playSound(player.getLocation(), Sound.BLOCK_ANVIL_HIT, 2, 0.5f);
-                
-                
-                
-                runTimer(player, fireRate);
-
-            }else if(event.getItem() != null && event.getItem().getType().equals(Material.DIAMOND_HOE) &&
-                    isNamedItem(event.getItem(), ChatColor.AQUA + "Admin Gun")){
+           
+            if(event.getItem() == null) return;
             
-            	
-                final Player player = event.getPlayer();
-                
-                if(!player.hasPermission("paintball.admin")) return;
-                
-                if(cooldown.containsKey(player)) return;
-                
-            	final float fireRate = GunKit.ADMIN.getFireRate();
-            	
-            	cooldown.put(player, (int)fireRate);
-                
-                final Snowball snowball = player.launchProjectile(Snowball.class);
-                final Vector velocity = player.getLocation().getDirection().multiply(2);//set the velocity variable
-                snowball.setVelocity(velocity);
-                
-                projectiles.put(snowball.getEntityId(), new BukkitRunnable() {
-                	 
-                    @Override
-                    public void run() {
-                        snowball.setVelocity(velocity);
-                    }
-                }.runTaskTimer(plugin, 1, 1));
-                
-                Bukkit.getScheduler().runTaskLater(plugin, new Runnable() {
+            Player player = event.getPlayer();
+            
+            if(paintballManager.getCooldown().containsKey(player)) return;
 
-					@Override
-					public void run() {
-						// TODO Auto-generated method stub
-						final Snowball snowball = player.launchProjectile(Snowball.class);
-		                final Vector velocity = player.getLocation().getDirection().multiply(2);//set the velocity variable
-		                snowball.setVelocity(velocity);
-		                
-		                projectiles.put(snowball.getEntityId(), new BukkitRunnable() {
-		                	 
-		                    @Override
-		                    public void run() {
-		                        snowball.setVelocity(velocity);
-		                    }
-		                }.runTaskTimer(plugin, 1, 1));
-		                
-		                player.getLocation().getWorld().playSound(player.getLocation(), Sound.BLOCK_ANVIL_HIT, 2, 0.5f); 
-					}
-                	
-                }, 2L);
-                
-                player.getLocation().getWorld().playSound(player.getLocation(), Sound.BLOCK_ANVIL_HIT, 2, 0.5f);
-                
-                
-                
-                runTimer(player, fireRate);
-
+            for(Gun gun : paintballManager.getGuns()){
+                ItemStack eventItem = event.getItem();
+                ItemStack gunItem = gun.getInGameItem();
+                boolean typeEquals = eventItem.getType().equals(gunItem.getType());
+                boolean nameEquals = isNamedItem(eventItem, gunItem.getItemMeta().getDisplayName());
+                if(typeEquals && nameEquals ){
+                	paintballManager.getCooldown().put(player, gun.getCooldown());
+                    System.out.println("Attempting to fire: " + gun.getName());
+                    gun.fire(event.getPlayer());
+                    runTimer(event.getPlayer(), (float) gun.getCooldown());
+                    break;
+                }
             }
         }
     }
@@ -264,8 +140,8 @@ final Player player = event.getPlayer();
     public void onSnowballHit(ProjectileHitEvent event) {
         Projectile projectile = event.getEntity();
         if(projectile instanceof Snowball) {
-            if(projectiles.containsKey(projectile.getEntityId())) {
-                projectiles.get(projectile.getEntityId()).cancel();
+            if(paintballManager.getProjectiles().containsKey(projectile.getEntityId())) {
+                paintballManager.getProjectiles().get(projectile.getEntityId()).cancel();
             }
         }
     }
@@ -284,38 +160,36 @@ final Player player = event.getPlayer();
     	}
     }
     
-    public Vector getRandomVector(float accuracy) {
-    	return new Vector(getRandomComp(accuracy), getRandomComp(accuracy), getRandomComp(accuracy));
-    }
-    
-    public float getRandomComp(float accuracy) {
-    	return (float) (Math.random() * (accuracy * 2) - accuracy);
-    }
-    
     @EventHandler
     public void lobbyEvents(PlayerInteractEvent event) {
     	if(event.getAction() == Action.RIGHT_CLICK_AIR || event.getAction() == Action.RIGHT_CLICK_BLOCK) {
     		if(event.getItem() == null) return;
     		
-    		if(event.getItem().getType().equals(Material.BED) &&
+    		if(event.getItem().getType().equals(Material.WHITE_BED) &&
                     isNamedItem(event.getItem(), ChatColor.AQUA + "Leave Arena")){
 	        	final Player player = event.getPlayer();
 	        	
 	        	Bukkit.dispatchCommand(player, "pb leave");
-            } else if (event.getItem().getType().equals(Material.WOOL)){
+            } else{
             	Player player = event.getPlayer();
             	Arena arena = this.arenaManager.getPlayerArena(player);
+            	ItemStack eventItem = event.getItem();
+            	
+            	if (eventItem == null) {
+            		System.out.println("Item not found");
+            		return;
+            	}
             	
             	if (arena == null) return;
             	
-            	if(isNamedItem(event.getItem(), ChatColor.YELLOW + GunKit.REGULAR.getFormattedName())) {
-            		arena.setGunKit(player, GunKit.REGULAR);
-            	} else if(isNamedItem(event.getItem(), ChatColor.GRAY + GunKit.SHOTGUN.getFormattedName())) {
-            		arena.setGunKit(player, GunKit.SHOTGUN);
-            	} else if(isNamedItem(event.getItem(), ChatColor.LIGHT_PURPLE + GunKit.MINIGUN.getFormattedName())) {
-            		arena.setGunKit(player, GunKit.MINIGUN);
-            	} else if(isNamedItem(event.getItem(), ChatColor.DARK_GREEN + GunKit.LAUNCHER.getFormattedName())) {
-            		arena.setGunKit(player, GunKit.LAUNCHER);
+            	for(Gun gun : this.paintballManager.getGuns()) {
+                    ItemStack gunItem = gun.getLobbyItem();
+                    if (gunItem == null) continue;
+                    boolean typeEquals = eventItem.getType().equals(gunItem.getType());
+                    boolean nameEquals = isNamedItem(eventItem, gunItem.getItemMeta().getDisplayName());
+                    if(nameEquals && typeEquals) {
+                    	arena.setGunKit(player, gun);
+                    }
             	}
             }
     	}
@@ -338,15 +212,20 @@ final Player player = event.getPlayer();
             return;
         }
 
-        if(shooter != null && hit != null && shooter instanceof Player && hit instanceof Player){
+        if(shooter != null && hit != null){
             Arena shooterA = arenaManager.getPlayerArena(shooter);
             Arena hitA = arenaManager.getPlayerArena(hit);
+            
+            if (shooter.getInventory().getItemInMainHand().getItemMeta() == null) return;
 
             if (shooter.hasPermission("paintball.admin") && shooter.getInventory().getItemInMainHand().
                     getItemMeta().getDisplayName().equals(ChatColor.AQUA + "Admin Gun")){
                 if (hitA != null){
                     hit.getWorld().strikeLightning(hit.getLocation());
                     Team hitTeam = hitA.getPlayerTeam(hit);
+                    
+                    if (hitTeam == null) return;
+                    
                     hit.teleport(hitTeam.getRandomLocation());
                     hit.playSound(hit.getLocation(), Sound.ITEM_SHIELD_BREAK, 2, 0.5f);
 
@@ -408,33 +287,23 @@ final Player player = event.getPlayer();
     	if(!(event.getEntity() instanceof Snowball)) return;
     	
     	Player player = (Player) event.getEntity().getShooter();
-    	Snowball ball = (Snowball) event.getEntity();
-    	
-    	if (ball.hasMetadata("fired")) return;
-    	
-    	if(player == null) return;
-    	
-    	
-		 if (player.getInventory().getItemInMainHand()
-				 .getItemMeta().getDisplayName().equals(ChatColor.DARK_GREEN + "PaintBall Rocket Launcher")){
-			 
-			 Location spawnLocation = ball.getLocation();
-			 
-			 for(int i = 0; i < 8; i++) {
-				 Snowball snowball = player.getWorld().spawn(spawnLocation, Snowball.class);
-				 double vecX = Math.cos(Math.toRadians(i * 45));
-				 double vecY = 1;
-				 double vecZ = Math.sin(Math.toRadians(i * 45));
-	    		 snowball.setVelocity(new Vector(vecX, vecY, vecZ).multiply(0.35D).add(getRandomVector(0.2f)));
-	    		 snowball.setShooter(player);
-	    		 snowball.setMetadata("fired", new FixedMetadataValue(plugin, new Boolean(true)));
-			 }
- 		 
-//    		 Snowball snowball = player.getWorld().spawn(block.getLocation().add(0, 1, 0), Snowball.class);
-//    		 snowball.setVelocity(new Vector(1, 1, 1).multiply(0.5D));
-//    		 snowball.setShooter(player);   		 
-    		 
-    	 }
+        Snowball ball = (Snowball) event.getEntity();
+
+        if(player == null) return;
+
+        for(Gun gun : this.paintballManager.getGuns()){
+            ItemMeta im = player.getInventory().getItemInMainHand().getItemMeta();
+            ItemMeta gm = gun.getInGameItem().getItemMeta();
+            
+            if(im == null || gm == null) continue;
+            
+            if(im.getDisplayName().equals(gm.getDisplayName())){
+                gun.onHit(player, ball);
+                break;
+            }
+        }
+
+
     	 
     }
 
@@ -476,7 +345,7 @@ final Player player = event.getPlayer();
 
         Player p = event.getPlayer();
         Block b = event.getClickedBlock();
-        if (b.getType() == Material.SIGN_POST || b.getType() == Material.WALL_SIGN) {
+        if (b.getType() == Material.SIGN || b.getType() == Material.WALL_SIGN) {
 
             Sign sign = (Sign) b.getState();
             if (ChatColor.stripColor(sign.getLine(0)).equalsIgnoreCase("[PaintBall]")) {

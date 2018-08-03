@@ -1,6 +1,8 @@
 package com.borgdude.paintball.objects;
 
 import com.borgdude.paintball.Main;
+import com.borgdude.paintball.managers.PaintballManager;
+
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.*;
 import org.bukkit.block.Sign;
@@ -39,7 +41,9 @@ public class Arena {
     private Main plugin;
     private boolean activated;
     private Scoreboard board;
-    private HashMap<UUID, GunKit> gunKits;
+    private HashMap<UUID, Gun> gunKits;
+    
+    private PaintballManager paintballManger = Main.paintballManager;
 
     public Arena(String name, Main plugin) {
         this.title = name;
@@ -343,12 +347,12 @@ public class Arena {
         for (UUID id : getPlayers()) {
             Player p = Bukkit.getPlayer(id);
 
-            GunKit kit = getGunKits().get(p.getUniqueId());
-            if(kit == null) {
+            Gun gun = getGunKits().get(p.getUniqueId());
+            if(gun == null) {
             	System.out.println(p.getName() + "'s kit was null");
-            	kit = GunKit.REGULAR;
+            	gun = paintballManger.getGunByName("Regular");
             }
-            ItemStack is = GunKit.getStack(kit);
+            ItemStack is = gun.getInGameItem();
             p.getInventory().addItem(is);
 
             Team team = getPlayerTeam(p);
@@ -449,17 +453,17 @@ public class Arena {
 //        Bukkit.getConsoleSender().sendMessage("Removed scoreboards");
 //    }
     
-    public void setGunKit(Player player, GunKit kit) {
+    public void setGunKit(Player player, Gun gun) {
     	UUID id = player.getUniqueId();
     	if(getGunKits().containsKey(id)) {
-    		getGunKits().replace(id, kit);
+    		getGunKits().replace(id, gun);
     	} else {
-    		getGunKits().put(id, kit);
+    		getGunKits().put(id, gun);
     	}
-    	player.sendMessage(ChatColor.AQUA + "You're now using the " + ChatColor.GREEN + kit.getFormattedName());
+    	player.sendMessage(ChatColor.AQUA + "You're now using the " + ChatColor.GREEN + gun.getName());
     	System.out.println("Gun Kits are now:");
-    	for(Map.Entry<UUID, GunKit> entry : getGunKits().entrySet()) {
-    		System.out.println("\t-" + entry.getKey().toString() + ": " + entry.getValue().getFormattedName());
+    	for(Map.Entry<UUID, Gun> entry : getGunKits().entrySet()) {
+    		System.out.println("\t-" + entry.getKey().toString() + ": " + entry.getValue().getName());
     	}
     }
     
@@ -647,11 +651,11 @@ public class Arena {
         player.teleport(spawnLoc);
     }
 
-	public HashMap<UUID, GunKit> getGunKits() {
+	public HashMap<UUID, Gun> getGunKits() {
 		return gunKits;
 	}
 
-	public void setGunKits(HashMap<UUID, GunKit> gunKits) {
+	public void setGunKits(HashMap<UUID, Gun> gunKits) {
 		this.gunKits = gunKits;
 	}
 }

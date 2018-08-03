@@ -2,7 +2,8 @@ author: Borgdude
 description: "Simple Paintball"
 main: com.borgdude.paintball.Main
 name: Simple_PaintBall
-version: "0.1.2"
+version: "0.2.0"
+api-version: 1.13
 
 commands:
   gun:

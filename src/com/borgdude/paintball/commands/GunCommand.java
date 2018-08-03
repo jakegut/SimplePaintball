@@ -1,17 +1,19 @@
 package com.borgdude.paintball.commands;
 
+import com.borgdude.paintball.Main;
+import com.borgdude.paintball.managers.PaintballManager;
+import com.borgdude.paintball.objects.Gun;
+
 import net.md_5.bungee.api.ChatColor;
-import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
-
-import com.borgdude.paintball.objects.GunKit;
 
 public class GunCommand implements CommandExecutor {
+
+    private PaintballManager paintballManager = Main.paintballManager;
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String s, String[] args){
@@ -24,7 +26,18 @@ public class GunCommand implements CommandExecutor {
             }
 
             if(command.getName().equalsIgnoreCase("gun")){
-                ItemStack is = GunKit.getStack(GunKit.ADMIN);
+            	if(args.length >= 1) {
+            		Gun gun = paintballManager.getGunByName(args[0]);
+            		if(gun == null) {
+            			player.sendMessage(ChatColor.RED + "Gun not found.");
+            			return true;
+            		}
+            		
+            		ItemStack is = gun.getInGameItem();
+            		player.getInventory().addItem(is);
+            		return true;
+            	}
+                ItemStack is = this.paintballManager.getGunByName("Admin").getInGameItem();
                 player.getInventory().addItem(is);
                 return true;
             }
