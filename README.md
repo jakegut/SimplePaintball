@@ -1,5 +1,7 @@
 # SimplePaintball
-Spigot 1.12.2 Paintball Plugin. Made with the idea that the Minecraft accounts are shared, therefore no stats.
+Spigot 1.13 Paintball Plugin. Made with the idea that the Minecraft accounts are shared, therefore no stats.
+
+Spigot Server must be version 1.13 due to the plugin now using the 1.13 API.
 
 ## Setup
 1. Have an arena map where players can't get out
@@ -16,9 +18,7 @@ Spigot 1.12.2 Paintball Plugin. Made with the idea that the Minecraft accounts a
 
 ## The Game
 When a player joins a game, they are teleported to the lobby and placed in adventure mode with a few objects in their hot bar: a leave bed 
-and wool blocks. Players can right click on those blocks in order to either leave the game or to choose a weapon when the game starts. When 
-the game is about to start, players are randomly placed on to different teams (red or blue). The players play the game for the most kills,
-the team with the most kills is announced after the game is over
+and wool blocks. Players can right click on those blocks in order to either leave the game or to choose a weapon to use when the game starts. When the game is about to start, players are randomly placed on to different teams (red or blue). The players play the game for the most kills, the team with the most kills is announced after the game is over.
 
 ## The Weapons
 * Sniper : Shoots straight, no drop
