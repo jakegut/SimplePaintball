@@ -4,6 +4,9 @@ import com.borgdude.paintball.Main;
 import com.borgdude.paintball.managers.ArenaManager;
 import com.borgdude.paintball.objects.Arena;
 import net.md_5.bungee.api.ChatColor;
+
+import java.io.IOException;
+
 import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -145,11 +148,19 @@ public class PaintballCommand implements CommandExecutor {
                                 args[1]);
                         return true;
                     } else {
-                        this.arenaManager.addPlayerToArena(player, a);
+                        try {
+							this.arenaManager.addPlayerToArena(player, a);
+						} catch (IOException e) {
+							e.printStackTrace();
+						}
                         return true;
                     }
                 } else if (args[0].equalsIgnoreCase("leave")){
-                    this.arenaManager.removePlayerFromArena(player);
+                    try {
+						this.arenaManager.removePlayerFromArena(player);
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
                     return true;
                 } else if (args[0].equalsIgnoreCase("list")){
                     if(arenaManager.getArena().size() == 0){

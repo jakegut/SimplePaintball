@@ -37,6 +37,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.util.Vector;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -366,7 +367,11 @@ public class EventClass implements Listener {
         Player p = event.getPlayer();
         Arena a = this.arenaManager.getPlayerArena(p);
         if(a != null){
-            this.arenaManager.removePlayerFromArena(p);
+            try {
+				this.arenaManager.removePlayerFromArena(p);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
         }
     }
 

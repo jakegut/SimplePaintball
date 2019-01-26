@@ -13,6 +13,8 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+
+import java.io.IOException;
 import java.util.*;
 
 public class ArenaManager {
@@ -33,19 +35,23 @@ public class ArenaManager {
         return arenas;
     }
 
-    public void addPlayerToArena(Player player, Arena a){
+    public void addPlayerToArena(Player player, Arena a) throws IOException{
         if(getPlayerArena(player) != null){
             player.sendMessage("You're already in an arena. Leave first: /pb leave");
             return;
         }
 
-        if(a.getArenaState() == ArenaState.IN_GAME || a.getArenaState() == ArenaState.RESTARTING || a.getArenaState() == ArenaState.RESTARTING){
+        if(a.getArenaState() == ArenaState.IN_GAME || a.getArenaState() == ArenaState.RESTARTING || a.getArenaState() == ArenaState.ENDING){
             player.sendMessage(ChatColor.YELLOW + "The arena is currently in a game, or something. Please wait");
             return;
         }
 
         player.teleport(a.getLobbyLocation());
         a.getPlayers().add(player.getUniqueId());
+        Main.inventoryManager.saveInventory(player);
+        player.getInventory().clear();
+        player.setExp(0);
+        player.setLevel(0);
         a.setGunKit(player, paintballManager.getGunByName("Regular"));
         player.sendMessage(ChatColor.GREEN + "You have joined arena: " + ChatColor.AQUA + a.getTitle());
         player.setGameMode(GameMode.ADVENTURE);
@@ -69,7 +75,7 @@ public class ArenaManager {
         }
     }
 
-    public void removePlayerFromArena(Player player){
+    public void removePlayerFromArena(Player player) throws IOException{
         Arena a = getPlayerArena(player);
 
         if(a == null){
@@ -82,7 +88,7 @@ public class ArenaManager {
         } else {
             player.sendMessage(ChatColor.YELLOW + "You have left the arena.");
             player.teleport(a.getEndLocation());
-            player.getInventory().clear();
+            restorePlayerData(player);
             a.getPlayers().remove(player.getUniqueId());
             if(a.getBossBar() != null){
                 a.getBossBar().removePlayer(player);
@@ -93,7 +99,12 @@ public class ArenaManager {
 
     }
 
-    public Arena getPlayerArena(Player player){
+    private void restorePlayerData(Player player) throws IOException {
+    	player.getInventory().clear();
+		Main.inventoryManager.restoreInventory(player);
+	}
+
+	public Arena getPlayerArena(Player player){
         UUID pUUID = player.getUniqueId();
 
         for(Arena a: arenas){

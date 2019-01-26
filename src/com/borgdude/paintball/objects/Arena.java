@@ -20,6 +20,7 @@ import org.bukkit.scoreboard.DisplaySlot;
 import org.bukkit.scoreboard.Objective;
 import org.bukkit.scoreboard.Scoreboard;
 
+import java.io.IOException;
 import java.util.*;
 
 public class Arena {
@@ -461,10 +462,6 @@ public class Arena {
     		getGunKits().put(id, gun);
     	}
     	player.sendMessage(ChatColor.AQUA + "You're now using the " + ChatColor.GREEN + gun.getName());
-    	System.out.println("Gun Kits are now:");
-    	for(Map.Entry<UUID, Gun> entry : getGunKits().entrySet()) {
-    		System.out.println("\t-" + entry.getKey().toString() + ": " + entry.getValue().getName());
-    	}
     }
     
     private void removeScoreboard(Player player) {
@@ -476,8 +473,7 @@ public class Arena {
             Player p = Bukkit.getPlayer(id);
             p.removePotionEffect(PotionEffectType.SATURATION);
             p.teleport(getEndLocation());
-            p.getInventory().clear();
-            p.setLevel(0);
+           	restoreInventory(p);
             p.setPlayerListName(ChatColor.RESET + p.getName());
             p.setDisplayName(ChatColor.RESET + p.getName());
             removeScoreboard(p);
@@ -495,11 +491,10 @@ public class Arena {
         getPlayers().remove(p.getUniqueId());
         p.teleport(getEndLocation());
         p.removePotionEffect(PotionEffectType.SATURATION);
-        p.getInventory().clear();
+        restoreInventory(p);
         p.sendMessage(ChatColor.GREEN + "You have left the game and teleported to the start.");
         p.setPlayerListName(ChatColor.RESET + p.getName());
         p.setDisplayName(ChatColor.RESET + p.getName());
-        p.setLevel(0);
         removeScoreboard(p);
         if (bossBar != null) {
             bossBar.removePlayer(p);
@@ -507,7 +502,16 @@ public class Arena {
         updateSigns();
     }
 
-    public boolean isActivated() {
+    private void restoreInventory(Player p) {
+    	p.getInventory().clear();
+    	try {
+			Main.inventoryManager.restoreInventory(p);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	public boolean isActivated() {
         return activated;
     }
 

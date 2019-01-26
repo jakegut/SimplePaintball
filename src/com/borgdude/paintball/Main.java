@@ -3,8 +3,7 @@ package com.borgdude.paintball;
 import com.borgdude.paintball.commands.GunCommand;
 import com.borgdude.paintball.commands.PaintballCommand;
 import com.borgdude.paintball.events.EventClass;
-import com.borgdude.paintball.managers.ArenaManager;
-import com.borgdude.paintball.managers.PaintballManager;
+import com.borgdude.paintball.managers.*;
 import com.borgdude.paintball.objects.Arena;
 import com.borgdude.paintball.objects.guns.*;
 
@@ -21,12 +20,14 @@ public class Main extends JavaPlugin {
     public static Main plugin;
     public static ArenaManager arenaManager;
     public static PaintballManager paintballManager;
+    public static InventoryManager inventoryManager;
 
     @Override
     public void onEnable(){
         plugin = this;
         Metrics metrics = new Metrics(this);
         saveDefaultConfig();
+        inventoryManager = new InventoryManager(this);
         paintballManager = new PaintballManager();
         paintballManager.registerGun(new Admin());
         paintballManager.registerGun(new Sniper());
