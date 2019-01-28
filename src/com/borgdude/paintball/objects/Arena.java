@@ -35,6 +35,7 @@ public class Arena {
     private ArrayList<Sign> signs;
     private ArenaState arenaState;
     private Set<UUID> players;
+    private Set<UUID> spectators;
     private HashMap<UUID, Integer> kills;
     private int timer;
     private BossBar bossBar;
@@ -49,6 +50,7 @@ public class Arena {
     public Arena(String name, Main plugin) {
         this.title = name;
         players = new HashSet<>();
+        setSpectators(new HashSet<>());
         kills = new HashMap<>();
         arenaState = ArenaState.WAITING_FOR_PLAYERS;
         signs = new ArrayList<>();
@@ -479,10 +481,17 @@ public class Arena {
             removeScoreboard(p);
         }
         
+        for (UUID id : getSpectators()) {
+        	Player p = Bukkit.getPlayer(id);
+        	p.teleport(getEndLocation());
+        	p.setGameMode(GameMode.ADVENTURE);
+        }
+        
         removeBossbar();
         
         getGunKits().clear();
         getPlayers().clear();
+        getSpectators().clear();
     }
 
     public void removePlayerInGame(Player p) {
@@ -605,7 +614,15 @@ public class Arena {
     }
 
 
-    public HashMap<UUID, Integer> getKills() {
+    public Set<UUID> getSpectators() {
+		return spectators;
+	}
+
+	public void setSpectators(Set<UUID> spectators) {
+		this.spectators = spectators;
+	}
+
+	public HashMap<UUID, Integer> getKills() {
         return kills;
     }
 

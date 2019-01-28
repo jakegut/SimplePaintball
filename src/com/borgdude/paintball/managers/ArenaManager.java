@@ -58,6 +58,23 @@ public class ArenaManager {
         addLobbyItems(player);
         a.checkToStart();
     }
+    
+	public void addSpectatorToArena(Player player, Arena a) {
+		if(getPlayerArena(player) != null) {
+			player.sendMessage("You're already playing in an anrea. Leave first: /pb leave");
+			return;
+		}
+		
+		if(getSpectatorArena(player) != null) {
+			player.sendMessage("You're already spectating. Leave first: /pb leave");
+			return;
+		}
+		
+		player.setGameMode(GameMode.SPECTATOR);
+		a.getSpectators().add(player.getUniqueId());
+		player.teleport(a.getBlueTeam().getRandomLocation());
+		player.sendMessage(ChatColor.GREEN + "You are spectating arena: " + ChatColor.AQUA + a.getTitle());
+	}
 
     private void addLobbyItems(Player player){
         ItemStack is = new ItemStack(Material.WHITE_BED);
@@ -79,7 +96,10 @@ public class ArenaManager {
         Arena a = getPlayerArena(player);
 
         if(a == null){
-            player.sendMessage("You're not in an arena.");
+        	if(removeSpectatorFromArena(player)) {}
+        	else {
+        		player.sendMessage("You're not in an arena.");
+        	}
             return;
         }
 
@@ -97,6 +117,19 @@ public class ArenaManager {
             return;
         }
 
+    }
+    
+    public boolean removeSpectatorFromArena(Player player) {
+    	Arena a = getSpectatorArena(player);
+    	
+    	if(a == null) return false;
+    	
+    	player.teleport(a.getEndLocation());
+    	a.getSpectators().remove(player.getUniqueId());
+    	player.setGameMode(GameMode.ADVENTURE);
+    	
+    	return true;
+    	
     }
 
     private void restorePlayerData(Player player) throws IOException {
@@ -116,6 +149,19 @@ public class ArenaManager {
 
         return null;
     }
+	
+	public Arena getSpectatorArena(Player player) {
+		UUID pUUID = player.getUniqueId();
+		
+		for(Arena a : arenas){
+			for(UUID id : a.getSpectators()) {
+				if(id.equals(pUUID))
+					return a;
+			}
+		}
+		
+		return null;
+	}
 
     public Arena getArenaByTitle(String title){
         for(Arena a : arenas){

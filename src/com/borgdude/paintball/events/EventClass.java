@@ -355,7 +355,12 @@ public class EventClass implements Listener {
                 if (a == null) {
                     p.sendMessage(ChatColor.RED + "That arena wasn't found?!");
                 } else {
-                    Bukkit.dispatchCommand(p, "pb join " + a.getTitle());
+                	if(!a.getArenaState().equals(ArenaState.IN_GAME)) {
+                        Bukkit.dispatchCommand(p, "pb join " + a.getTitle());
+                	} else {
+                		Bukkit.dispatchCommand(p, "pb spectate " + a.getTitle());
+                	}
+
                 }
             }
         }

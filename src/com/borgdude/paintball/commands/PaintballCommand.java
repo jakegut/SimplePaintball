@@ -3,6 +3,8 @@ package com.borgdude.paintball.commands;
 import com.borgdude.paintball.Main;
 import com.borgdude.paintball.managers.ArenaManager;
 import com.borgdude.paintball.objects.Arena;
+import com.borgdude.paintball.objects.ArenaState;
+
 import net.md_5.bungee.api.ChatColor;
 
 import java.io.IOException;
@@ -177,6 +179,29 @@ public class PaintballCommand implements CommandExecutor {
                             idx++;
                         }
                     }
+                } else if (args[0].equalsIgnoreCase("spectate")) {
+                	if(args.length < 2 || args[1].length() < 2){
+                        player.sendMessage(ChatColor.RED + "Usage: /pb spectate <title>");
+                        return true;
+                    }
+                	
+                	Arena a = this.arenaManager.getArenaByTitle(args[1]);
+
+                    if (a == null) {
+                        player.sendMessage(ChatColor.RED + "No arena found with the name: " + ChatColor.YELLOW +
+                                args[1]);
+                        return true;
+                    } else if (!a.isActivated()){
+                        player.sendMessage(ChatColor.RED + "This arena is not activated: " + ChatColor.YELLOW +
+                                args[1]);
+                        return true;
+                    } else if (!a.getArenaState().equals(ArenaState.IN_GAME)) {
+                    	player.sendMessage(ChatColor.RED + "This arena is not in game: " + ChatColor.YELLOW +
+                                args[1]);
+                    	return true;
+                    }
+                    Main.arenaManager.addSpectatorToArena(player, a);
+                    return true;
                 }
 
             }
