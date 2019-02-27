@@ -18,6 +18,10 @@ import org.bukkit.entity.Player;
 public class PaintballCommand implements CommandExecutor {
 
     private ArenaManager arenaManager = Main.arenaManager;
+    
+    private void sendHelpCommand(Player p, String command, String description) {
+    	p.sendMessage(ChatColor.GREEN + command + ChatColor.BLUE + " - " + description);
+    }
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String s, String[] args){
@@ -130,6 +134,37 @@ public class PaintballCommand implements CommandExecutor {
                             a.setActivated(player);
                             return true;
                         }
+                    } else if (args[0].equalsIgnoreCase("reset")) {
+                    	Arena a = this.arenaManager.getCurrentlyEditing(player);
+
+                        if(a == null){
+                            player.sendMessage(ChatColor.RED + "You need to be editing an arena: /pb edit <title>");
+                            return true;
+                        }
+
+
+                        if(args.length < 2 || args[1].length() < 2){
+                            player.sendMessage(ChatColor.RED + "Usage: /pb reset <blue | red>");
+                            return true;
+                        }
+                        
+                        String changedTeam = "?????";
+                        
+                        if(args[1].equalsIgnoreCase("red")) {
+                        	a.getRedTeam().getSpawnLocations().clear();
+                        	
+                        	changedTeam = ChatColor.RED + "Red Team";
+                        } else if(args[1].equalsIgnoreCase("blue")){
+                            a.getBlueTeam().getSpawnLocations().clear();
+                            
+                            changedTeam = ChatColor.BLUE + "Blue Team";
+                        }
+                        
+                        a.setActivated(false);
+                        player.sendMessage(ChatColor.GREEN + "The spawn locations for " + changedTeam +
+                    			ChatColor.GREEN + " have been cleared and the arena has been " + ChatColor.YELLOW + "deactivated." +
+                    			ChatColor.GREEN + "Please add red spawns and run " + ChatColor.YELLOW + "/pb set activate " + ChatColor.GREEN + "when ready");
+                        return true;
                     }
                 }
 
@@ -202,6 +237,22 @@ public class PaintballCommand implements CommandExecutor {
                     }
                     Main.arenaManager.addSpectatorToArena(player, a);
                     return true;
+                } else if (args[0].equalsIgnoreCase("help")) {
+                	player.sendMessage(ChatColor.YELLOW + "--- Simple Paintball Commands ---");
+                	sendHelpCommand(player, "/pb join <title>", "Join an arena with a given title");
+                	sendHelpCommand(player, "/pb spectate <title>", "Spectate an arena that's in-game");
+                	sendHelpCommand(player, "/pb list", "A list of all of the arenas you're able to join or spectate");
+                	if(player.hasPermission("paintball.admin")) {
+                		player.sendMessage(ChatColor.RED + "Admin Commands ---");
+                		sendHelpCommand(player, "/pb create <title>", "Create an arena with a given title");
+                		sendHelpCommand(player, "/pb edit <title>", "Edit an arena with a given title");
+                		sendHelpCommand(player, "/pb set <red | blue>", "Add a blue or red spawn to your currently editing arena");
+                		sendHelpCommand(player, "/pb set end", "Set the location of where to teleport when the game ends");
+                		sendHelpCommand(player, "/pb set lobby", "Set the location of where to teleport when players wait for the game to start");
+                		sendHelpCommand(player, "/pb set activate", "Activate the arena for players to join, must have set all teleport locations first");
+                		sendHelpCommand(player, "/pb reset <red | blue>", "Reset the locations of the red/blue spawns. This will deactivate the arean");
+                	}
+                	return true;
                 }
 
             }

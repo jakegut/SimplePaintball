@@ -171,6 +171,7 @@ public class EventClass implements Listener {
 	        	final Player player = event.getPlayer();
 	        	
 	        	Bukkit.dispatchCommand(player, "pb leave");
+	        	event.setCancelled(true);
             } else{
             	Player player = event.getPlayer();
             	Arena arena = this.arenaManager.getPlayerArena(player);

@@ -1,7 +1,6 @@
 package com.borgdude.paintball;
 
-import com.borgdude.paintball.commands.GunCommand;
-import com.borgdude.paintball.commands.PaintballCommand;
+import com.borgdude.paintball.commands.*;
 import com.borgdude.paintball.events.EventClass;
 import com.borgdude.paintball.managers.*;
 import com.borgdude.paintball.objects.Arena;
@@ -38,6 +37,7 @@ public class Main extends JavaPlugin {
         arenaManager.getArenas();
         getCommand("gun").setExecutor(new GunCommand());
         getCommand("pb").setExecutor(new PaintballCommand());
+        getCommand("pb").setTabCompleter(new PaintballCompleter());
         getServer().getPluginManager().registerEvents(new EventClass(), this);
         getServer().getConsoleSender().sendMessage(ChatColor.GREEN + "PaintBall Enabled");
     }

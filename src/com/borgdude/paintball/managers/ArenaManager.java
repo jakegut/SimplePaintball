@@ -34,6 +34,17 @@ public class ArenaManager {
     public ArrayList<Arena> getArena(){
         return arenas;
     }
+    
+    public ArrayList<Arena> getActivatedArenas(){
+    	ArrayList<Arena> r = new ArrayList<>();
+    	
+    	for(Arena a : getArena())
+    		if(a.isActivated())
+    			r.add(a);
+    	
+    	return r;
+    	
+    }
 
     public void addPlayerToArena(Player player, Arena a) throws IOException{
         if(getPlayerArena(player) != null){
@@ -108,6 +119,7 @@ public class ArenaManager {
         } else {
             player.sendMessage(ChatColor.YELLOW + "You have left the arena.");
             player.teleport(a.getEndLocation());
+            player.setGameMode(Bukkit.getDefaultGameMode());
             restorePlayerData(player);
             a.getPlayers().remove(player.getUniqueId());
             if(a.getBossBar() != null){
@@ -268,16 +280,19 @@ public class ArenaManager {
             plugin.getConfig().set(path + ".min-players", a.getMinPlayers());
             LocationUtil.saveLocation(path + ".end-location", a.getEndLocation(), plugin);
             LocationUtil.saveLocation(path + ".lobby-location", a.getLobbyLocation(), plugin);
+            plugin.getConfig().set(path + ".blue-spawns", null);
             int i = 0;
             for(Location loc : a.getBlueTeam().getSpawnLocations()){
                 LocationUtil.saveLocation(path + ".blue-spawns." + String.valueOf(i), loc, plugin);
                 i++;
             }
+            plugin.getConfig().set(path + ".red-spawns", null);
             i = 0;
             for(Location loc : a.getRedTeam().getSpawnLocations()){
                 LocationUtil.saveLocation(path + ".red-spawns." + String.valueOf(i), loc, plugin);
                 i++;
             }
+            plugin.getConfig().set(path + ".signs", null);
             i = 0;
             for(Sign s : a.getSigns()){
                 LocationUtil.saveLocation(path + ".signs." + String.valueOf(i), s.getLocation(), plugin);

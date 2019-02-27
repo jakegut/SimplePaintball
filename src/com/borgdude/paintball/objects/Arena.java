@@ -484,7 +484,7 @@ public class Arena {
         for (UUID id : getSpectators()) {
         	Player p = Bukkit.getPlayer(id);
         	p.teleport(getEndLocation());
-        	p.setGameMode(GameMode.ADVENTURE);
+        	p.setGameMode(Bukkit.getDefaultGameMode());
         }
         
         removeBossbar();
@@ -499,6 +499,7 @@ public class Arena {
         team.getMembers().remove(p.getUniqueId());
         getPlayers().remove(p.getUniqueId());
         p.teleport(getEndLocation());
+        p.setGameMode(Bukkit.getDefaultGameMode());
         p.removePotionEffect(PotionEffectType.SATURATION);
         restoreInventory(p);
         p.sendMessage(ChatColor.GREEN + "You have left the game and teleported to the start.");

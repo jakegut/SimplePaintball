@@ -2,7 +2,7 @@ author: Borgdude
 description: "Simple Paintball"
 main: com.borgdude.paintball.Main
 name: Simple_PaintBall
-version: "0.2.1"
+version: "0.2.2"
 api-version: 1.13
 
 commands:
@@ -11,7 +11,7 @@ commands:
     usage: /<command>
   pb:
     description: Commands
-    usage: /<command> <option>
+    usage: /<command> <options> | /pb help - more info
 
 permissions:
   paintball.admin:
