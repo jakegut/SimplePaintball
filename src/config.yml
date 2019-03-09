@@ -1,1 +1,6 @@
 game-time: 240
+In-Game:
+  Kills: "Kills"
+  Killed: "killed"
+Economy:
+  Reward-Team: 100

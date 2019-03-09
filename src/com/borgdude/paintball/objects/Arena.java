@@ -4,6 +4,8 @@ import com.borgdude.paintball.Main;
 import com.borgdude.paintball.managers.PaintballManager;
 
 import net.md_5.bungee.api.ChatColor;
+import net.milkbowl.vault.economy.EconomyResponse;
+
 import org.bukkit.*;
 import org.bukkit.block.Sign;
 import org.bukkit.boss.BarColor;
@@ -236,7 +238,7 @@ public class Arena {
 
                 setTimer(getTimer() - 1);
 
-                if (getTimer() % 60 == 0) {
+                if (getTimer() % 60 == 0 && getTimer() != 0) {
                     for (UUID id : getPlayers()) {
                         Bukkit.getServer().getPlayer(id).sendMessage(ChatColor.GREEN + "There are " + ChatColor.AQUA +
                                 String.valueOf(getTimer() / 60) + " minutes " + ChatColor.GREEN + "left.");
@@ -271,13 +273,13 @@ public class Arena {
 
                 org.bukkit.scoreboard.Team blueKillCounter = board.registerNewTeam("blueKillCounter");
                 blueKillCounter.addEntry(ChatColor.BLACK + "" + ChatColor.BLUE + "");
-                blueKillCounter.setPrefix("Blue kills: "  + "0");
+                blueKillCounter.setPrefix("Blue " + plugin.getConfig().getString("In-Game.Kills").toLowerCase() + ": "  + "0");
 
                 obj.getScore(ChatColor.BLACK + "" + ChatColor.BLUE + "").setScore(15);
 
                 org.bukkit.scoreboard.Team redTeamCounter = board.registerNewTeam("redKillCounter");
                 redTeamCounter.addEntry(ChatColor.BLACK + "" + ChatColor.RED + "");
-                redTeamCounter.setPrefix("Red kills: " + "0");
+                redTeamCounter.setPrefix("Red " + plugin.getConfig().getString("In-Game.Kills").toLowerCase() + ": " + "0");
 
                 obj.getScore(ChatColor.BLACK + "" + ChatColor.RED + "").setScore(14);
 
@@ -299,9 +301,9 @@ public class Arena {
                     if (p != null){
                         Scoreboard board = p.getScoreboard();
 
-                        board.getTeam("blueKillCounter").setPrefix("Blue kills: " + String.valueOf(blueKills));
+                        board.getTeam("blueKillCounter").setPrefix("Blue " + plugin.getConfig().getString("In-Game.Kills").toLowerCase() + ": " + String.valueOf(blueKills));
 
-                        board.getTeam("redKillCounter").setPrefix("Red kills: " + String.valueOf(redKills));
+                        board.getTeam("redKillCounter").setPrefix("Red "+ plugin.getConfig().getString("In-Game.Kills").toLowerCase() + ": " + String.valueOf(redKills));
                     }
                 }
             }
@@ -357,6 +359,13 @@ public class Arena {
             }
             ItemStack is = gun.getInGameItem();
             p.getInventory().addItem(is);
+            
+            // Add leave bed
+            ItemStack bed = new ItemStack(Material.WHITE_BED);
+            ItemMeta im = bed.getItemMeta();
+            im.setDisplayName(ChatColor.AQUA + "Leave Arena");
+            bed.setItemMeta(im);
+            p.getInventory().setItem(9, bed);
 
             Team team = getPlayerTeam(p);
             p.teleport(team.getRandomLocation());
@@ -410,6 +419,36 @@ public class Arena {
         setArenaState(ArenaState.WAITING_FOR_PLAYERS);
         updateSigns();
     }
+    
+    public void awardWinners(Team team) {
+    	if(Main.econ == null) return;
+    	
+    	int amount = plugin.getConfig().getInt("Economy.Reward-Team");
+    	
+    	if(amount == 0) return;
+    	
+    	if(team == null) {
+    		for (UUID id : getPlayers()) {
+                Player p = Bukkit.getPlayer(id);
+                EconomyResponse r = Main.econ.depositPlayer(p, amount/2);
+                if(r.transactionSuccess()) {
+                    p.sendMessage(String.format("You were given %s and now have %s", Main.econ.format(r.amount), Main.econ.format(r.balance)));
+                } else {
+                    p.sendMessage(String.format("An error occured: %s", r.errorMessage));
+                }
+            }
+    	} else {
+    		for (UUID id : team.getMembers()) {
+    			Player p = Bukkit.getPlayer(id);
+                EconomyResponse r = Main.econ.depositPlayer(p, amount);
+                if(r.transactionSuccess()) {
+                    p.sendMessage(String.format("You were given %s and now have %s", Main.econ.format(r.amount), Main.econ.format(r.balance)));
+                } else {
+                    p.sendMessage(String.format("An error occured: %s", r.errorMessage));
+                }
+    		}
+    	}
+    }
 
     public void announceWinner(Team team) {
         if (team.equals(blueTeam)) {
@@ -417,14 +456,14 @@ public class Arena {
             for (UUID id : getPlayers()) {
                 Player p = Bukkit.getPlayer(id);
                 p.sendMessage(ChatColor.BLUE + "Blue " + ChatColor.GREEN + " wins by default with " + ChatColor.BLUE +
-                        bKills + " kills!");
+                        bKills + " " + plugin.getConfig().getString("In-Game.Kills").toLowerCase() + "!");
             }
         } else if (team.equals(redTeam)) {
             int rKills = getTotalTeamKills(redTeam);
             for (UUID id : getPlayers()) {
                 Player p = Bukkit.getPlayer(id);
                 p.sendMessage(ChatColor.RED + "Red " + ChatColor.GREEN + " wins by default with " + ChatColor.RED +
-                        rKills + " kills!");
+                        rKills +  " " + plugin.getConfig().getString("In-Game.Kills").toLowerCase() + "!");
             }
         } else {
             return;
@@ -434,18 +473,22 @@ public class Arena {
     public void announceWinner() {
         int bKills = getTotalTeamKills(blueTeam);
         int rKills = getTotalTeamKills(redTeam);
+        Team winningTeam = null;
         for (UUID id : getPlayers()) {
             Player p = Bukkit.getPlayer(id);
             if (bKills > rKills) {
                 p.sendMessage(ChatColor.BLUE + "Blue team " + ChatColor.GREEN + "won with " + ChatColor.BLUE +
-                        bKills + " kills");
+                        bKills + " " + plugin.getConfig().getString("In-Game.Kills").toLowerCase() + ".");
+                winningTeam = blueTeam;
             } else if (bKills == rKills) {
-                p.sendMessage(ChatColor.AQUA + "It was a tie with: " + bKills + " kills.");
+                p.sendMessage(ChatColor.AQUA + "It was a tie with: " + bKills + " " + plugin.getConfig().getString("In-Game.Kills").toLowerCase() + ".");
             } else {
                 p.sendMessage(ChatColor.RED + "Red team " + ChatColor.GREEN + "won with " + ChatColor.RED +
-                        rKills + " kills");
+                        rKills + " " + plugin.getConfig().getString("In-Game.Kills").toLowerCase() + ".");
+                winningTeam = redTeam;
             }
         }
+        awardWinners(winningTeam);
     }
 
 //    private void removeScoreboard(){
@@ -492,12 +535,14 @@ public class Arena {
         getGunKits().clear();
         getPlayers().clear();
         getSpectators().clear();
+        getKills().clear();
     }
 
     public void removePlayerInGame(Player p) {
         Team team = getPlayerTeam(p);
         team.getMembers().remove(p.getUniqueId());
         getPlayers().remove(p.getUniqueId());
+        getKills().remove(p.getUniqueId());
         p.teleport(getEndLocation());
         p.setGameMode(Bukkit.getDefaultGameMode());
         p.removePotionEffect(PotionEffectType.SATURATION);

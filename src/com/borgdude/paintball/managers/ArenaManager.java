@@ -261,6 +261,8 @@ public class ArenaManager {
                         Block b = w.getBlockAt(loc);
                         if (b.getType() == Material.SIGN || b.getType() == Material.WALL_SIGN) {
                             signs.add((Sign) b.getState());
+                        } else {
+                        	
                         }
                     }
                     a.setSigns(signs);

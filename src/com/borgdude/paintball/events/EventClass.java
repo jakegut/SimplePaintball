@@ -270,7 +270,7 @@ public class EventClass implements Listener {
                             ChatColor ch = cs.equals(ChatColor.BLUE) ? ChatColor.RED : ChatColor.BLUE;
                             for(UUID id : shooterA.getPlayers()){
                                 Player p = Bukkit.getServer().getPlayer(id);
-                                p.sendMessage(cs + shooter.getName() + ChatColor.GREEN + " killed " +
+                                p.sendMessage(cs + shooter.getName() + ChatColor.GREEN + " " + plugin.getConfig().getString("In-Game.Killed").toLowerCase() + " " +
                                         ch + hit.getName());
                             }
                         }

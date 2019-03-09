@@ -26,7 +26,6 @@ public class PaintballCompleter implements TabCompleter {
 				list.add("spectate");
 				list.add("leave");
 				if(sender.hasPermission("paintball.admin")) {
-//					list.addAll(Arrays.asList("create", "set", "reset", "edit"));
 					list.add("create");
 					list.add("set");
 					list.add("reset");

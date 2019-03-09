@@ -69,7 +69,7 @@ public class Sniper implements Gun{
 
 	@Override
 	public String getName() {
-		return "Regular";
+		return "Sniper";
 	}
 
 }

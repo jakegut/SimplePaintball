@@ -4,7 +4,7 @@
   <groupId>SimplePaintball</groupId>
   <artifactId>SimplePaintball</artifactId>
   <name>SimplePaintball</name>
-  <version>0.2.2</version>
+  <version>0.2.3</version>
   <organization>
     <name>Jake Gutierrez</name>
     <url>jakerg.me</url>
@@ -82,6 +82,10 @@
       <id>bstats-repo</id>
       <url>http://repo.bstats.org/content/repositories/releases/</url>
     </repository>
+    <repository>
+      <id>vault-repo</id>
+      <url>http://nexus.hc.to/content/repositories/pub_releases</url>
+    </repository>
   </repositories>
   <dependencies>
     <dependency>
@@ -143,6 +147,12 @@
           <groupId>org.yaml</groupId>
         </exclusion>
       </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>net.milkbowl.vault</groupId>
+      <artifactId>VaultAPI</artifactId>
+      <version>1.7</version>
+      <scope>provided</scope>
     </dependency>
   </dependencies>
 </project>
