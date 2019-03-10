@@ -63,7 +63,7 @@ public class ArenaManager {
         player.getInventory().clear();
         player.setExp(0);
         player.setLevel(0);
-        a.setGunKit(player, paintballManager.getGunByName("Regular"));
+        a.setGunKit(player, paintballManager.getGunByName("Sniper"));
         player.sendMessage(ChatColor.GREEN + "You have joined arena: " + ChatColor.AQUA + a.getTitle());
         player.setGameMode(GameMode.ADVENTURE);
         addLobbyItems(player);
