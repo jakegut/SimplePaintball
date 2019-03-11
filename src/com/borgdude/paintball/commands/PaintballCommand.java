@@ -163,8 +163,32 @@ public class PaintballCommand implements CommandExecutor {
                         a.setActivated(false);
                         player.sendMessage(ChatColor.GREEN + "The spawn locations for " + changedTeam +
                     			ChatColor.GREEN + " have been cleared and the arena has been " + ChatColor.YELLOW + "deactivated." +
-                    			ChatColor.GREEN + "Please add red spawns and run " + ChatColor.YELLOW + "/pb set activate " + ChatColor.GREEN + "when ready");
+                    			ChatColor.GREEN + "Please add blue/red spawns and run " + ChatColor.YELLOW + "/pb set activate " + ChatColor.GREEN + "when ready");
                         return true;
+                    } else if (args[0].equalsIgnoreCase("start")) {
+                    	
+                    	Arena a = null;
+                    	if(args.length < 2) {
+                    		a = this.arenaManager.getPlayerArena(player);
+                    		if(a == null) {
+                    			player.sendMessage(ChatColor.RED + "You're not in an arena, please join an arena or specify an arena (/pb start [title]");
+                    			return true;
+                    		}
+                    	} else {
+                    		a = this.arenaManager.getArenaByTitle(args[1]);
+                    		if(a == null) {
+                    			player.sendMessage(ChatColor.RED + "Arena " + ChatColor.YELLOW + args[1] + ChatColor.RED + " not found.");
+                    			return true;
+                    		}
+                    	}
+                    	
+                    	if(a.getArenaState().equals(ArenaState.STARTING)) {
+                			if(a.getTimer() > 5)
+                				a.setTimer(5);
+                		} else {
+                			player.sendMessage(ChatColor.RED + "Arena needs to be in a state of starting to force start.");
+                		}
+                		return true;
                     }
                 }
 

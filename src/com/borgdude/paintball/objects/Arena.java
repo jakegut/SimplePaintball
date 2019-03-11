@@ -165,7 +165,7 @@ public class Arena {
         if (getPlayers().size() >= minPlayers) {
             Bukkit.getConsoleSender().sendMessage("Starting arena " + getTitle());
             setArenaState(ArenaState.STARTING);
-            setTotalTime(60);
+            setTotalTime(getLobbyTime());
             BukkitRunnable runnable = new BukkitRunnable() {
                 @Override
                 public void run() {
@@ -177,7 +177,7 @@ public class Arena {
                         cancel();
                     }
 
-                    if (getTimer() % 10 == 0) {
+                    if (getTimer() % 5 == 0) {
                         for (UUID id : getPlayers()) {
                             Player p = Bukkit.getPlayer(id);
                             if (p != null) {
@@ -204,7 +204,16 @@ public class Arena {
         }
     }
 
-    public void startGame() {
+    private int getLobbyTime() {
+		int time = plugin.getConfig().getInt("lobby-time");
+		if(time <= 5) {
+			time = 60;
+			System.out.println("Invalid lobby time, please configure an integer greater than 5");
+		}
+		return time;
+	}
+
+	public void startGame() {
         setArenaState(ArenaState.IN_GAME);
         assignTeams();
         blueTeam.giveArmor(Color.BLUE);
@@ -213,7 +222,7 @@ public class Arena {
         generateKills();
         setListNames();
         setGameScoreboard();
-        setTotalTime(plugin.getConfig().getInt("game-time"));
+        setTotalTime(getGameTime());
         BukkitRunnable runnable = new BukkitRunnable() {
             @Override
             public void run() {
@@ -262,7 +271,16 @@ public class Arena {
         runnable.runTaskTimer(this.plugin, 20, 20);
     }
 
-    private void setGameScoreboard(){
+    private int getGameTime() {
+		int time = plugin.getConfig().getInt("game-time");
+		if(time < 30) {
+			time = 240;
+			System.out.println("Invalid game time, please configure an integer greater than 30");
+		}
+		return time;
+	}
+
+	private void setGameScoreboard(){
         for(UUID id : getPlayers()){
             Player p = Bukkit.getPlayer(id);
             if (p != null){
