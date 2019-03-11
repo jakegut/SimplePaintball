@@ -6,6 +6,7 @@ import com.borgdude.paintball.managers.PaintballManager;
 import net.md_5.bungee.api.ChatColor;
 import net.milkbowl.vault.economy.EconomyResponse;
 
+import org.bstats.bukkit.Metrics;
 import org.bukkit.*;
 import org.bukkit.block.Sign;
 import org.bukkit.boss.BarColor;
@@ -24,6 +25,7 @@ import org.bukkit.scoreboard.Scoreboard;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.Callable;
 
 public class Arena {
 
@@ -215,6 +217,7 @@ public class Arena {
 
 	public void startGame() {
         setArenaState(ArenaState.IN_GAME);
+        addMetrics();
         assignTeams();
         blueTeam.giveArmor(Color.BLUE);
         redTeam.giveArmor(Color.RED);
@@ -271,7 +274,11 @@ public class Arena {
         runnable.runTaskTimer(this.plugin, 20, 20);
     }
 
-    private int getGameTime() {
+    private void addMetrics() {
+    	Main.metrics.addCustomChart(new Metrics.SingleLineChart("games_played", () -> {return 1;} ));
+    }
+
+	private int getGameTime() {
 		int time = plugin.getConfig().getInt("game-time");
 		if(time < 30) {
 			time = 240;
@@ -549,6 +556,24 @@ public class Arena {
         }
         
         removeBossbar();
+        
+        Main.metrics.addCustomChart(new Metrics.AdvancedPie("guns_used", new Callable<Map<String,Integer>>() {
+			
+			@Override
+			public Map<String, Integer> call() throws Exception {
+				Map<String, Integer> valueMap = new HashMap<>();
+				for(Gun gun : getGunKits().values()) {
+					String name = gun.getName();
+					if(valueMap.containsKey(name)) {
+						int v = valueMap.get(name);
+						valueMap.put(name, v + 1);
+					} else {
+						valueMap.put(name, 1);
+					}
+				}
+				return valueMap;
+			}
+		}));
         
         getGunKits().clear();
         getPlayers().clear();
