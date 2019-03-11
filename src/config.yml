@@ -1,5 +1,7 @@
 game-time: 240
 lobby-time: 60
+Gameplay:
+  Spawn-Time: 3
 In-Game:
   Kills: "Kills"
   Killed: "killed"

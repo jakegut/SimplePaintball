@@ -49,9 +49,11 @@ public class EventClass implements Listener {
     private ArenaManager arenaManager = Main.arenaManager;
     private PaintballManager paintballManager = Main.paintballManager;
     private Main plugin = Main.plugin;
+    private int spawnTime;
 
     public EventClass(){
         super();
+        spawnTime = plugin.getConfig().getInt("Gameplay.Spawn-Time");
     }
     
     public void runTimer(final Player player, float fireRate) {
@@ -128,7 +130,6 @@ public class EventClass implements Listener {
                 boolean nameEquals = isNamedItem(eventItem, gunItem.getItemMeta().getDisplayName());
                 if(typeEquals && nameEquals ){
                 	paintballManager.getCooldown().put(player, gun.getCooldown());
-                    System.out.println("Attempting to fire: " + gun.getName());
                     gun.fire(event.getPlayer());
                     runTimer(event.getPlayer(), (float) gun.getCooldown());
                     break;
@@ -254,10 +255,14 @@ public class EventClass implements Listener {
                 Team shooterTeam = shooterA.getPlayerTeam(shooter);
                 Team hitTeam = shooterA.getPlayerTeam(hit);
                 if(!(shooterTeam.equals(hitTeam))){
+                	if(hitA.getSpawnTimer().containsKey(hit.getUniqueId())) return;
+                	
                     int prevKills = shooterA.getKills().get(shooter.getUniqueId());
                     shooterA.getKills().replace(shooter.getUniqueId(), prevKills + 1);
                     shooter.setLevel(prevKills + 1);
-
+                    
+                    
+                    hitA.addSpawnTime(hit, spawnTime);
                     hit.teleport(hitTeam.getRandomLocation());
                     hit.playSound(hit.getLocation(), Sound.ITEM_SHIELD_BREAK, 2, 0.5f);
 

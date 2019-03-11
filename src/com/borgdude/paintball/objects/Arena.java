@@ -48,6 +48,7 @@ public class Arena {
     private boolean activated;
     private Scoreboard board;
     private HashMap<UUID, Gun> gunKits;
+    private HashMap<UUID, Integer> spawnTimer = null;
     
     private PaintballManager paintballManger = Main.paintballManager;
 
@@ -59,6 +60,7 @@ public class Arena {
         arenaState = ArenaState.WAITING_FOR_PLAYERS;
         signs = new ArrayList<>();
         setGunKits(new HashMap<>());
+        setSpawnTimer(new HashMap<>());
         this.plugin = plugin;
     }
 
@@ -261,7 +263,8 @@ public class Arena {
                                 String.valueOf(getTimer()) + " seconds" + ChatColor.GREEN + " left.");
                     }
                 }
-
+                
+                decreaseSpawnTime();
                 updateBossbar();
 
                 if (getTimer() == 0) {
@@ -269,12 +272,26 @@ public class Arena {
                     cancel();
                 }
             }
+
         };
 
         runnable.runTaskTimer(this.plugin, 20, 20);
     }
 
-    private void addMetrics() {
+    private void decreaseSpawnTime() {
+		for(Map.Entry<UUID, Integer> entry : getSpawnTimer().entrySet()) {
+			int time = entry.getValue() - 1;
+			if(time < 0) {
+				getSpawnTimer().remove(entry.getKey());
+				Bukkit.getPlayer(entry.getKey()).sendMessage(ChatColor.YELLOW + "You're not protected anymore");
+			}
+			else
+				getSpawnTimer().replace(entry.getKey(), time);
+		}
+		
+	}
+
+	private void addMetrics() {
     	Main.metrics.addCustomChart(new Metrics.SingleLineChart("games_played", () -> {return 1;} ));
     }
 
@@ -767,5 +784,21 @@ public class Arena {
 
 	public void setGunKits(HashMap<UUID, Gun> gunKits) {
 		this.gunKits = gunKits;
+	}
+
+	public HashMap<UUID, Integer> getSpawnTimer() {
+		return spawnTimer;
+	}
+
+	public void setSpawnTimer(HashMap<UUID, Integer> spawnTimer) {
+		this.spawnTimer = spawnTimer;
+	}
+	
+	public void addSpawnTime(Player p, int time) {
+		if(getSpawnTimer().containsKey(p.getUniqueId()))
+			return;
+		
+		getSpawnTimer().put(p.getUniqueId(), time);
+		p.sendMessage(ChatColor.YELLOW + "You're protected for " + ChatColor.RED + time + ChatColor.YELLOW + " seconds");
 	}
 }
