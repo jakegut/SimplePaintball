@@ -30,8 +30,9 @@ public class PaintballCompleter implements TabCompleter {
 					list.add("set");
 					list.add("reset");
 					list.add("edit");
+					list.add("start");
 				}
-				return list;				
+				return getListSorted(args[0], list);				
 			}
 			
 			if(args.length == 2) {
@@ -40,7 +41,7 @@ public class PaintballCompleter implements TabCompleter {
 					return this.getArenaSorted(args[1]);
 				}
 				if(sender.hasPermission("paintball.admin")) {
-					if(arg.equalsIgnoreCase("edit"))
+					if(arg.equalsIgnoreCase("edit") || arg.equalsIgnoreCase("start"))
 						return this.getArenaSorted(args[1]);
 					if(arg.equalsIgnoreCase("set"))
 						return Arrays.asList("lobby", "end", "blue", "red", "activate");
@@ -65,6 +66,24 @@ public class PaintballCompleter implements TabCompleter {
         } else {
             for(Arena ar : arenaManager.getArena()){
                 r.add(ar.getTitle());
+            }   
+        }
+        Collections.sort(r);
+
+        return r;
+	}
+	
+	private List<String> getListSorted(String s, List<String> list){
+		ArrayList<String> r = new ArrayList<>();
+
+        if(!s.equals("")){
+            for(String str : list){
+                if(str.startsWith(s))
+                    r.add(str);
+            }
+        } else {
+            for(String str : list){
+                r.add(str);
             }   
         }
         Collections.sort(r);
