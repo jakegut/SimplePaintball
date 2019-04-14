@@ -230,6 +230,7 @@ public class ArenaManager {
                 a.setLobbyLocation(LocationUtil.getLocationWithDirection(path + ".lobby-location", plugin));
                 a.setMaxPlayers(plugin.getConfig().getInt(path + ".max-players"));
                 a.setMinPlayers(plugin.getConfig().getInt(path + ".min-players"));
+                a.checkMinMax();
                 a.setActivated(true);
                 ConfigurationSection blueTeam = plugin.getConfig().getConfigurationSection(path + ".blue-spawns");
                 if(blueTeam != null){

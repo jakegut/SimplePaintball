@@ -9,6 +9,7 @@ import net.md_5.bungee.api.ChatColor;
 
 import java.io.IOException;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -29,6 +30,10 @@ public class PaintballCommand implements CommandExecutor {
             Player player = (Player) sender;
 
             if(command.getName().equalsIgnoreCase("pb")){
+            	if(args.length <= 0) {
+            		Bukkit.dispatchCommand(player, "pb help");
+            		return true;
+            	}
                 if(player.hasPermission("paintball.admin")){
                     if(args[0].equalsIgnoreCase("create")){
                         if(args.length < 2 || args[1].length() < 2){
@@ -80,13 +85,14 @@ public class PaintballCommand implements CommandExecutor {
 
                             int max = Integer.valueOf(args[2]);
 
-                            if(max < a.getMaxPlayers()){
+                            if(max < a.getMinPlayers()){
                                 player.sendMessage(ChatColor.RED + "Invalid number...try again");
                                 return true;
                             } else {
                                 a.setMaxPlayers(max);
-                                player.sendMessage(ChatColor.GREEN + "Set max number to: " + max + "For arena: " +
+                                player.sendMessage(ChatColor.GREEN + "Set max number to: " + max + " for arena: " +
                                         a.getTitle());
+                                a.updateSigns();
                                 return true;
                             }
                         } else if(args[1].equalsIgnoreCase("min")){
@@ -95,12 +101,12 @@ public class PaintballCommand implements CommandExecutor {
 
                             int min = Integer.valueOf(args[2]);
 
-                            if(min < 2){
+                            if(min < 2 || min > a.getMaxPlayers()){
                                 player.sendMessage(ChatColor.RED + "Invalid number...try again");
                                 return true;
                             } else {
                                 a.setMinPlayers(min);
-                                player.sendMessage(ChatColor.GREEN + "Set min number to: " + min + "For arena: " +
+                                player.sendMessage(ChatColor.GREEN + "Set min number to: " + min + " for arena: " +
                                         a.getTitle());
                                 return true;
                             }
@@ -189,6 +195,13 @@ public class PaintballCommand implements CommandExecutor {
                 			player.sendMessage(ChatColor.RED + "Arena needs to be in a state of starting to force start.");
                 		}
                 		return true;
+                    } else if (args[0].equalsIgnoreCase("reload")) {
+                    	player.sendMessage(ChatColor.YELLOW + "Starting reload...");
+                    	Main.plugin.reloadConfig();
+                    	arenaManager.getArenas();
+                    	arenaManager.saveArenas();
+                    	player.sendMessage(ChatColor.YELLOW + "Reload finished.");
+                    	return true;
                     }
                 }
 
@@ -271,6 +284,7 @@ public class PaintballCommand implements CommandExecutor {
                 		sendHelpCommand(player, "/pb create <title>", "Create an arena with a given title");
                 		sendHelpCommand(player, "/pb edit <title>", "Edit an arena with a given title");
                 		sendHelpCommand(player, "/pb set <red | blue>", "Add a blue or red spawn to your currently editing arena");
+                		sendHelpCommand(player, "/pb set <min | max>", "Set the minimum or maximum number of players of an arena");
                 		sendHelpCommand(player, "/pb set end", "Set the location of where to teleport when the game ends");
                 		sendHelpCommand(player, "/pb set lobby", "Set the location of where to teleport when players wait for the game to start");
                 		sendHelpCommand(player, "/pb set activate", "Activate the arena for players to join, must have set all teleport locations first");

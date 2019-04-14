@@ -801,4 +801,17 @@ public class Arena {
 		getSpawnTimer().put(p.getUniqueId(), time);
 		p.sendMessage(ChatColor.YELLOW + "You're protected for " + ChatColor.RED + time + ChatColor.YELLOW + " seconds");
 	}
+
+	public void checkMinMax() {
+		if(getMinPlayers() < 2 || getMinPlayers() > getMaxPlayers()) {
+			Bukkit.getServer().getConsoleSender().sendMessage("Value for min players for " + getTitle() + " is invalid, setting to 2");
+			setMinPlayers(2);
+		}
+		
+		if(getMaxPlayers() < getMinPlayers()) {
+			Bukkit.getServer().getConsoleSender().sendMessage("Value for max players for " + getTitle() + " is invalid, setting to 10");
+			setMaxPlayers(10);
+		}
+		
+	}
 }
