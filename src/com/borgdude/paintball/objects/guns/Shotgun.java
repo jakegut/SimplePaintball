@@ -1,6 +1,7 @@
 package com.borgdude.paintball.objects.guns;
 
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -15,8 +16,6 @@ import com.borgdude.paintball.Main;
 import com.borgdude.paintball.managers.PaintballManager;
 import com.borgdude.paintball.objects.Gun;
 import com.borgdude.paintball.utils.MathUtil;
-
-import net.md_5.bungee.api.ChatColor;
 
 public class Shotgun implements Gun {
 	

@@ -5,11 +5,10 @@ import com.borgdude.paintball.managers.ArenaManager;
 import com.borgdude.paintball.objects.Arena;
 import com.borgdude.paintball.objects.ArenaState;
 
-import net.md_5.bungee.api.ChatColor;
-
 import java.io.IOException;
 
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;

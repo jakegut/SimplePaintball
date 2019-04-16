@@ -3,7 +3,6 @@ package com.borgdude.paintball.objects;
 import com.borgdude.paintball.Main;
 import com.borgdude.paintball.managers.PaintballManager;
 
-import net.md_5.bungee.api.ChatColor;
 import net.milkbowl.vault.economy.EconomyResponse;
 
 import org.bstats.bukkit.Metrics;

@@ -4,7 +4,7 @@ import com.borgdude.paintball.Main;
 import com.borgdude.paintball.managers.PaintballManager;
 import com.borgdude.paintball.objects.Gun;
 
-import net.md_5.bungee.api.ChatColor;
+import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;

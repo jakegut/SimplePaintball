@@ -1,5 +1,6 @@
 package com.borgdude.paintball.objects.guns;
 
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
@@ -12,7 +13,6 @@ import org.bukkit.util.Vector;
 import com.borgdude.paintball.Main;
 import com.borgdude.paintball.managers.PaintballManager;
 import com.borgdude.paintball.objects.Gun;
-import net.md_5.bungee.api.ChatColor;
 
 public class Sniper implements Gun{
 	

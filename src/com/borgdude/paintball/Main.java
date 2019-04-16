@@ -6,11 +6,11 @@ import com.borgdude.paintball.managers.*;
 import com.borgdude.paintball.objects.Arena;
 import com.borgdude.paintball.objects.guns.*;
 
-import net.md_5.bungee.api.ChatColor;
 import net.milkbowl.vault.economy.Economy;
 
 import org.bstats.bukkit.Metrics;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
