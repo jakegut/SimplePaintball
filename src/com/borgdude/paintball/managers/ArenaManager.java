@@ -13,6 +13,7 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import java.io.IOException;
 import java.util.*;
@@ -66,7 +67,7 @@ public class ArenaManager {
         a.setGunKit(player, paintballManager.getGunByName("Sniper"));
         player.sendMessage(ChatColor.GREEN + "You have joined arena: " + ChatColor.AQUA + a.getTitle());
         player.setGameMode(GameMode.ADVENTURE);
-        addLobbyItems(player);
+        addLobbyItems(player, a);
         a.checkToStart();
     }
     
@@ -87,20 +88,29 @@ public class ArenaManager {
 		player.sendMessage(ChatColor.GREEN + "You are spectating arena: " + ChatColor.AQUA + a.getTitle());
 	}
 
-    private void addLobbyItems(Player player){
-        ItemStack is = new ItemStack(Material.WHITE_BED);
-        ItemMeta im = is.getItemMeta();
-        im.setDisplayName(ChatColor.AQUA + "Leave Arena");
-        is.setItemMeta(im);
-        player.getInventory().setItem(2, is);
-        
-        int i = 3;
-        for(Gun gun : paintballManager.getGuns()) {
-        	ItemStack lobbyItem = gun.getLobbyItem();
-        	if (lobbyItem == null) continue;
-        	player.getInventory().setItem(i, lobbyItem);
-        	i++;
-        }
+    private void addLobbyItems(Player player, Arena a){
+    	// This runnable is to place lobby items after 10 ticks as other plugins may
+        // clear inventory 5 ticks after they TP to another world
+    	new BukkitRunnable() {
+    		public void run() {
+    			if(a.getArenaState().equals(ArenaState.IN_GAME)) return;
+    			
+    			ItemStack is = new ItemStack(Material.WHITE_BED);
+    	        ItemMeta im = is.getItemMeta();
+    	        im.setDisplayName(ChatColor.AQUA + "Leave Arena");
+    	        is.setItemMeta(im);
+    	        player.getInventory().setHeldItemSlot(2);
+    	        player.getInventory().setItem(2, is);
+    	        
+    	        int i = 3;
+    	        for(Gun gun : paintballManager.getGuns()) {
+    	        	ItemStack lobbyItem = gun.getLobbyItem();
+    	        	if (lobbyItem == null) continue;
+    	        	player.getInventory().setItem(i, lobbyItem);
+    	        	i++;
+    	        }
+    		}
+    	}.runTaskLater(plugin, 10);
     }
 
     public void removePlayerFromArena(Player player) throws IOException{
@@ -138,7 +148,7 @@ public class ArenaManager {
     	
     	player.teleport(a.getEndLocation());
     	a.getSpectators().remove(player.getUniqueId());
-    	player.setGameMode(GameMode.ADVENTURE);
+    	player.setGameMode(Bukkit.getDefaultGameMode());
     	
     	return true;
     	

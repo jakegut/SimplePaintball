@@ -563,6 +563,7 @@ public class Arena {
             p.setPlayerListName(ChatColor.RESET + p.getName());
             p.setDisplayName(ChatColor.RESET + p.getName());
             removeScoreboard(p);
+        	p.setGameMode(Bukkit.getDefaultGameMode());
         }
         
         for (UUID id : getSpectators()) {

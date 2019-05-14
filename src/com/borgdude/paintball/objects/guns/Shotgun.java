@@ -53,7 +53,7 @@ public class Shotgun implements Gun {
         Snowball snowball = null;
         Vector velocity = null;
         
-        for (int i = 0; i < 3; i++) { //Set i to 0 and as long as it is less than 5 add one to it then run the loop
+        for (int i = 0; i < 4; i++) { //Set i to 0 and as long as it is less than 5 add one to it then run the loop
             snowball = player.launchProjectile(Snowball.class); //set the snowball variable
             velocity = player.getLocation().getDirection().multiply(1.2); //set the velocity variable
             velocity.add(MathUtil.getRandomVector(accuracy)); //set it's modified velocity
@@ -67,31 +67,30 @@ public class Shotgun implements Gun {
 
 	@Override
 	public void onHit(Player player, Snowball ball) {
-		Vector s = ball.getVelocity().normalize().multiply(0.5);
-		Block hitBlock = ball.getLocation().add(s).getBlock();
+//		Vector s = ball.getVelocity().normalize().multiply(0.5);
+//		Block hitBlock = ball.getLocation().add(s).getBlock();
 //		System.out.println(hitBlock.getLocation().toString());
 //		System.out.println(hitBlock.getType().toString());
-		Block landedBlock = ball.getLocation().getBlock();
+//		Block landedBlock = ball.getLocation().getBlock();
 //		System.out.println(landedBlock.getLocation().toString());
 //		System.out.println(landedBlock.getType().toString());
-		Vector n = landedBlock.getLocation().subtract(hitBlock.getLocation()).toVector().normalize();
-		System.out.println(n.toString());
-		Double d = 2 * n.dot(ball.getVelocity());
-		System.out.println(d);
-		Vector a = n.multiply(d);
-		Vector r = ball.getVelocity().subtract(a);
-		
-		System.out.println(r.toString());
-		
-		Snowball nb = player.getWorld().spawn(ball.getLocation(), Snowball.class);
-		nb.setVelocity(r);
-		
-		Bukkit.getConsoleSender().sendMessage(n.toString());
+//		Vector n = landedBlock.getLocation().subtract(hitBlock.getLocation()).toVector().normalize();
+//		System.out.println(n.toString());
+//		Double d = 2 * n.dot(ball.getVelocity());
+//		System.out.println(d);
+//		Vector a = n.multiply(d);
+//		Vector r = ball.getVelocity().subtract(a);
+//		
+//		System.out.println(r.toString());
+//		
+//		Snowball nb = player.getWorld().spawn(ball.getLocation(), Snowball.class);
+//		nb.setVelocity(r);
+//		
+//		Bukkit.getConsoleSender().sendMessage(n.toString());
 	}
 
 	@Override
 	public String getName() {
-		// TODO Auto-generated method stub
 		return "Shotgun";
 	}
 
