@@ -352,7 +352,7 @@ public class EventClass implements Listener {
 
         Player p = event.getPlayer();
         Block b = event.getClickedBlock();
-        if (b.getType() == Material.SIGN || b.getType() == Material.WALL_SIGN) {
+        if (b.getState() instanceof Sign) {
 
             Sign sign = (Sign) b.getState();
             if (ChatColor.stripColor(sign.getLine(0)).equalsIgnoreCase("[PaintBall]")) {

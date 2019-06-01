@@ -270,11 +270,8 @@ public class ArenaManager {
                         Location loc = LocationUtil.getLocationWithDirection(p, plugin);
                         World w = loc.getWorld();
                         Block b = w.getBlockAt(loc);
-                        if (b.getType() == Material.SIGN || b.getType() == Material.WALL_SIGN) {
+                        if (b.getState() instanceof Sign) 
                             signs.add((Sign) b.getState());
-                        } else {
-                        	
-                        }
                     }
                     a.setSigns(signs);
                 }
