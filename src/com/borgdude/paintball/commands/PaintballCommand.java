@@ -201,6 +201,26 @@ public class PaintballCommand implements CommandExecutor {
                     	arenaManager.saveArenas();
                     	player.sendMessage(ChatColor.YELLOW + "Reload finished.");
                     	return true;
+                    } else if (args[0].equalsIgnoreCase("info")) {
+                    	if(args.length < 2 || args[1].length() < 2){
+                            player.sendMessage(ChatColor.RED + "Usage: /pb info <title>");
+                            return true;
+                        }
+                    	
+                    	Arena arena = this.arenaManager.getArenaByTitle(args[1]);
+                    	
+                    	if(arena == null) {
+                    		player.sendMessage(ChatColor.RED + "Arena: " + ChatColor.YELLOW + args[1]
+                    				           + ChatColor.RED + " not found.");
+                            return true;
+                    	}
+                    	
+                    	sendArenaInfo(player, "Title", arena.getTitle());
+                    	sendArenaInfo(player, "Max Players", String.valueOf(arena.getMaxPlayers()));
+                    	sendArenaInfo(player, "Min Players", String.valueOf(arena.getMinPlayers()));
+                    	sendArenaInfo(player, "Number of signs", String.valueOf(arena.getSigns().size()));
+                    	sendArenaInfo(player, "Number of blue spawns", String.valueOf(arena.getBlueTeam().getSpawnLocations().size()));
+                    	sendArenaInfo(player, "Number of red spawns", String.valueOf(arena.getRedTeam().getSpawnLocations().size()));
                     }
                 }
 
@@ -296,4 +316,8 @@ public class PaintballCommand implements CommandExecutor {
         }
         return false;
     }
+
+	private void sendArenaInfo(Player p, String type, String info) {
+		p.sendMessage(ChatColor.BLUE + type + ": " + ChatColor.GREEN + info);
+	}
 }
