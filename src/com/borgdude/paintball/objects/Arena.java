@@ -7,7 +7,10 @@ import net.milkbowl.vault.economy.EconomyResponse;
 
 import org.bstats.bukkit.Metrics;
 import org.bukkit.*;
+import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
+import org.bukkit.block.data.BlockData;
+import org.bukkit.block.data.Directional;
 import org.bukkit.boss.BarColor;
 import org.bukkit.boss.BarFlag;
 import org.bukkit.boss.BarStyle;
@@ -15,6 +18,7 @@ import org.bukkit.boss.BossBar;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.material.MaterialData;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -153,19 +157,49 @@ public class Arena {
             s.setLine(1, ChatColor.GREEN + getTitle());
             s.setLine(2, ChatColor.RED + getArenaState().getFormattedName());
             s.setLine(3, String.valueOf(getPlayers().size()) + "/" + String.valueOf(getMaxPlayers()));
+            updateBlock(s);
             s.update(true);
 //            i++;
 //            Bukkit.getConsoleSender().sendMessage("Updated sign number " + i + "for arena " + getTitle());
         }
     }
 
-    public void checkToStart(){
+    private void updateBlock(Sign s) {
+    	BlockData d =  s.getBlockData();
+    	if (d instanceof Directional)
+        {
+            Directional directional = (Directional)d;
+            Block blockBehind = s.getBlock().getRelative(directional.getFacing().getOppositeFace());
+            blockBehind.setType(getMaterial());
+        }
+	}
+
+	private Material getMaterial() {
+		switch(getArenaState()) {
+		case ENDING:
+			return Material.GRAY_STAINED_GLASS;
+		case IN_GAME:
+			return Material.RED_STAINED_GLASS;
+		case RESTARTING:
+			return Material.PURPLE_STAINED_GLASS;
+		case STARTING:
+			return Material.CYAN_STAINED_GLASS;
+		case WAITING_FOR_PLAYERS:
+			return Material.GREEN_STAINED_GLASS;
+		default:
+			return Material.GLASS;
+		}
+	}
+
+	public void checkToStart(){
         if(arenaState.equals(ArenaState.STARTING))
             return;
 
         updateSigns();
 
-        if (getPlayers().size() >= minPlayers) {
+        System.out.println(title.equalsIgnoreCase("title"));
+        if (title.equalsIgnoreCase("title") || getPlayers().size() >= getMinPlayers()) {
+        	
             Bukkit.getConsoleSender().sendMessage("Starting arena " + getTitle());
             setArenaState(ArenaState.STARTING);
             setTotalTime(getLobbyTime());
@@ -174,7 +208,7 @@ public class Arena {
                 public void run() {
                     updateSigns();
 
-                    if (getPlayers().size() < minPlayers) {
+                    if (!title.equalsIgnoreCase("title") && getPlayers().size() < getMinPlayers()) {
                         setArenaState(ArenaState.WAITING_FOR_PLAYERS);
                         bossBar.setVisible(false);
                         cancel();
@@ -233,16 +267,6 @@ public class Arena {
 
                 updateSigns();
 
-                if (blueTeam.getMembers().size() == 0) {
-                    stopGame(redTeam);
-                    cancel();
-                }
-
-                if (redTeam.getMembers().size() == 0) {
-                    stopGame(blueTeam);
-                    cancel();
-                }
-
                 if (getTimer() == getTotalTime()) {
                     for (UUID id : getPlayers()) {
                         Bukkit.getServer().getPlayer(id).sendMessage(ChatColor.GREEN + "Game has started!");
@@ -265,8 +289,19 @@ public class Arena {
                 
                 decreaseSpawnTime();
                 updateBossbar();
+                
 
-                if (getTimer() == 0) {
+                if (blueTeam.getMembers().size() == 0) {
+                    stopGame(redTeam);
+                    cancel();
+                }
+
+                if (redTeam.getMembers().size() == 0) {
+                    stopGame(blueTeam);
+                    cancel();
+                }
+
+                if (getTimer() <= 0) {
                     stopGame();
                     cancel();
                 }
