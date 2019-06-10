@@ -1,6 +1,8 @@
 package com.borgdude.paintball;
 
 import com.borgdude.paintball.commands.*;
+import com.borgdude.paintball.database.Database;
+import com.borgdude.paintball.database.SQLite;
 import com.borgdude.paintball.events.EventClass;
 import com.borgdude.paintball.managers.*;
 import com.borgdude.paintball.objects.Arena;
@@ -26,6 +28,8 @@ public class Main extends JavaPlugin {
 	public static ArenaManager arenaManager;
 	public static PaintballManager paintballManager;
 	public static InventoryManager inventoryManager;
+	
+	public static Database db;
 
 	public static Metrics metrics = null;
 	public static Economy econ = null;
@@ -40,6 +44,8 @@ public class Main extends JavaPlugin {
 		if (!setupEconomy()) {
 			getServer().getConsoleSender().sendMessage(ChatColor.YELLOW + "Vault Economy Disapled");
 		}
+		setDb(new SQLite(this));
+		db.load();
 		inventoryManager = new InventoryManager(this);
 		paintballManager = new PaintballManager();
 		paintballManager.registerGun(new Admin());
@@ -94,5 +100,13 @@ public class Main extends JavaPlugin {
 		reloadConfig();
 		arenaManager.saveArenas();
 		getServer().getConsoleSender().sendMessage(ChatColor.RED + "PaintBall Disabled");
+	}
+
+	public Database getDb() {
+		return db;
+	}
+
+	public void setDb(Database db) {
+		this.db = db;
 	}
 }

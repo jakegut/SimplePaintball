@@ -2,6 +2,7 @@ package com.borgdude.paintball.objects;
 
 import com.borgdude.paintball.Main;
 import com.borgdude.paintball.managers.PaintballManager;
+import com.borgdude.paintball.utils.PaintballPlayer;
 
 import net.milkbowl.vault.economy.EconomyResponse;
 
@@ -42,6 +43,7 @@ public class Arena {
     private ArrayList<Sign> signs;
     private ArenaState arenaState;
     private Set<UUID> players;
+    private HashMap<UUID, PaintballPlayer> pbPlayers;
     private Set<UUID> spectators;
     private HashMap<UUID, Integer> kills;
     private int timer;
@@ -64,6 +66,7 @@ public class Arena {
         signs = new ArrayList<>();
         setGunKits(new HashMap<>());
         setSpawnTimer(new HashMap<>());
+        pbPlayers = new HashMap<>();
         this.plugin = plugin;
     }
 
@@ -476,6 +479,7 @@ public class Arena {
         setArenaState(ArenaState.RESTARTING);
         updateSigns();
         announceWinner(team);
+        setStats(team);
         kickPlayers();
         blueTeam.getMembers().clear();
         redTeam.getMembers().clear();
@@ -484,10 +488,41 @@ public class Arena {
         updateSigns();
     }
 
-    public void stopGame() {
+    private void setStats(Team team) {
+		Set<UUID> playersCopy = new HashSet<>(players);
+		HashMap<UUID, Integer> killsCopy = new HashMap<>(kills);
+		ArrayList<UUID> teamMembers = (team != null) ? new ArrayList<>(team.getMembers()) : null;
+
+		
+		BukkitRunnable runnable = new BukkitRunnable() {
+            @Override
+            public void run() {
+            	for(UUID id : playersCopy) {
+            		int kills = killsCopy.get(id);
+            		int oldKills = plugin.getDb().getKills(id);
+            		int newKills = kills + oldKills;
+            		
+            		int wins = 0;
+            		int oldWins = plugin.getDb().getWins(id);
+            		if(teamMembers != null && teamMembers.contains(id))
+            			wins = 1;
+            		
+            		int newWins = wins + oldWins;
+            		
+            		plugin.getDb().setTokens(id, newKills, newWins);
+            	}
+            }
+        };
+        
+        runnable.runTaskAsynchronously(this.plugin);
+		
+	}
+
+	public void stopGame() {
         setArenaState(ArenaState.RESTARTING);
         updateSigns();
         announceWinner();
+        setStats(null);
         kickPlayers();
         blueTeam.getMembers().clear();
         redTeam.getMembers().clear();
@@ -639,7 +674,6 @@ public class Arena {
         getPlayers().remove(p.getUniqueId());
         getKills().remove(p.getUniqueId());
         p.teleport(getEndLocation());
-        p.setGameMode(Bukkit.getDefaultGameMode());
         p.removePotionEffect(PotionEffectType.SATURATION);
         restoreInventory(p);
         p.sendMessage(ChatColor.GREEN + "You have left the game and teleported to the start.");
@@ -654,11 +688,8 @@ public class Arena {
 
     private void restoreInventory(Player p) {
     	p.getInventory().clear();
-    	try {
-			Main.inventoryManager.restoreInventory(p);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+    	pbPlayers.get(p.getUniqueId()).setInfo();
+    	pbPlayers.remove(p.getUniqueId());
 	}
 
 	public boolean isActivated() {
@@ -848,5 +879,23 @@ public class Arena {
 			setMaxPlayers(10);
 		}
 		
+	}
+
+	public void addPlayer(Player player) {
+		getPlayers().add(player.getUniqueId());
+		pbPlayers.put(player.getUniqueId(), new PaintballPlayer(player));
+	}
+
+	public void removePlayer(Player player) {
+        player.sendMessage(ChatColor.YELLOW + "You have left the arena.");
+        player.teleport(getEndLocation());
+        player.getInventory().clear();
+        pbPlayers.get(player.getUniqueId()).setInfo();
+        pbPlayers.remove(player.getUniqueId());
+        getPlayers().remove(player.getUniqueId());
+        if(getBossBar() != null){
+            getBossBar().removePlayer(player);
+        }
+        updateSigns();
 	}
 }

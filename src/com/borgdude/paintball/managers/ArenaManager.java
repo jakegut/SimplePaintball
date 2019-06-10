@@ -59,8 +59,9 @@ public class ArenaManager {
         }
 
         player.teleport(a.getLobbyLocation());
-        a.getPlayers().add(player.getUniqueId());
-        Main.inventoryManager.saveInventory(player);
+        a.addPlayer(player);
+//        a.getPlayers().add(player.getUniqueId());
+//        Main.inventoryManager.saveInventory(player);
         player.getInventory().clear();
         player.setExp(0);
         player.setLevel(0);
@@ -127,15 +128,7 @@ public class ArenaManager {
         if(a.getArenaState().equals(ArenaState.IN_GAME)){
             a.removePlayerInGame(player);
         } else {
-            player.sendMessage(ChatColor.YELLOW + "You have left the arena.");
-            player.teleport(a.getEndLocation());
-            player.setGameMode(Bukkit.getDefaultGameMode());
-            restorePlayerData(player);
-            a.getPlayers().remove(player.getUniqueId());
-            if(a.getBossBar() != null){
-                a.getBossBar().removePlayer(player);
-            }
-            a.updateSigns();
+        	a.removePlayer(player);
             return;
         }
 
@@ -156,7 +149,7 @@ public class ArenaManager {
 
     private void restorePlayerData(Player player) throws IOException {
     	player.getInventory().clear();
-		Main.inventoryManager.restoreInventory(player);
+//		Main.inventoryManager.restoreInventory(player);
 	}
 
 	public Arena getPlayerArena(Player player){
