@@ -4,7 +4,7 @@
   <groupId>SimplePaintball</groupId>
   <artifactId>SimplePaintball</artifactId>
   <name>SimplePaintball</name>
-  <version>0.2.5</version>
+  <version>0.2.6</version>
   <organization>
     <name>Jake Gutierrez</name>
     <url>jakerg.me</url>
@@ -91,7 +91,7 @@
     <dependency>
       <groupId>org.spigotmc</groupId>
       <artifactId>spigot-api</artifactId>
-      <version>1.14.1-R0.1-SNAPSHOT</version>
+      <version>1.14.2-R0.1-SNAPSHOT</version>
       <scope>provided</scope>
       <exclusions>
         <exclusion>
@@ -119,7 +119,7 @@
     <dependency>
       <groupId>org.bukkit</groupId>
       <artifactId>bukkit</artifactId>
-      <version>1.14.1-R0.1-SNAPSHOT</version>
+      <version>1.14.2-R0.1-SNAPSHOT</version>
       <scope>provided</scope>
       <exclusions>
         <exclusion>

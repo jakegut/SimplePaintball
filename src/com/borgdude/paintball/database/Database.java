@@ -4,6 +4,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.UUID;
 import java.util.logging.Level;
 
@@ -38,11 +40,9 @@ public abstract class Database {
             plugin.getLogger().log(Level.SEVERE, "Unable to retreive connection", ex);
         }
     }
-
-    // These are the methods you can use to get things out of your database. You of course can make new ones to return different things in the database.
-    // This returns the number of people the player killed.
-    public Integer getKills(UUID uuid) {
-        Connection conn = null;
+    
+    public Integer getIntColumn(UUID uuid, String column) {
+    	Connection conn = null;
         PreparedStatement ps = null;
         ResultSet rs = null;
         try {
@@ -52,7 +52,7 @@ public abstract class Database {
             rs = ps.executeQuery();
             while(rs.next()){
                 if(rs.getString("player_id").equalsIgnoreCase(uuid.toString())){ // Tell database to search for the player you sent into the method. e.g getTokens(sam) It will look for sam.
-                    return rs.getInt("kills"); // Return the players ammount of kills. If you wanted to get total (just a random number for an example for you guys) You would change this to total!
+                    return rs.getInt(column); // Return the players ammount of kills. If you wanted to get total (just a random number for an example for you guys) You would change this to total!
                 }
             }
         } catch (SQLException ex) {
@@ -69,20 +69,33 @@ public abstract class Database {
         }
         return 0;
     }
+
+    // These are the methods you can use to get things out of your database. You of course can make new ones to return different things in the database.
+    // This returns the number of people the player killed.
+    public Integer getKills(UUID uuid) {
+        return getIntColumn(uuid, "kills");
+    }
     // Exact same method here, Except as mentioned above i am looking for total!
     public Integer getWins(UUID uuid) {
-        Connection conn = null;
+    	return getIntColumn(uuid, "wins");
+    }
+    
+    public List<PlayerStats> getTop(String column, int limit){
+    	List<PlayerStats> stats = new LinkedList<>();
+    	
+    	Connection conn = null;
         PreparedStatement ps = null;
         ResultSet rs = null;
+        
         try {
             conn = getSQLConnection();
-            ps = conn.prepareStatement("SELECT * FROM " + table + " WHERE player_id = '"+uuid.toString()+"';");
+            ps = conn.prepareStatement("SELECT * FROM " + table + " ORDER BY ? DESC LIMIT ?;");
+            ps.setString(1, column);
+            ps.setInt(2, limit);
    
             rs = ps.executeQuery();
             while(rs.next()){
-                if(rs.getString("player_id").equalsIgnoreCase(uuid.toString())){
-                    return rs.getInt("wins");
-                }
+                stats.add(new PlayerStats(UUID.fromString(rs.getString("player_id")), rs.getInt("kills"), rs.getInt("wins")));
             }
         } catch (SQLException ex) {
             plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionExecute(), ex);
@@ -96,7 +109,16 @@ public abstract class Database {
                 plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionClose(), ex);
             }
         }
-        return 0;
+        
+        return stats;
+    }
+    
+    public List<PlayerStats> getTopKills(int limit){
+    	return getTop("kills", limit);
+    }
+    
+    public List<PlayerStats> getTopWins(int limit){
+    	return getTop("wins", limit);
     }
 
 // Now we need methods to save things to the database

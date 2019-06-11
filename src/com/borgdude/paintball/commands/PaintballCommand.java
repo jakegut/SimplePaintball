@@ -1,11 +1,13 @@
 package com.borgdude.paintball.commands;
 
 import com.borgdude.paintball.Main;
+import com.borgdude.paintball.database.PlayerStats;
 import com.borgdude.paintball.managers.ArenaManager;
 import com.borgdude.paintball.objects.Arena;
 import com.borgdude.paintball.objects.ArenaState;
 
 import java.io.IOException;
+import java.util.List;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -293,11 +295,45 @@ public class PaintballCommand implements CommandExecutor {
                     }
                     Main.arenaManager.addSpectatorToArena(player, a);
                     return true;
+                } else if(args[0].equalsIgnoreCase("leaderboard") || args[0].equalsIgnoreCase("lb")) {
+                	if(!Main.plugin.getConfig().getBoolean("Stats.Track")) {
+                		player.sendMessage(ChatColor.YELLOW + "This command is disabled in the config");
+                		return true;
+                	}
+                	
+                	if(args.length < 2 || args[1].length() < 2){
+                        player.sendMessage(ChatColor.RED + "Usage: /pb leaderboard <wins | kills>");
+                        return true;
+                    }
+                	
+                	if(args[1].equalsIgnoreCase("wins")) {
+                		player.sendMessage(ChatColor.BLUE + " --- " + ChatColor.GREEN + "Top 10 Wins" + ChatColor.BLUE + " --- ");
+                		List<PlayerStats> stats = Main.db.getTopWins(10);
+                		int i = 1;
+                		for(PlayerStats stat : stats) {
+                			player.sendMessage(ChatColor.GREEN + String.valueOf(i++) + ". " + ChatColor.BLUE + Bukkit.getPlayer(stat.id).getName() + ": " + ChatColor.GREEN + stat.wins + " wins");
+                		}
+                		return true;
+                	} else if (args[1].equalsIgnoreCase("kills")) {
+                		player.sendMessage(ChatColor.BLUE + " --- " + ChatColor.GREEN + "Top 10 Kills" + ChatColor.BLUE + " --- ");
+                		List<PlayerStats> stats = Main.db.getTopWins(10);
+                		int i = 1;
+                		for(PlayerStats stat : stats) {
+                			player.sendMessage(ChatColor.GREEN + String.valueOf(i++) + ". " + ChatColor.BLUE + Bukkit.getPlayer(stat.id).getName() + ": " + ChatColor.GREEN + stat.kills + " kills");
+                		}
+                		return true;
+                	} else {
+                		 player.sendMessage(ChatColor.RED + "Usage: /pb leaderboard <wins | kills>");
+                         return true;
+                	}
+                	
+                	
                 } else if (args[0].equalsIgnoreCase("help")) {
                 	player.sendMessage(ChatColor.YELLOW + "--- Simple Paintball Commands ---");
                 	sendHelpCommand(player, "/pb join <title>", "Join an arena with a given title");
                 	sendHelpCommand(player, "/pb spectate <title>", "Spectate an arena that's in-game");
                 	sendHelpCommand(player, "/pb list", "A list of all of the arenas you're able to join or spectate");
+                	sendHelpCommand(player, "/pb leaderboard < kills | wins >", "Get the top 10 players by wins or kills");
                 	if(player.hasPermission("paintball.admin")) {
                 		player.sendMessage(ChatColor.RED + "Admin Commands ---");
                 		sendHelpCommand(player, "/pb create <title>", "Create an arena with a given title");

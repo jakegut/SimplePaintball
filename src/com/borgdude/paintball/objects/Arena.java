@@ -229,7 +229,7 @@ public class Arena {
                     updateBossbar();
                     setTimer(getTimer() - 1);
 
-                    if (getTimer() == 0) {
+                    if (getTimer() <= 0) {
                         startGame();
                         cancel();
                     }

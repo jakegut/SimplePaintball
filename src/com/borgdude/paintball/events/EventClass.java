@@ -261,7 +261,6 @@ public class EventClass implements Listener {
                     shooterA.getKills().replace(shooter.getUniqueId(), prevKills + 1);
                     shooter.setLevel(prevKills + 1);
                     
-                    
                     hitA.addSpawnTime(hit, spawnTime);
                     hit.teleport(hitTeam.getRandomLocation());
                     hit.playSound(hit.getLocation(), Sound.ITEM_SHIELD_BREAK, 2, 0.5f);

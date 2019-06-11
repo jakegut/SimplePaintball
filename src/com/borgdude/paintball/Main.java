@@ -42,10 +42,14 @@ public class Main extends JavaPlugin {
 		saveDefaultConfig();
 		matchConfig();
 		if (!setupEconomy()) {
-			getServer().getConsoleSender().sendMessage(ChatColor.YELLOW + "Vault Economy Disapled");
+			getServer().getConsoleSender().sendMessage(ChatColor.YELLOW + "Vault Economy Disabled");
 		}
-		setDb(new SQLite(this));
-		db.load();
+		if(getConfig().getBoolean("Stats.Track")) {
+			setDb(new SQLite(this));
+			db.load();
+		} else {
+			getServer().getConsoleSender().sendMessage(ChatColor.YELLOW + "Simple Paintball Stats Disabled");
+		}
 		inventoryManager = new InventoryManager(this);
 		paintballManager = new PaintballManager();
 		paintballManager.registerGun(new Admin());

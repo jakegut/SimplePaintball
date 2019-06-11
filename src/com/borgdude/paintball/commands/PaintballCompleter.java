@@ -25,6 +25,8 @@ public class PaintballCompleter implements TabCompleter {
 				list.add("join");
 				list.add("spectate");
 				list.add("leave");
+				list.add("leaderboard");
+				list.add("lb");
 				if(sender.hasPermission("paintball.admin")) {
 					list.add("create");
 					list.add("set");
@@ -39,6 +41,9 @@ public class PaintballCompleter implements TabCompleter {
 				String arg = args[0];
 				if(arg.equalsIgnoreCase("join") || arg.equalsIgnoreCase("spectate")) {
 					return this.getArenaSorted(args[1]);
+				}
+				if(arg.equalsIgnoreCase("leaderboard") || arg.equalsIgnoreCase("lb")) {
+					return Arrays.asList("wins", "kills");
 				}
 				if(sender.hasPermission("paintball.admin")) {
 					if(arg.equalsIgnoreCase("edit") || arg.equalsIgnoreCase("start"))

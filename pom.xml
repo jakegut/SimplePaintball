@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>SimplePaintball</groupId>
 	<artifactId>SimplePaintball</artifactId>
-	<version>0.2.5</version>
+	<version>0.2.6</version>
 	<name>SimplePaintball</name>
 	<build>
 		<sourceDirectory>src</sourceDirectory>
@@ -61,7 +61,7 @@
 						<phase>package</phase>
 						<configuration>
 							<tasks>
-								<copy file="target/SimplePaintball-0.2.5.jar"
+								<copy file="target/SimplePaintball-0.2.6.jar"
 									todir="D:\1.14Dev\plugins" />
 							</tasks>
 						</configuration>
@@ -96,14 +96,14 @@
 		<dependency>
 			<groupId>org.spigotmc</groupId>
 			<artifactId>spigot-api</artifactId>
-			<version>1.14.1-R0.1-SNAPSHOT</version>
+			<version>1.14.2-R0.1-SNAPSHOT</version>
 			<scope>provided</scope>
 		</dependency>
 		<!--Bukkit API -->
 		<dependency>
 			<groupId>org.bukkit</groupId>
 			<artifactId>bukkit</artifactId>
-			<version>1.14.1-R0.1-SNAPSHOT</version>
+			<version>1.14.2-R0.1-SNAPSHOT</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
