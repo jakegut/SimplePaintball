@@ -520,8 +520,8 @@ public class Arena {
 	public void stopGame() {
         setArenaState(ArenaState.RESTARTING);
         updateSigns();
-        announceWinner();
-        setStats(null);
+        Team team = announceWinner();
+        setStats(team);
         kickPlayers();
         blueTeam.getMembers().clear();
         redTeam.getMembers().clear();
@@ -580,7 +580,7 @@ public class Arena {
         }
     }
 
-    public void announceWinner() {
+    public Team announceWinner() {
         int bKills = getTotalTeamKills(blueTeam);
         int rKills = getTotalTeamKills(redTeam);
         Team winningTeam = null;
@@ -599,6 +599,7 @@ public class Arena {
             }
         }
         awardWinners(winningTeam);
+        return winningTeam;
     }
 
 //    private void removeScoreboard(){
