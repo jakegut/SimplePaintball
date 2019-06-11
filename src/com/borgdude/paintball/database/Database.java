@@ -89,10 +89,9 @@ public abstract class Database {
         
         try {
             conn = getSQLConnection();
-            ps = conn.prepareStatement("SELECT * FROM " + table + " ORDER BY ? DESC LIMIT ?;");
-            ps.setString(1, column);
-            ps.setInt(2, limit);
-   
+            ps = conn.prepareStatement("SELECT * FROM " + table + " ORDER BY " + column + " DESC LIMIT ?;");
+            ps.setInt(1, limit);
+            
             rs = ps.executeQuery();
             while(rs.next()){
                 stats.add(new PlayerStats(UUID.fromString(rs.getString("player_id")), rs.getInt("kills"), rs.getInt("wins")));

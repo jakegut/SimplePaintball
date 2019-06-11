@@ -493,7 +493,6 @@ public class Arena {
 		HashMap<UUID, Integer> killsCopy = new HashMap<>(kills);
 		ArrayList<UUID> teamMembers = (team != null) ? new ArrayList<>(team.getMembers()) : null;
 
-		
 		BukkitRunnable runnable = new BukkitRunnable() {
             @Override
             public void run() {

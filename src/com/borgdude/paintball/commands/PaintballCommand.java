@@ -12,6 +12,7 @@ import java.util.List;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -296,7 +297,7 @@ public class PaintballCommand implements CommandExecutor {
                     Main.arenaManager.addSpectatorToArena(player, a);
                     return true;
                 } else if(args[0].equalsIgnoreCase("leaderboard") || args[0].equalsIgnoreCase("lb")) {
-                	if(!Main.plugin.getConfig().getBoolean("Stats.Track")) {
+                	if(!Main.plugin.getConfig().getBoolean("Stats.Track") || Main.db == null) {
                 		player.sendMessage(ChatColor.YELLOW + "This command is disabled in the config");
                 		return true;
                 	}
@@ -311,15 +312,16 @@ public class PaintballCommand implements CommandExecutor {
                 		List<PlayerStats> stats = Main.db.getTopWins(10);
                 		int i = 1;
                 		for(PlayerStats stat : stats) {
-                			player.sendMessage(ChatColor.GREEN + String.valueOf(i++) + ". " + ChatColor.BLUE + Bukkit.getPlayer(stat.id).getName() + ": " + ChatColor.GREEN + stat.wins + " wins");
+                			player.sendMessage(ChatColor.GREEN + String.valueOf(i++) + ". " + ChatColor.BLUE + stat.name + ": " + ChatColor.GREEN + stat.wins + " wins");
                 		}
                 		return true;
                 	} else if (args[1].equalsIgnoreCase("kills")) {
                 		player.sendMessage(ChatColor.BLUE + " --- " + ChatColor.GREEN + "Top 10 Kills" + ChatColor.BLUE + " --- ");
-                		List<PlayerStats> stats = Main.db.getTopWins(10);
+                		List<PlayerStats> stats = Main.db.getTopKills(10);
                 		int i = 1;
                 		for(PlayerStats stat : stats) {
-                			player.sendMessage(ChatColor.GREEN + String.valueOf(i++) + ". " + ChatColor.BLUE + Bukkit.getPlayer(stat.id).getName() + ": " + ChatColor.GREEN + stat.kills + " kills");
+                			System.out.println(stat);
+                			player.sendMessage(ChatColor.GREEN + String.valueOf(i++) + ". " + ChatColor.BLUE + stat.name + ": " + ChatColor.GREEN + stat.kills + " kills");
                 		}
                 		return true;
                 	} else {
