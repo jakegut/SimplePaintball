@@ -1,7 +1,9 @@
-# SimplePaintball
-Spigot 1.13 Paintball Plugin. Made with the idea that the Minecraft accounts are shared, therefore no stats.
+[![Join our Discord server](https://discordapp.com/api/guilds/547121273684099102/widget.png?style=shield)](https://discordapp.com/invite/FHTtyT5)
 
-Spigot Server must be version 1.13 due to the plugin now using the 1.13 API.
+# SimplePaintball
+Spigot 1.14 Paintball Plugin. Made with the idea that the Minecraft accounts are shared, therefore no stats.
+
+Compatible with 1.13 - 1.14.2
 
 ## Setup
 1. Have an arena map where players can't get out
