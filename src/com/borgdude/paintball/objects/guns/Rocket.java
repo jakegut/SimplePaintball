@@ -81,7 +81,10 @@ public class Rocket implements Gun {
                 
                 System.out.println(dis);
                 t = t.multiply(MathUtil.tanh(dis));
-                player.setVelocity(t.multiply(new Vector(0.5, 0.5, 0.5)));
+                if(player.getUniqueId().equals(n.getUniqueId()))
+                	player.setVelocity(t.multiply(new Vector(0.5, 0.5, 0.5)));
+                else
+                	player.setVelocity(t.multiply(new Vector(0.1, 0.1, 0.1)));
         	}
         }
         
