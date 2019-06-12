@@ -1,7 +1,7 @@
 [![Join our Discord server](https://discordapp.com/api/guilds/547121273684099102/widget.png?style=shield)](https://discordapp.com/invite/FHTtyT5)
 
 # SimplePaintball
-Spigot 1.14 Paintball Plugin. Made with the idea that the Minecraft accounts are shared, therefore no stats.
+Spigot 1.14 Paintball Plugin. Made with the idea that the Minecraft accounts are shared.
 
 Compatible with 1.13 - 1.14.2
 
