@@ -264,6 +264,8 @@ public class EventClass implements Listener {
                     hitA.addSpawnTime(hit, spawnTime);
                     hit.teleport(hitTeam.getRandomLocation());
                     hit.playSound(hit.getLocation(), Sound.ITEM_SHIELD_BREAK, 2, 0.5f);
+                    
+                    shooter.playSound(shooter.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 2, 1);
 
                     hitA.updateScoreboard();
 
