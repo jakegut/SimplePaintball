@@ -9,6 +9,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Snowball;
 import org.bukkit.inventory.ItemStack;
@@ -42,7 +43,7 @@ public class Rocket implements Gun {
 
     @Override
     public int getCooldown() {
-        return 35;
+        return 15;
     }
 
     @Override
@@ -52,8 +53,7 @@ public class Rocket implements Gun {
         Vector velocity = null;
 
         snowball = player.launchProjectile(Snowball.class); //set the snowball variable
-        velocity = player.getLocation().getDirection();//set the velocity variable
-//                velocity.add(new Vector(0.25, 0.12, 0.25));
+        velocity = player.getLocation().getDirection().multiply(1.2);//set the velocity variable
         snowball.setVelocity(velocity);
 
         player.getLocation().getWorld().playSound(player.getLocation(), Sound.ENTITY_FIREWORK_ROCKET_LARGE_BLAST, 2, 0.5f);
@@ -68,7 +68,23 @@ public class Rocket implements Gun {
         }
     	
         player.getLocation().getWorld().playSound(ball.getLocation(), Sound.ENTITY_GENERIC_EXPLODE, 1f, 1.25f);
-
+        
+        
+        for(Entity e : ball.getNearbyEntities(12, 12, 12)) {
+        	if(e instanceof Player) {
+        		Player n = (Player) e;
+        		Vector p = n.getLocation().toVector();
+                p.add(new Vector(0, 0.5, 0));
+                Vector b = ball.getLocation().toVector();
+                Vector t = p.subtract(b).normalize();
+                double dis = n.getLocation().distance(ball.getLocation());
+                
+                System.out.println(dis);
+                t = t.multiply(MathUtil.tanh(dis));
+                player.setVelocity(t.multiply(new Vector(0.5, 0.5, 0.5)));
+        	}
+        }
+        
         Location spawnLocation = ball.getLocation();
 
         int numberOfBalls = 8;

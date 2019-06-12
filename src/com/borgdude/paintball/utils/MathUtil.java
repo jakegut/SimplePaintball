@@ -11,4 +11,9 @@ public class MathUtil {
     public static float getRandomComp(float accuracy) {
         return (float) (Math.random() * (accuracy * 2) - accuracy);
     }
+    
+    public static double tanh(double x) {
+    	if(x < 0 || x > 5) return 0;
+    	else return -x + 5;
+    }
 }
