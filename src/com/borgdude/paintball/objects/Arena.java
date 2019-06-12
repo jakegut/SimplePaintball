@@ -222,9 +222,18 @@ public class Arena {
                             Player p = Bukkit.getPlayer(id);
                             if (p != null) {
                                 p.sendMessage(ChatColor.AQUA + "Game starting in " + getTimer() + " seconds.");
+                                
                             }
                         }
                     }
+                    
+                    if(getTimer() <= 5)
+	                    for (UUID id : getPlayers()) {
+	                        Player p = Bukkit.getPlayer(id);
+	                        if (p != null) {
+	                            	p.playSound(p.getLocation(), Sound.BLOCK_METAL_STEP, 1, 1);
+	                        }
+	                    }
 
                     updateBossbar();
                     setTimer(getTimer() - 1);
@@ -448,6 +457,7 @@ public class Arena {
 
             Team team = getPlayerTeam(p);
             p.teleport(team.getRandomLocation());
+            p.playSound(p.getLocation(), Sound.BLOCK_BELL_USE, 2, 0.5f);
         }
     }
 

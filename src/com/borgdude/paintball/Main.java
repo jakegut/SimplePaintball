@@ -21,6 +21,7 @@ import java.awt.*;
 import java.io.File;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class Main extends JavaPlugin {
 
@@ -57,7 +58,7 @@ public class Main extends JavaPlugin {
 		paintballManager.registerGun(new Rocket());
 		paintballManager.registerGun(new Minigun());
 		paintballManager.registerGun(new Shotgun());
-		arenaManager = new ArenaManager(new ArrayList<>(), this);
+		arenaManager = new ArenaManager(new HashMap<>(), this);
 		arenaManager.getArenas();
 		getCommand("gun").setExecutor(new GunCommand());
 		getCommand("pb").setExecutor(new PaintballCommand());
@@ -98,7 +99,7 @@ public class Main extends JavaPlugin {
 
 	@Override
 	public void onDisable() {
-		for (Arena arena : arenaManager.getArena()) {
+		for (Arena arena : arenaManager.getArena().values()) {
 			arena.kickPlayers();
 		}
 		reloadConfig();

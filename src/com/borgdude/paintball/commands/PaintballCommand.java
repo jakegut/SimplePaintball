@@ -48,6 +48,19 @@ public class PaintballCommand implements CommandExecutor {
                         Arena a = this.arenaManager.createArena(player, title);
 
                         player.sendMessage(ChatColor.GREEN + "Created pb arena: " + ChatColor.AQUA + a.getTitle());
+                        
+                        return true;
+                    } else if(args[0].equals("remove")) {
+                    	if(args.length < 2 || args[1].length() < 2){
+                            player.sendMessage(ChatColor.RED + "Usage: /pb remove <title>");
+                            return true;
+                        }
+                    	
+                    	String title = args[1];
+                    	
+                    	player.sendMessage(this.arenaManager.removeArena(title));
+                    	
+                    	return true;
                     } else if (args[0].equalsIgnoreCase("edit")){
 
                         if(args.length < 2 || args[1].length() < 2){
@@ -266,12 +279,11 @@ public class PaintballCommand implements CommandExecutor {
 
                     player.sendMessage(ChatColor.GREEN + "List of activated arenas:");
                     int idx = 1;
-                    for(Arena a : arenaManager.getArena()){
-                        if(a.isActivated()){
-                            player.sendMessage(ChatColor.GREEN + Integer.toString(idx) + ". " + ChatColor.AQUA +
-                                    a.getTitle());
-                            idx++;
-                        }
+                    for(Arena a : arenaManager.getActivatedArenas()){
+                        player.sendMessage(ChatColor.GREEN + Integer.toString(idx) + ". " + ChatColor.AQUA +
+                                a.getTitle());
+                        idx++;
+                       
                     }
                 } else if (args[0].equalsIgnoreCase("spectate")) {
                 	if(args.length < 2 || args[1].length() < 2){

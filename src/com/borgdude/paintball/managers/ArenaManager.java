@@ -9,6 +9,8 @@ import com.borgdude.paintball.utils.LocationUtil;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
+import org.bukkit.block.data.BlockData;
+import org.bukkit.block.data.Directional;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -20,26 +22,26 @@ import java.util.*;
 
 public class ArenaManager {
 
-    private ArrayList<Arena> arenas;
+    private HashMap<String, Arena> arenas;
     private HashMap<UUID, Arena> currentlyEditing;
     private Main plugin;
     private PaintballManager paintballManager = Main.paintballManager;
 
 
-    public ArenaManager(ArrayList<Arena> arenas, Main plugin) {
+    public ArenaManager(HashMap<String, Arena> arenas, Main plugin) {
         this.arenas = arenas;
         this.plugin = plugin;
         this.currentlyEditing = new HashMap<>();
     }
 
-    public ArrayList<Arena> getArena(){
+    public HashMap<String, Arena> getArena(){
         return arenas;
     }
     
     public ArrayList<Arena> getActivatedArenas(){
     	ArrayList<Arena> r = new ArrayList<>();
     	
-    	for(Arena a : getArena())
+    	for(Arena a : getArena().values())
     		if(a.isActivated())
     			r.add(a);
     	
@@ -155,11 +157,9 @@ public class ArenaManager {
 	public Arena getPlayerArena(Player player){
         UUID pUUID = player.getUniqueId();
 
-        for(Arena a: arenas){
-            for(UUID id : a.getPlayers()){
-                if(id.equals(pUUID))
-                    return a;
-            }
+        for(Arena a: getArena().values()){
+            if(a.getPlayers().contains(pUUID))
+            	return a;
         }
 
         return null;
@@ -168,23 +168,16 @@ public class ArenaManager {
 	public Arena getSpectatorArena(Player player) {
 		UUID pUUID = player.getUniqueId();
 		
-		for(Arena a : arenas){
-			for(UUID id : a.getSpectators()) {
-				if(id.equals(pUUID))
-					return a;
-			}
-		}
+		for(Arena a: getArena().values()){
+            if(a.getPlayers().contains(pUUID))
+            	return a;
+        }
 		
 		return null;
 	}
 
     public Arena getArenaByTitle(String title){
-        for(Arena a : arenas){
-            if(a.getTitle().equalsIgnoreCase(title))
-                return a;
-        }
-
-        return null;
+        return arenas.get(title);
     }
 
 
@@ -197,7 +190,7 @@ public class ArenaManager {
     }
 
     public void setCurrentlyEditing(Player player, Arena arena){
-        if(!arenas.contains(arena))
+        if(!arenas.containsKey(arena.getTitle()))
             return;
 
         if(currentlyEditing.containsKey(player.getUniqueId())){
@@ -215,15 +208,34 @@ public class ArenaManager {
         newArena.setMinPlayers(2);
         newArena.setBlueTeam(new Team());
         newArena.setRedTeam(new Team());
-        arenas.add(newArena);
+        arenas.put(title, newArena);
 
-        Arena returnArena = arenas.get(arenas.indexOf(newArena));
+        Arena returnArena = arenas.get(title);
         setCurrentlyEditing(player, returnArena);
         return returnArena;
     }
+    
+    public String removeArena(String title) {
+    	Arena remove = getArenaByTitle(title);
+    	if(remove == null) return ChatColor.RED + "Arena " + ChatColor.YELLOW + title + ChatColor.RED + " not found";
+    	if(!remove.getArenaState().equals(ArenaState.WAITING_FOR_PLAYERS))
+    		return ChatColor.YELLOW + "Arena is busy";
+    	for(Sign s : remove.getSigns()) {
+    		BlockData d =  s.getBlockData();
+        	if (d instanceof Directional)
+            {
+                Directional directional = (Directional)d;
+                Block blockBehind = s.getBlock().getRelative(directional.getFacing().getOppositeFace());
+                blockBehind.setType(Material.AIR);
+            }
+        	s.getBlock().setType(Material.AIR);
+    	}
+    	arenas.remove(title);
+    	return ChatColor.BLUE + "Arena " + ChatColor.GREEN + title + ChatColor.BLUE + " removed successfully.";
+    }
 
     public void getArenas(){
-        this.arenas = new ArrayList<>();
+        this.arenas = new HashMap<>();
         ConfigurationSection arena = plugin.getConfig().getConfigurationSection("arenas");
         if(arena != null){
             for(String title : arena.getKeys(false)){
@@ -269,13 +281,14 @@ public class ArenaManager {
                     a.setSigns(signs);
                 }
                 a.updateSigns();
-                arenas.add(a);
+                arenas.put(a.getTitle(), a);
             }
         }
     }
 
     public void saveArenas(){
-        for(Arena a : arenas){
+    	plugin.getConfig().set("arenas", null);
+        for(Arena a : arenas.values()){
             if(!a.isActivated())
                 continue;
             String path = "arenas." + a.getTitle();
