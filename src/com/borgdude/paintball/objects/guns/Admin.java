@@ -52,7 +52,6 @@ public class Admin implements Gun {
 
         if(!player.hasPermission("paintball.admin")) return;
 
-
         final Snowball snowball = player.launchProjectile(Snowball.class);
         final Vector velocity = player.getLocation().getDirection().multiply(2);//set the velocity variable
         snowball.setVelocity(velocity);
@@ -91,7 +90,12 @@ public class Admin implements Gun {
     @Override
     public void onHit(Player player, Snowball ball) {
 
-        if (ball.hasMetadata("fired")) return;
+        if (ball.hasMetadata("fired")) {
+        	player.getLocation().getWorld().playSound(ball.getLocation(), Sound.BLOCK_ANVIL_FALL, 1, 0.25f);
+        	return;
+        }
+        
+        player.getLocation().getWorld().playSound(ball.getLocation(), Sound.ENTITY_GENERIC_EXPLODE, 1f, 1.25f);
 
         Location spawnLocation = ball.getLocation();
 

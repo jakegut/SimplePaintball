@@ -58,7 +58,7 @@ public class Minigun implements Gun{
 //        velocity.add(new Vector(0.25, 0.12, 0.25));
         snowball.setVelocity(velocity);
         
-        player.getLocation().getWorld().playSound(player.getLocation(), Sound.BLOCK_ANVIL_HIT, 2, 0.5f);
+//        player.getLocation().getWorld().playSound(player.getLocation(), Sound.BLOCK_ANVIL_HIT, 2, 0.5f);
         
         Bukkit.getScheduler().runTaskLater(plugin, new Runnable() {
 
@@ -71,7 +71,7 @@ public class Minigun implements Gun{
 //                velocity.add(new Vector(0.25, 0.12, 0.25));
                 snowball.setVelocity(velocity);
                 
-                player.getLocation().getWorld().playSound(player.getLocation(), Sound.BLOCK_ANVIL_HIT, 2, 0.5f); 
+                player.getLocation().getWorld().playSound(player.getLocation(), Sound.ENTITY_ITEM_BREAK, 2, 1.5f); 
 			}
         	
         }, 2L);

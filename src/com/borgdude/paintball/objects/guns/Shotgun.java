@@ -61,7 +61,7 @@ public class Shotgun implements Gun {
             snowball.setVelocity(velocity); //set the snowball's new velocity
 //                System.out.print(velocity.toString());
         }
-        player.getLocation().getWorld().playSound(player.getLocation(), Sound.BLOCK_ANVIL_HIT, 2, 0.5f);
+        player.getLocation().getWorld().playSound(player.getLocation(), Sound.ENTITY_ZOMBIE_ATTACK_IRON_DOOR, 2, 0.75f);
 		
 	}
 
@@ -87,6 +87,8 @@ public class Shotgun implements Gun {
 //		nb.setVelocity(r);
 //		
 //		Bukkit.getConsoleSender().sendMessage(n.toString());
+
+		player.getLocation().getWorld().playSound(ball.getLocation(), Sound.BLOCK_ANVIL_FALL, 1, 0.25f);
 	}
 
 	@Override

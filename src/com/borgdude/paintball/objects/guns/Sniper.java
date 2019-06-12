@@ -57,13 +57,13 @@ public class Sniper implements Gun{
             }
         }.runTaskTimer(plugin, 1, 1));
         
-        player.getLocation().getWorld().playSound(player.getLocation(), Sound.BLOCK_ANVIL_HIT, 2, 0.5f);
+        player.getLocation().getWorld().playSound(player.getLocation(), Sound.ENTITY_FIREWORK_ROCKET_BLAST, 2, 0.5f);
 		
 	}
 
 	@Override
 	public void onHit(Player player, Snowball ball) {
-		//Do nothing
+		player.getLocation().getWorld().playSound(ball.getLocation(), Sound.BLOCK_ANVIL_FALL, 1, 0.25f);
 		
 	}
 

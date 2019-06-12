@@ -56,13 +56,18 @@ public class Rocket implements Gun {
 //                velocity.add(new Vector(0.25, 0.12, 0.25));
         snowball.setVelocity(velocity);
 
-        player.getLocation().getWorld().playSound(player.getLocation(), Sound.BLOCK_ANVIL_HIT, 2, 0.5f);
+        player.getLocation().getWorld().playSound(player.getLocation(), Sound.ENTITY_FIREWORK_ROCKET_LARGE_BLAST, 2, 0.5f);
     }
 
     @Override
     public void onHit(Player player, Snowball ball) {
 
-        if (ball.hasMetadata("fired")) return;
+    	if (ball.hasMetadata("fired")) {
+        	player.getLocation().getWorld().playSound(ball.getLocation(), Sound.BLOCK_ANVIL_FALL, 1, 0.25f);
+        	return;
+        }
+    	
+        player.getLocation().getWorld().playSound(ball.getLocation(), Sound.ENTITY_GENERIC_EXPLODE, 1f, 1.25f);
 
         Location spawnLocation = ball.getLocation();
 
