@@ -55,8 +55,8 @@ public class PaintballPlayer {
     }
     
     public void setInfo() {
-    	setPlayerInventory();
     	setPlayerGameMode();
+    	setPlayerInventory();
     }
 
 	@Override

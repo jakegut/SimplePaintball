@@ -62,6 +62,7 @@ public class ArenaManager {
 
         player.teleport(a.getLobbyLocation());
         a.addPlayer(player);
+        player.setGameMode(GameMode.ADVENTURE);
 //        a.getPlayers().add(player.getUniqueId());
 //        Main.inventoryManager.saveInventory(player);
         player.getInventory().clear();
@@ -69,8 +70,8 @@ public class ArenaManager {
         player.setLevel(0);
         a.setGunKit(player, paintballManager.getGunByName("Sniper"));
         player.sendMessage(ChatColor.GREEN + "You have joined arena: " + ChatColor.AQUA + a.getTitle());
-        player.setGameMode(GameMode.ADVENTURE);
         addLobbyItems(player, a);
+        
         a.checkToStart();
     }
     

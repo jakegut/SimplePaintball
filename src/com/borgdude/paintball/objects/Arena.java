@@ -457,7 +457,7 @@ public class Arena {
 
             Team team = getPlayerTeam(p);
             p.teleport(team.getRandomLocation());
-            p.playSound(p.getLocation(), Sound.BLOCK_BELL_USE, 2, 0.5f);
+            p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_BELL, 2, 0.5f);
         }
     }
 
@@ -499,6 +499,8 @@ public class Arena {
     }
 
     private void setStats(Team team) {
+    	if(plugin.getDb() == null) return;
+    	
 		Set<UUID> playersCopy = new HashSet<>(players);
 		HashMap<UUID, Integer> killsCopy = new HashMap<>(kills);
 		ArrayList<UUID> teamMembers = (team != null) ? new ArrayList<>(team.getMembers()) : null;
@@ -637,13 +639,13 @@ public class Arena {
     public void kickPlayers() {
         for (UUID id : getPlayers()) {
             Player p = Bukkit.getPlayer(id);
+        	p.setGameMode(Bukkit.getDefaultGameMode());
             p.removePotionEffect(PotionEffectType.SATURATION);
             p.teleport(getEndLocation());
            	restoreInventory(p);
             p.setPlayerListName(ChatColor.RESET + p.getName());
             p.setDisplayName(ChatColor.RESET + p.getName());
             removeScoreboard(p);
-        	p.setGameMode(Bukkit.getDefaultGameMode());
         }
         
         for (UUID id : getSpectators()) {
@@ -684,6 +686,7 @@ public class Arena {
         getPlayers().remove(p.getUniqueId());
         getKills().remove(p.getUniqueId());
         p.teleport(getEndLocation());
+        p.setGameMode(Bukkit.getDefaultGameMode());
         p.removePotionEffect(PotionEffectType.SATURATION);
         restoreInventory(p);
         p.sendMessage(ChatColor.GREEN + "You have left the game and teleported to the start.");

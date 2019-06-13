@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>SimplePaintball</groupId>
 	<artifactId>SimplePaintball</artifactId>
-	<version>0.2.6.1</version>
+	<version>0.2.6.3</version>
 	<name>SimplePaintball</name>
 	<build>
 		<sourceDirectory>src</sourceDirectory>
@@ -61,8 +61,10 @@
 						<phase>package</phase>
 						<configuration>
 							<tasks>
-								<copy file="target/SimplePaintball-0.2.6.1.jar"
+								<copy file="target/SimplePaintball-0.2.6.3.jar"
 									todir="D:\1.14Dev\plugins" />
+								<copy file="target/SimplePaintball-0.2.6.3.jar"
+									todir="D:\1.13Dev\plugins" />
 							</tasks>
 						</configuration>
 						<goals>
