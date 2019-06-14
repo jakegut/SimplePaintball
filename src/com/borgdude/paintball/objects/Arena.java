@@ -701,8 +701,21 @@ public class Arena {
 
     private void restoreInventory(Player p) {
     	p.getInventory().clear();
-    	pbPlayers.get(p.getUniqueId()).setInfo();
-    	pbPlayers.remove(p.getUniqueId());
+    	if(pbPlayers != null && pbPlayers.get(p.getUniqueId()) != null) {
+        	pbPlayers.get(p.getUniqueId()).setInfo();
+        	pbPlayers.remove(p.getUniqueId());
+    	} else {
+    		p.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + "Your inventory wasn't able to loaded back. Please contact Simple Paintball Support and check the console");
+    		if(pbPlayers == null) {
+    			Bukkit.getServer().getConsoleSender().sendMessage(ChatColor.RED + "The player's inventories weren't there in the first place...");
+    		} else if (pbPlayers.get(p.getUniqueId()) == null) {
+    			Bukkit.getServer().getConsoleSender().sendMessage(ChatColor.RED + p.getName() + " didnt't get their inventory back");
+    		} else {
+    			Bukkit.getServer().getConsoleSender().sendMessage(ChatColor.RED + "You shouldn't have gotten this message");
+    		}
+    		
+    	}
+
 	}
 
 	public boolean isActivated() {
@@ -903,8 +916,7 @@ public class Arena {
         player.sendMessage(ChatColor.YELLOW + "You have left the arena.");
         player.teleport(getEndLocation());
         player.getInventory().clear();
-        pbPlayers.get(player.getUniqueId()).setInfo();
-        pbPlayers.remove(player.getUniqueId());
+        restoreInventory(player);
         getPlayers().remove(player.getUniqueId());
         if(getBossBar() != null){
             getBossBar().removePlayer(player);
