@@ -2,7 +2,7 @@ author: Borgdude
 description: "Simple Paintball"
 main: com.borgdude.paintball.Main
 name: Simple_PaintBall
-version: "0.2.6.3"
+version: "0.2.6.4-alpha"
 api-version: 1.13
 softdepend: [Vault]
 
