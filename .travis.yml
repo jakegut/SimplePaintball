@@ -1,10 +1,12 @@
 language: java
 script: mvn '-Dmaven.antrun.skip=true' clean install
+before_deploy:
+  - ls
 deploy:
   provider: releases
   api_key: $GH_OATH_TOKEN
   file_glop: true
-  file: target/*.jar
+  file: "target/*.jar"
   skip_cleanup: true
   draft: true
   
