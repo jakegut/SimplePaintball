@@ -1,5 +1,5 @@
 language: java
-script: mvn '-Dmaven.antrun.skip=true' clean install
+script: mvn '-Dmaven.antrun.skip=true' clean package
 before_deploy:
   - ls
   - export JAR_FILE=$(ls */target/*.jar)
