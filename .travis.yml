@@ -6,7 +6,7 @@ deploy:
   provider: releases
   api_key: $GH_OATH_TOKEN
   file_glop: true
-  file: "target/*.jar"
+  file: "*/target/*.jar"
   skip_cleanup: true
   draft: true
   
