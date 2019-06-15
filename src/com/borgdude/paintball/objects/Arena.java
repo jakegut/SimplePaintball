@@ -325,7 +325,8 @@ public class Arena {
     }
 
     private void decreaseSpawnTime() {
-		for(Map.Entry<UUID, Integer> entry : getSpawnTimer().entrySet()) {
+    	Set<Map.Entry<UUID, Integer>> entries = new HashSet<>(getSpawnTimer().entrySet());
+		for(Map.Entry<UUID, Integer> entry : entries) {
 			int time = entry.getValue() - 1;
 			if(time < 0) {
 				getSpawnTimer().remove(entry.getKey());
