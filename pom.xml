@@ -61,9 +61,9 @@
 						<phase>package</phase>
 						<configuration>
 							<tasks>
-								<copy file="target/SimplePaintball-0.2.6.4-alpha.jar"
+								<copy file="target/SimplePaintball-0.2.6.4-beta.jar"
 									todir="D:\1.14Dev\plugins" />
-								<copy file="target/SimplePaintball-0.2.6.4-alpha.jar"
+								<copy file="target/SimplePaintball-0.2.6.4-beta.jar"
 									todir="D:\1.13Dev\plugins" />
 							</tasks>
 						</configuration>
