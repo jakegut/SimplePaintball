@@ -16,4 +16,8 @@ public class MathUtil {
     	if(x < 0 || x > 5) return 0;
     	else return -x + 5;
     }
+    
+    public static int getMaxHeight(Vector v) {
+    	return (int) (- (v.getY() * v.getY()) / (2 * 0.08));
+    }
 }
