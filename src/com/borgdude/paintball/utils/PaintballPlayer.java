@@ -9,6 +9,8 @@ public class PaintballPlayer {
 	private Inventory inv;
     private Player p;
     private GameMode gameMode;
+    private float xp;
+    private int level;
     
     public PaintballPlayer(Player p) {
     	this.p = p;
@@ -52,12 +54,24 @@ public class PaintballPlayer {
     public void registerInfo() {
     	registerInventory();
     	registerGameMode();
+    	registerLevels();
     }
     
-    public void setInfo() {
+    private void registerLevels() {
+		this.xp = p.getExp();
+		this.level = p.getLevel();
+	}
+
+	public void setInfo() {
     	setPlayerGameMode();
     	setPlayerInventory();
+    	setLevels();
     }
+
+	private void setLevels() {
+		p.setExp(this.xp);
+		p.setLevel(this.level);
+	}
 
 	@Override
 	public int hashCode() {
