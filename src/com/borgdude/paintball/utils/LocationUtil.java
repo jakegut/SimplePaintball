@@ -2,36 +2,37 @@ package com.borgdude.paintball.utils;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.Plugin;
 
 public class LocationUtil {
 
-    public static void saveLocation(String Path, Location location, Plugin plugin)
+    public static void saveLocation(String p, Location location, FileConfiguration config)
     {
-        plugin.getConfig().set(Path + ".X", Integer.valueOf(location.getBlockX()));
-        plugin.getConfig().set(Path + ".Y", Integer.valueOf(location.getBlockY()));
-        plugin.getConfig().set(Path + ".Z", Integer.valueOf(location.getBlockZ()));
-        plugin.getConfig().set(Path + ".Yaw", Float.valueOf(location.getYaw()));
-        plugin.getConfig().set(Path + ".Pitch", Float.valueOf(location.getPitch()));
-        plugin.getConfig().set(Path + ".World", location.getWorld().getName());
-        plugin.saveConfig();
+        config.set(p + ".X", Integer.valueOf(location.getBlockX()));
+        config.set(p + ".Y", Integer.valueOf(location.getBlockY()));
+        config.set(p + ".Z", Integer.valueOf(location.getBlockZ()));
+        config.set(p + ".Yaw", Float.valueOf(location.getYaw()));
+        config.set(p + ".Pitch", Float.valueOf(location.getPitch()));
+        config.set(p + ".World", location.getWorld().getName());
     }
 
-    public static Location getLocation(String Path, Plugin plugin)
+    public static Location getLocation(ConfigurationSection section)
     {
         try
         {
-            return new Location(Bukkit.getWorld(plugin.getConfig().getString(Path + ".World")), plugin.getConfig().getInt(Path + ".X"), plugin.getConfig().getInt(Path + ".Y"), plugin.getConfig().getInt(Path + ".Z"));
+            return new Location(Bukkit.getWorld(section.getString("World")), section.getInt("X"), section.getInt("Y"), section.getInt("Z"));
         }
         catch (Exception e) {}
         return null;
     }
 
-    public static Location getLocationWithDirection(String Path, Plugin plugin)
+    public static Location getLocationWithDirection(ConfigurationSection section)
     {
         try
         {
-            return new Location(Bukkit.getWorld(plugin.getConfig().getString(Path + ".World")), plugin.getConfig().getInt(Path + ".X"), plugin.getConfig().getInt(Path + ".Y"), plugin.getConfig().getInt(Path + ".Z"), plugin.getConfig().getInt(Path + ".Yaw"), plugin.getConfig().getInt(Path + ".Pitch"));
+            return new Location(Bukkit.getWorld(section.getString("World")), section.getInt("X"), section.getInt("Y"), section.getInt("Z"), section.getInt("Yaw"), section.getInt("Pitch"));
         }
         catch (Exception e) {}
         return null;
