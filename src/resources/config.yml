@@ -1,5 +1,6 @@
 game-time: 240
 lobby-time: 60
+locale: enUS
 Stats:
   Track: false
 Gameplay:

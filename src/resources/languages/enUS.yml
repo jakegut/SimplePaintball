@@ -1,0 +1,52 @@
+--- 
+Arena: 
+  End-Countdown: "&aThere are &b%time% &a%unit% left"
+  Game-Started: "&aGame has started!"
+  Join-Team: "&aYou are on the %team% &ateam"
+  Leave: "&aYou have left the arena."
+  Leave-First: "&eYou're already in an arena. Leave first: /pb leave"
+  Minute-Unit: minutes
+  Not-Enough-Players: "&eNot starting, not enough players."
+  Not-In: "&eYou're not in an arena"
+  Protected: "&eYou are protected for &c%time% &e%unit%"
+  Reward-Player: "You were given %amount% and now have %balance%"
+  Second-Unit: seconds
+  Set-Gun: "&bYou are now using the &a%name%."
+  Start-Countdown: "&bGame starting in &a%time% seconds."
+  State: 
+    Ending: "&cEnding"
+    Playing: "&cPlaying"
+    Restarting: "&cRestarting"
+    Starting: "&cStarting"
+    Waiting: "&cWaiting"
+  Tie-Kills: "&aIt was a tie with &e%kills% &a%verb%!"
+  Win-Default: "%team% &awins by default!"
+  Win-Kills: "%team% &ateam won with &e%kills% &a%verb%!"
+Command: 
+  Disabled: "&eThis command has been disabled"
+Edit: 
+  Arena-Not-Activated: "&cArena: &e%title% &cnot activated"
+  Arena-Not-Found: "&cArena: &e%title% &cnot found"
+  Created-Arena: "&aCreated Paintball arena: &b%title%"
+  Now-Editing-Arena: "&aNow editing arena &b%title%"
+  Remove-In-Progress: "&eArena is busy"
+  Remove-Success: "&9Arena &a%title% &9removed successfully."
+Help: 
+  Basic: 
+    Join: "&9Join an arena with a given title"
+    Leaderboard: "&9Get the Top Ten players by wins or kills"
+    List: "&9A list of all of the arenas you're able to join or spectate"
+    Spectate: "&9Spectate an arena that's in-game"
+In-Game: 
+  Killed: Killed
+  Kills: Kills
+  Leave-Bed: "&bYeet the Arena"
+Join: 
+  Arena-In-Game: "&cArena: &e%title% &cin game"
+  Success: "&aYou have joined arena: &b%title%"
+Leaderboard: 
+  Title: "&9--- &aTop 10 %stat% &9---"
+List: 
+  Title: "&aList of activated arenas:"
+Spectate: 
+  Success: "&aYou are spectating arena: &b%title%"

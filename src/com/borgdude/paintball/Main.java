@@ -34,6 +34,8 @@ public class Main extends JavaPlugin {
 	public static PaintballManager paintballManager;
 	public static InventoryManager inventoryManager;
 	
+	private LanguageManager languageManager;
+	
 	
 	private File arenaConfigFile;
 	private FileConfiguration arenaConfig;
@@ -74,12 +76,15 @@ public class Main extends JavaPlugin {
 		paintballManager.registerGun(new Shotgun());
 		arenaManager = new ArenaManager(new HashMap<>(), this);
 		arenaManager.getArenas();
+		languageManager = new LanguageManager(this);
 		getCommand("gun").setExecutor(new GunCommand());
-		getCommand("pb").setExecutor(new PaintballCommand());
+		getCommand("pb").setExecutor(new PaintballCommand(this));
 		getCommand("pb").setTabCompleter(new PaintballCompleter());
 		getServer().getPluginManager().registerEvents(new EventClass(), this);
 		getServer().getConsoleSender().sendMessage(ChatColor.GREEN + "PaintBall Enabled");
 	}
+	
+	public LanguageManager getLanguageManager() { return this.languageManager; }
 
 	private void createCustomConfigs() throws FileNotFoundException, IOException, InvalidConfigurationException {
 		arenaConfigFile = new File(getDataFolder(), "arenas.yml");
@@ -96,7 +101,9 @@ public class Main extends JavaPlugin {
 	
 	public FileConfiguration getArenaConfig() { return this.arenaConfig; }
 	
-	public File getArenaConfigFile() { return this.arenaConfigFile; }
+	public void saveArenaConfig() throws IOException {
+		getArenaConfig().save(this.arenaConfigFile);
+	}
 
 	// From https://github.com/MilkBowl/VaultAPI/
 	private boolean setupEconomy() {

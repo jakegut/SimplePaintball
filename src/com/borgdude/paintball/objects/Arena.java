@@ -158,7 +158,7 @@ public class Arena {
         for (Sign s : getSigns()) {
             s.setLine(0, ChatColor.BLUE + "[PaintBall]");
             s.setLine(1, ChatColor.GREEN + getTitle());
-            s.setLine(2, ChatColor.RED + getArenaState().getFormattedName());
+            s.setLine(2, plugin.getLanguageManager().getMessage("Arena.State." + getArenaState().getFormattedName()));
             s.setLine(3, String.valueOf(getPlayers().size()) + "/" + String.valueOf(getMaxPlayers()));
             updateBlock(s);
             s.update(true);
@@ -218,10 +218,11 @@ public class Arena {
                     }
 
                     if (getTimer() % 5 == 0) {
+                    	String msg = plugin.getLanguageManager().getMessage("Arena.Start-Countdown").replace("%time%", String.valueOf(getTimer()));
                         for (UUID id : getPlayers()) {
                             Player p = Bukkit.getPlayer(id);
                             if (p != null) {
-                                p.sendMessage(ChatColor.AQUA + "Game starting in " + getTimer() + " seconds.");
+                                p.sendMessage(msg);
                                 
                             }
                         }
@@ -247,8 +248,9 @@ public class Arena {
 
             runnable.runTaskTimer(this.plugin, 20, 20);
         } else {
+        	String msg = plugin.getLanguageManager().getMessage("Arena.Not-Enough-Players");
             for (UUID id : getPlayers()) {
-                Bukkit.getServer().getPlayer(id).sendMessage(ChatColor.YELLOW + "Not starting, not enough people.");
+                Bukkit.getServer().getPlayer(id).sendMessage(msg);
             }
         }
     }
@@ -280,22 +282,28 @@ public class Arena {
                 updateSigns();
 
                 if (getTimer() == getTotalTime()) {
+                	String msg = plugin.getLanguageManager().getMessage("Arena.Game-Started");
                     for (UUID id : getPlayers()) {
-                        Bukkit.getServer().getPlayer(id).sendMessage(ChatColor.GREEN + "Game has started!");
+                        Bukkit.getServer().getPlayer(id).sendMessage(msg);
                     }
                 }
 
                 setTimer(getTimer() - 1);
 
                 if (getTimer() % 60 == 0 && getTimer() != 0) {
+                	String msg = plugin.getLanguageManager().getMessage("Arena.End-Countdown")
+                			.replace("%time%", String.valueOf(getTimer() / 60))
+                			.replace("%unit%", plugin.getLanguageManager().getMessage("Arena.Minute-Unit"));
+                	
                     for (UUID id : getPlayers()) {
-                        Bukkit.getServer().getPlayer(id).sendMessage(ChatColor.GREEN + "There are " + ChatColor.AQUA +
-                                String.valueOf(getTimer() / 60) + " minutes " + ChatColor.GREEN + "left.");
+                        Bukkit.getServer().getPlayer(id).sendMessage(msg);
                     }
                 } else if (getTimer() == 30 || getTimer() == 15 || getTimer() <= 5) {
+                	String msg = plugin.getLanguageManager().getMessage("Arena.End-Countdown")
+                			.replace("%time%", String.valueOf(getTimer()))
+                			.replace("%unit%", plugin.getLanguageManager().getMessage("Arena.Second-Unit"));
                     for (UUID id : getPlayers()) {
-                        Bukkit.getServer().getPlayer(id).sendMessage(ChatColor.GREEN + "There are " + ChatColor.AQUA +
-                                String.valueOf(getTimer()) + " seconds" + ChatColor.GREEN + " left.");
+                        Bukkit.getServer().getPlayer(id).sendMessage(msg);
                     }
                 }
                 
@@ -362,13 +370,13 @@ public class Arena {
 
                 org.bukkit.scoreboard.Team blueKillCounter = board.registerNewTeam("blueKillCounter");
                 blueKillCounter.addEntry(ChatColor.BLACK + "" + ChatColor.BLUE + "");
-                blueKillCounter.setPrefix("Blue " + plugin.getConfig().getString("In-Game.Kills").toLowerCase() + ": "  + "0");
+                blueKillCounter.setPrefix("Blue " + plugin.getLanguageManager().getMessage("In-Game.Kills").toLowerCase() + ": "  + "0");
 
                 obj.getScore(ChatColor.BLACK + "" + ChatColor.BLUE + "").setScore(15);
 
                 org.bukkit.scoreboard.Team redTeamCounter = board.registerNewTeam("redKillCounter");
                 redTeamCounter.addEntry(ChatColor.BLACK + "" + ChatColor.RED + "");
-                redTeamCounter.setPrefix("Red " + plugin.getConfig().getString("In-Game.Kills").toLowerCase() + ": " + "0");
+                redTeamCounter.setPrefix("Red " + plugin.getLanguageManager().getMessage("In-Game.Kills").toLowerCase() + ": " + "0");
 
                 obj.getScore(ChatColor.BLACK + "" + ChatColor.RED + "").setScore(14);
 
@@ -390,9 +398,9 @@ public class Arena {
                     if (p != null){
                         Scoreboard board = p.getScoreboard();
 
-                        board.getTeam("blueKillCounter").setPrefix("Blue " + plugin.getConfig().getString("In-Game.Kills").toLowerCase() + ": " + String.valueOf(blueKills));
+                        board.getTeam("blueKillCounter").setPrefix("Blue " + plugin.getLanguageManager().getMessage("In-Game.Kills").toLowerCase() + ": " + String.valueOf(blueKills));
 
-                        board.getTeam("redKillCounter").setPrefix("Red "+ plugin.getConfig().getString("In-Game.Kills").toLowerCase() + ": " + String.valueOf(redKills));
+                        board.getTeam("redKillCounter").setPrefix("Red "+ plugin.getLanguageManager().getMessage("In-Game.Kills").toLowerCase() + ": " + String.valueOf(redKills));
                     }
                 }
             }
@@ -409,6 +417,8 @@ public class Arena {
             p.addPotionEffect(new PotionEffect(PotionEffectType.SATURATION, plugin.getConfig().getInt("game-time") * 20, 5, true));
             p.setLevel(0);
 
+            System.out.println(redTeam);
+            System.out.println(blueTeam);
             if (redTeam.getMembers().size() == blueTeam.getMembers().size()) {
                 // add to a random team
                 if (random.nextBoolean()) {
@@ -432,7 +442,8 @@ public class Arena {
                     team = "&b&lBlue";
                 }
             }
-            p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&aYou are on the " + team + " &ateam."));
+            p.sendMessage(plugin.getLanguageManager().getMessage("Arena.Join-Team")
+            		.replace("%team%", team));
         }
 
     }
@@ -452,7 +463,7 @@ public class Arena {
             // Add leave bed
             ItemStack bed = new ItemStack(Material.WHITE_BED);
             ItemMeta im = bed.getItemMeta();
-            im.setDisplayName(ChatColor.AQUA + "Leave Arena");
+            im.setDisplayName(plugin.getLanguageManager().getMessage("In-Game.Leave-Bed"));
             bed.setItemMeta(im);
             p.getInventory().setItem(9, bed);
 
@@ -555,7 +566,9 @@ public class Arena {
                 Player p = Bukkit.getPlayer(id);
                 EconomyResponse r = Main.econ.depositPlayer(p, amount/2);
                 if(r.transactionSuccess()) {
-                    p.sendMessage(String.format("You were given %s and now have %s", Main.econ.format(r.amount), Main.econ.format(r.balance)));
+                    p.sendMessage(plugin.getLanguageManager().getMessage("Arena.Reward-Player")
+                    		.replace("%amount%", Main.econ.format(r.amount))
+                    		.replace("%balance%", Main.econ.format(r.balance)));
                 } else {
                     p.sendMessage(String.format("An error occured: %s", r.errorMessage));
                 }
@@ -565,7 +578,9 @@ public class Arena {
     			Player p = Bukkit.getPlayer(id);
                 EconomyResponse r = Main.econ.depositPlayer(p, amount);
                 if(r.transactionSuccess()) {
-                    p.sendMessage(String.format("You were given %s and now have %s", Main.econ.format(r.amount), Main.econ.format(r.balance)));
+                	p.sendMessage(plugin.getLanguageManager().getMessage("Arena.Reward-Player")
+                    		.replace("%amount%", Main.econ.format(r.amount))
+                    		.replace("%balance%", Main.econ.format(r.balance)));
                 } else {
                     p.sendMessage(String.format("An error occured: %s", r.errorMessage));
                 }
@@ -574,43 +589,55 @@ public class Arena {
     }
 
     public void announceWinner(Team team) {
-        if (team.equals(blueTeam)) {
-            int bKills = getTotalTeamKills(blueTeam);
-            for (UUID id : getPlayers()) {
-                Player p = Bukkit.getPlayer(id);
-                p.sendMessage(ChatColor.BLUE + "Blue " + ChatColor.GREEN + " wins by default with " + ChatColor.BLUE +
-                        bKills + " " + plugin.getConfig().getString("In-Game.Kills").toLowerCase() + "!");
-            }
-        } else if (team.equals(redTeam)) {
-            int rKills = getTotalTeamKills(redTeam);
-            for (UUID id : getPlayers()) {
-                Player p = Bukkit.getPlayer(id);
-                p.sendMessage(ChatColor.RED + "Red " + ChatColor.GREEN + " wins by default with " + ChatColor.RED +
-                        rKills +  " " + plugin.getConfig().getString("In-Game.Kills").toLowerCase() + "!");
-            }
-        } else {
+    	String teamMsg = "";
+    	
+        if (team.equals(blueTeam))
+        	teamMsg = ChatColor.BLUE + "Blue";
+        else if (team.equals(redTeam))
+            teamMsg = ChatColor.RED + "Red";
+        else
             return;
+        
+        String msg = plugin.getLanguageManager().getMessage("Arena.Win-Default").replace("%team%", teamMsg);
+        for (UUID id : getPlayers()) {
+            Player p = Bukkit.getPlayer(id);
+            p.sendMessage(msg);
         }
     }
 
     public Team announceWinner() {
         int bKills = getTotalTeamKills(blueTeam);
         int rKills = getTotalTeamKills(redTeam);
+        int winningKills = bKills;
         Team winningTeam = null;
-        for (UUID id : getPlayers()) {
-            Player p = Bukkit.getPlayer(id);
-            if (bKills > rKills) {
-                p.sendMessage(ChatColor.BLUE + "Blue team " + ChatColor.GREEN + "won with " + ChatColor.BLUE +
-                        bKills + " " + plugin.getConfig().getString("In-Game.Kills").toLowerCase() + ".");
-                winningTeam = blueTeam;
-            } else if (bKills == rKills) {
-                p.sendMessage(ChatColor.AQUA + "It was a tie with: " + bKills + " " + plugin.getConfig().getString("In-Game.Kills").toLowerCase() + ".");
-            } else {
-                p.sendMessage(ChatColor.RED + "Red team " + ChatColor.GREEN + "won with " + ChatColor.RED +
-                        rKills + " " + plugin.getConfig().getString("In-Game.Kills").toLowerCase() + ".");
-                winningTeam = redTeam;
-            }
+        String teamMsg = "";
+        if (bKills > rKills) {
+        	teamMsg = ChatColor.BLUE + "Blue";
+            winningKills = bKills;
+            winningTeam = blueTeam;
+        } else {
+        	teamMsg = ChatColor.RED + "Red";
+        	winningKills = rKills;
+            winningTeam = redTeam;
         }
+        
+        String msg = "";
+        
+        if(winningTeam != null)
+        	msg = plugin.getLanguageManager().getMessage("Arena.Win-Kills")
+        			.replace("%team%", teamMsg)
+        			.replace("%kills%", String.valueOf(winningKills))
+        			.replace("%verb%", plugin.getLanguageManager().getMessage("In-Game.Kills").toLowerCase());
+        else
+        	msg = plugin.getLanguageManager().getMessage("Arena.Tie-Kills")
+        			.replace("%kills%", String.valueOf(winningKills))
+        			.replace("%verb%", plugin.getLanguageManager().getMessage("In-Game.Kills").toLowerCase());
+        
+        
+        for(UUID id : getPlayers()) Bukkit.getPlayer(id).sendMessage(msg);
+        
+        
+        
         awardWinners(winningTeam);
         return winningTeam;
     }
@@ -630,7 +657,7 @@ public class Arena {
     	} else {
     		getGunKits().put(id, gun);
     	}
-    	player.sendMessage(ChatColor.AQUA + "You're now using the " + ChatColor.GREEN + gun.getName());
+    	player.sendMessage(plugin.getLanguageManager().getMessage("Arena.Set-Gun").replace("%name%", gun.getName()));
     }
     
     private void removeScoreboard(Player player) {
@@ -690,7 +717,7 @@ public class Arena {
         p.setGameMode(Bukkit.getDefaultGameMode());
         p.removePotionEffect(PotionEffectType.SATURATION);
         restoreInventory(p);
-        p.sendMessage(ChatColor.GREEN + "You have left the game and teleported to the start.");
+        p.sendMessage(plugin.getLanguageManager().getMessage("Arena.Leave"));
         p.setPlayerListName(ChatColor.RESET + p.getName());
         p.setDisplayName(ChatColor.RESET + p.getName());
         removeScoreboard(p);
@@ -892,7 +919,9 @@ public class Arena {
 			return;
 		
 		getSpawnTimer().put(p.getUniqueId(), time);
-		p.sendMessage(ChatColor.YELLOW + "You're protected for " + ChatColor.RED + time + ChatColor.YELLOW + " seconds");
+		p.sendMessage(plugin.getLanguageManager().getMessage("Arena.Protected")
+				.replace("%time%", String.valueOf(time))
+				.replace("%unit%", plugin.getLanguageManager().getMessage("Arena.Second-Unit")));
 	}
 
 	public void checkMinMax() {
@@ -914,7 +943,7 @@ public class Arena {
 	}
 
 	public void removePlayer(Player player) {
-        player.sendMessage(ChatColor.YELLOW + "You have left the arena.");
+        player.sendMessage(plugin.getLanguageManager().getMessage("Arena.Leave"));
         player.teleport(getEndLocation());
         player.getInventory().clear();
         restoreInventory(player);

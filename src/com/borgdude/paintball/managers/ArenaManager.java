@@ -51,12 +51,12 @@ public class ArenaManager {
 
     public void addPlayerToArena(Player player, Arena a) throws IOException{
         if(getPlayerArena(player) != null){
-            player.sendMessage("You're already in an arena. Leave first: /pb leave");
+            player.sendMessage(plugin.getLanguageManager().getMessage("Arena.Leave-First"));
             return;
         }
 
         if(a.getArenaState() == ArenaState.IN_GAME || a.getArenaState() == ArenaState.RESTARTING || a.getArenaState() == ArenaState.ENDING){
-            player.sendMessage(ChatColor.YELLOW + "The arena is currently in a game, or something. Please wait");
+            player.sendMessage(plugin.getLanguageManager().getMessage("Join.Arena-In-Game"	.replace("%title%", a.getTitle())));
             return;
         }
 
@@ -69,7 +69,7 @@ public class ArenaManager {
         player.setExp(0);
         player.setLevel(0);
         a.setGunKit(player, paintballManager.getGunByName("Sniper"));
-        player.sendMessage(ChatColor.GREEN + "You have joined arena: " + ChatColor.AQUA + a.getTitle());
+        player.sendMessage(plugin.getLanguageManager().getMessage("Join.Success").replace("%title%", a.getTitle()));
         addLobbyItems(player, a);
         
         a.checkToStart();
@@ -77,19 +77,19 @@ public class ArenaManager {
     
 	public void addSpectatorToArena(Player player, Arena a) {
 		if(getPlayerArena(player) != null) {
-			player.sendMessage("You're already playing in an anrea. Leave first: /pb leave");
+			player.sendMessage(plugin.getLanguageManager().getMessage("Arena.Leave-First"));
 			return;
 		}
 		
 		if(getSpectatorArena(player) != null) {
-			player.sendMessage("You're already spectating. Leave first: /pb leave");
+			player.sendMessage(plugin.getLanguageManager().getMessage("Arena.Leave-First"));
 			return;
 		}
 		
 		player.setGameMode(GameMode.SPECTATOR);
 		a.getSpectators().add(player.getUniqueId());
 		player.teleport(a.getBlueTeam().getRandomLocation());
-		player.sendMessage(ChatColor.GREEN + "You are spectating arena: " + ChatColor.AQUA + a.getTitle());
+		player.sendMessage(plugin.getLanguageManager().getMessage("Spectate.Success").replace("%title%", a.getTitle()));
 	}
 
     private void addLobbyItems(Player player, Arena a){
@@ -101,7 +101,7 @@ public class ArenaManager {
     			
     			ItemStack is = new ItemStack(Material.WHITE_BED);
     	        ItemMeta im = is.getItemMeta();
-    	        im.setDisplayName(ChatColor.AQUA + "Leave Arena");
+    	        im.setDisplayName(plugin.getLanguageManager().getMessage("In-Game.Leave-Bed"));
     	        is.setItemMeta(im);
     	        player.getInventory().setHeldItemSlot(2);
     	        player.getInventory().setItem(2, is);
@@ -123,7 +123,7 @@ public class ArenaManager {
         if(a == null){
         	if(removeSpectatorFromArena(player)) {}
         	else {
-        		player.sendMessage("You're not in an arena.");
+        		player.sendMessage(plugin.getLanguageManager().getMessage("Arena.Not-In"));
         	}
             return;
         }
@@ -149,11 +149,6 @@ public class ArenaManager {
     	return true;
     	
     }
-
-    private void restorePlayerData(Player player) throws IOException {
-    	player.getInventory().clear();
-//		Main.inventoryManager.restoreInventory(player);
-	}
 
 	public Arena getPlayerArena(Player player){
         UUID pUUID = player.getUniqueId();
@@ -200,7 +195,8 @@ public class ArenaManager {
 
         currentlyEditing.put(player.getUniqueId(), arena);
 
-        player.sendMessage(ChatColor.GREEN + "Now editing arena " + ChatColor.AQUA + arena.getTitle());
+        player.sendMessage(plugin.getLanguageManager().getMessage("Edit.Now-Editing-Arena")
+        		.replace("%title%", arena.getTitle()));
     }
 
     public Arena createArena(Player player, String title){
@@ -218,9 +214,9 @@ public class ArenaManager {
     
     public String removeArena(String title) {
     	Arena remove = getArenaByTitle(title);
-    	if(remove == null) return ChatColor.RED + "Arena " + ChatColor.YELLOW + title + ChatColor.RED + " not found";
+    	if(remove == null) return plugin.getLanguageManager().getMessage("Edit.Arena-Not-Found").replace("%title%", title);
     	if(!remove.getArenaState().equals(ArenaState.WAITING_FOR_PLAYERS))
-    		return ChatColor.YELLOW + "Arena is busy";
+    		return plugin.getLanguageManager().getMessage("Edit.Remove-In-Progress");
     	for(Sign s : remove.getSigns()) {
     		BlockData d =  s.getBlockData();
         	if (d instanceof Directional)
@@ -232,7 +228,7 @@ public class ArenaManager {
         	s.getBlock().setType(Material.AIR);
     	}
     	arenas.remove(title);
-    	return ChatColor.BLUE + "Arena " + ChatColor.GREEN + title + ChatColor.BLUE + " removed successfully.";
+    	return plugin.getLanguageManager().getMessage("Edit.Remove-Success").replace("%title%", title);
     }
     
     private HashMap<String, Arena> getArenas(ConfigurationSection arenas) {
@@ -247,24 +243,28 @@ public class ArenaManager {
     			a.setMinPlayers(arena.getInt("min-players"));
     			a.checkMinMax();
     			a.setActivated(true);
-    			ConfigurationSection blueTeam = arenas.getConfigurationSection("blue-spawns");
+    			ConfigurationSection blueTeam = arena.getConfigurationSection("blue-spawns");
     			if(blueTeam != null) {
     				Team team = new Team();
     				for(String i : blueTeam.getKeys(false)) {
     					ConfigurationSection loc = blueTeam.getConfigurationSection(i);
-    					team.addLocation(LocationUtil.getLocation(loc));
+    					team.addLocation(LocationUtil.getLocationWithDirection(loc));
     				}
     				a.setBlueTeam(team);
+    			} else {
+    				plugin.getServer().getConsoleSender().sendMessage(ChatColor.RED + "BLUE SPAWNS NOT FOUND!!!!!");
     			}
     			
-    			ConfigurationSection redTeam = arenas.getConfigurationSection("red-spawns");
-    			if(blueTeam != null) {
+    			ConfigurationSection redTeam = arena.getConfigurationSection("red-spawns");
+    			if(redTeam != null) {
     				Team team = new Team();
     				for(String i : redTeam.getKeys(false)) {
     					ConfigurationSection loc = redTeam.getConfigurationSection(i);
-    					team.addLocation(LocationUtil.getLocation(loc));
+    					team.addLocation(LocationUtil.getLocationWithDirection(loc));
     				}
-    				a.setBlueTeam(team);
+    				a.setRedTeam(team);
+    			} else {
+    				plugin.getServer().getConsoleSender().sendMessage(ChatColor.RED + "RED SPAWNS NOT FOUND!!!!!");
     			}
     			
     			  ArrayList<Sign> signs = new ArrayList<>();
@@ -328,11 +328,11 @@ public class ArenaManager {
             }
         }
 
-       try {
-		plugin.getArenaConfig().save(plugin.getArenaConfigFile());
-	} catch (IOException e) {
-		// TODO Auto-generated catch block
-		e.printStackTrace();
-	}
+	    try {
+	    	plugin.saveArenaConfig();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
     }
 }

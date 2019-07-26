@@ -4,25 +4,16 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>SimplePaintball</groupId>
 	<artifactId>SimplePaintball</artifactId>
-	<version>0.2.6.4-beta</version>
+	<version>0.3.0-beta</version>
 	<name>SimplePaintball</name>
 	<build>
 		<sourceDirectory>src</sourceDirectory>
 		<resources>
-			<resource>
-				<targetPath>.</targetPath>
-				<filtering>true</filtering>
-				<directory>src</directory>
-				<includes>
-					<include>plugin.yml</include>
-					<include>config.yml</include>
-					<include>arenas.yml</include>
-				</includes>
-				<excludes>
-					<exclude>**/*.java</exclude>
-				</excludes>
-			</resource>
-		</resources>
+            <resource>
+                <directory>src/resources</directory>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -62,9 +53,9 @@
 						<phase>package</phase>
 						<configuration>
 							<tasks>
-								<copy file="target/SimplePaintball-0.2.6.4-beta.jar"
+								<copy file="target/SimplePaintball-0.3.0-beta.jar"
 									todir="D:\1.14Dev\plugins" />
-								<copy file="target/SimplePaintball-0.2.6.4-beta.jar"
+								<copy file="target/SimplePaintball-0.3.0-beta.jar"
 									todir="D:\1.13Dev\plugins" />
 							</tasks>
 						</configuration>

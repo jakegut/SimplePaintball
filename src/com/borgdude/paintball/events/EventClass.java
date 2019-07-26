@@ -88,8 +88,6 @@ public class EventClass implements Listener {
     	
     	Arena arena = this.arenaManager.getPlayerArena(player);
     	
-    	System.out.println("Finding arena...");
-    	
     	if (arena == null) return;
     	
     	Team team = arena.getPlayerTeam(player);
@@ -169,7 +167,7 @@ public class EventClass implements Listener {
     		if(event.getItem() == null) return;
     		
     		if(event.getItem().getType().equals(Material.WHITE_BED) &&
-                    isNamedItem(event.getItem(), ChatColor.AQUA + "Leave Arena")){
+                    isNamedItem(event.getItem(), plugin.getLanguageManager().getMessage("In-Game.Leave-Bed"))){
 	        	final Player player = event.getPlayer();
 	        	
 	        	Bukkit.dispatchCommand(player, "pb leave");
@@ -277,7 +275,7 @@ public class EventClass implements Listener {
                             ChatColor ch = cs.equals(ChatColor.BLUE) ? ChatColor.RED : ChatColor.BLUE;
                             for(UUID id : shooterA.getPlayers()){
                                 Player p = Bukkit.getServer().getPlayer(id);
-                                p.sendMessage(cs + shooter.getName() + ChatColor.GREEN + " " + plugin.getConfig().getString("In-Game.Killed").toLowerCase() + " " +
+                                p.sendMessage(cs + shooter.getName() + ChatColor.GREEN + " " + plugin.getLanguageManager().getMessage("In-Game.Killed").toLowerCase() + " " +
                                         ch + hit.getName());
                             }
                         }
@@ -333,7 +331,7 @@ public class EventClass implements Listener {
 
             Arena a = this.arenaManager.getArenaByTitle(event.getLine(1));
             if(a == null){
-                event.getPlayer().sendMessage(ChatColor.RED + "Arena with that name not found");
+                event.getPlayer().sendMessage(plugin.getLanguageManager().getMessage("Edit.Arena-Not-Found").replace("%title%", event.getLine(1)));
                 event.setCancelled(true);
             } else {
                 event.getPlayer().sendMessage(ChatColor.GREEN + "Added sign for arena " + ChatColor.AQUA + a.getTitle());
@@ -361,7 +359,7 @@ public class EventClass implements Listener {
 
                 Arena a = this.arenaManager.getArenaByTitle(ChatColor.stripColor(sign.getLine(1)));
                 if (a == null) {
-                    p.sendMessage(ChatColor.RED + "That arena wasn't found?!");
+                    p.sendMessage(plugin.getLanguageManager().getMessage("Edit.Arena-Not-Found").replace("%title%", ChatColor.stripColor(sign.getLine(1))));
                 } else {
                 	if(!a.getArenaState().equals(ArenaState.IN_GAME)) {
                         Bukkit.dispatchCommand(p, "pb join " + a.getTitle());

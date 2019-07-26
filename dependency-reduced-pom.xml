@@ -13,17 +13,8 @@
     <sourceDirectory>src</sourceDirectory>
     <resources>
       <resource>
-        <targetPath>.</targetPath>
         <filtering>true</filtering>
-        <directory>src</directory>
-        <includes>
-          <include>plugin.yml</include>
-          <include>config.yml</include>
-          <include>arenas.yml</include>
-        </includes>
-        <excludes>
-          <exclude>**/*.java</exclude>
-        </excludes>
+        <directory>src/resources</directory>
       </resource>
     </resources>
     <plugins>
