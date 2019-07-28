@@ -58,6 +58,7 @@ public class Main extends JavaPlugin {
 		getConfig().options().copyDefaults(true);
 		saveDefaultConfig();
 		matchConfig();
+		languageManager = new LanguageManager(this);
 		if (!setupEconomy()) {
 			getServer().getConsoleSender().sendMessage(ChatColor.YELLOW + "Vault Economy Disabled");
 		}
@@ -76,7 +77,6 @@ public class Main extends JavaPlugin {
 		paintballManager.registerGun(new Shotgun());
 		arenaManager = new ArenaManager(new HashMap<>(), this);
 		arenaManager.getArenas();
-		languageManager = new LanguageManager(this);
 		getCommand("gun").setExecutor(new GunCommand());
 		getCommand("pb").setExecutor(new PaintballCommand(this));
 		getCommand("pb").setTabCompleter(new PaintballCompleter());
