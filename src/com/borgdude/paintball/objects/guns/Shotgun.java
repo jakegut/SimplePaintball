@@ -19,8 +19,6 @@ import com.borgdude.paintball.utils.MathUtil;
 
 public class Shotgun implements Gun {
 	
-	private PaintballManager paintballManager = Main.paintballManager;
-	private Main plugin = Main.plugin;
 
 	@Override
 	public ItemStack getLobbyItem() {

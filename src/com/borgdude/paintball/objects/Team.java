@@ -9,16 +9,32 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.UUID;
 
 public class Team {
+	
+    private HashSet<UUID> members;
+    private Color color;
 
-    public Team(){
-        spawnLocations = new ArrayList<>();
-        members = new ArrayList<>();
+    public Team(Color color){
+        this(new ArrayList<>(), color);
+    }
+    
+    public Team(ArrayList<Location> locations, Color color){
+        spawnLocations = locations;
+        members = new HashSet<>();
     }
 
-    public ItemStack[] generateArmor(Color color){
+    public HashSet<UUID> getMembers() {
+		return members;
+	}
+
+	public void setMembers(HashSet<UUID> members) {
+		this.members = members;
+	}
+
+	public ItemStack[] generateArmor(){
         ItemStack[] r = new ItemStack[4];
 
         ItemStack helmet = new ItemStack(Material.LEATHER_HELMET);
@@ -60,12 +76,16 @@ public class Team {
         return r;
     }
 
-    public void giveArmor(Color color){
-        ItemStack[] armorSet = generateArmor(color);
+    public void giveArmor(){
+        ItemStack[] armorSet = generateArmor();
         for(UUID id : getMembers()){
             Player p = Bukkit.getPlayer(id);
             p.getInventory().setArmorContents(armorSet);
         }
+    }
+    
+    public boolean containsPlayer(Player p) {
+    	return members.contains(p.getUniqueId());
     }
 
     public ArrayList<Location> getSpawnLocations() {
@@ -77,23 +97,6 @@ public class Team {
     }
 
     private ArrayList<Location> spawnLocations;
-
-    public ArrayList<UUID> getMembers() {
-        return members;
-    }
-
-    public void setMembers(ArrayList<UUID> members) {
-        this.members = members;
-    }
-
-    private ArrayList<UUID> members;
-
-
-
-    public Team(ArrayList<Location> locations){
-        spawnLocations = locations;
-        members = new ArrayList<>();
-    }
 
     public void addMember(Player player){
         UUID pUUID = player.getUniqueId();

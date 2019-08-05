@@ -18,15 +18,15 @@ public class LocationUtil {
         config.set(p + ".World", location.getWorld().getName());
     }
 
-    public static Location getLocation(ConfigurationSection section)
-    {
-        try
-        {
-            return new Location(Bukkit.getWorld(section.getString("World")), section.getInt("X"), section.getInt("Y"), section.getInt("Z"));
-        }
-        catch (Exception e) {}
-        return null;
-    }
+//    public static Location getLocation(ConfigurationSection section)
+//    {
+//        try
+//        {
+//            return new Location(Bukkit.getWorld(section.getString("World")), section.getInt("X"), section.getInt("Y"), section.getInt("Z"));
+//        }
+//        catch (Exception e) {}
+//        return null;
+//    }
 
     public static Location getLocationWithDirection(ConfigurationSection section)
     {

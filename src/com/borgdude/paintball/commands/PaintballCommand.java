@@ -21,13 +21,11 @@ import org.bukkit.entity.Player;
 public class PaintballCommand implements CommandExecutor {
 
 	
-    private Main plugin;
-	private ArenaManager arenaManager;
+    private final Main plugin;
     
     
     public PaintballCommand(Main plugin) {
     	this.plugin = plugin;
-    	this.arenaManager = plugin.arenaManager;
     }
     
     private void sendHelpCommand(Player p, String command, String description) {
@@ -53,7 +51,7 @@ public class PaintballCommand implements CommandExecutor {
 
                         String title = args[1];
 
-                        Arena a = this.arenaManager.createArena(player, title);
+                        Arena a = plugin.getArenaManager().createArena(player, title);
                         
                         String msg = plugin.getLanguageManager().getMessage("Edit.Created-Arena")
                         		.replace("%title%", a.getTitle());
@@ -68,7 +66,7 @@ public class PaintballCommand implements CommandExecutor {
                     	
                     	String title = args[1];
                     	
-                    	player.sendMessage(this.arenaManager.removeArena(title));
+                    	player.sendMessage(plugin.getArenaManager().removeArena(title));
                     	
                     	return true;
                     } else if (args[0].equalsIgnoreCase("edit")){
@@ -80,10 +78,10 @@ public class PaintballCommand implements CommandExecutor {
 
                         String title = args[1];
 
-                        Arena a = this.arenaManager.getArenaByTitle(title);
+                        Arena a = plugin.getArenaManager().getArenaByTitle(title);
 
                         if(a != null){
-                            this.arenaManager.setCurrentlyEditing(player, a);
+                        	plugin.getArenaManager().setCurrentlyEditing(player, a);
                             return true;
                         } else {
                             player.sendMessage(plugin.getLanguageManager().getMessage("Edit.Arena-Not-Found").replace("%title%", title));
@@ -91,7 +89,7 @@ public class PaintballCommand implements CommandExecutor {
                         }
                     } else if (args[0].equalsIgnoreCase("set")){
 
-                        Arena a = this.arenaManager.getCurrentlyEditing(player);
+                        Arena a = plugin.getArenaManager().getCurrentlyEditing(player);
 
                         if(a == null){
                             player.sendMessage(ChatColor.RED + "You need to be editing an arena: /pb edit <title>");
@@ -166,7 +164,7 @@ public class PaintballCommand implements CommandExecutor {
                             return true;
                         }
                     } else if (args[0].equalsIgnoreCase("reset")) {
-                    	Arena a = this.arenaManager.getCurrentlyEditing(player);
+                    	Arena a = plugin.getArenaManager().getCurrentlyEditing(player);
 
                         if(a == null){
                             player.sendMessage(ChatColor.RED + "You need to be editing an arena: /pb edit <title>");
@@ -200,13 +198,13 @@ public class PaintballCommand implements CommandExecutor {
                     	
                     	Arena a = null;
                     	if(args.length < 2) {
-                    		a = this.arenaManager.getPlayerArena(player);
+                    		a = plugin.getArenaManager().getPlayerArena(player);
                     		if(a == null) {
                     			player.sendMessage(ChatColor.RED + "You're not in an arena, please join an arena or specify an arena (/pb start [title]");
                     			return true;
                     		}
                     	} else {
-                    		a = this.arenaManager.getArenaByTitle(args[1]);
+                    		a = plugin.getArenaManager().getArenaByTitle(args[1]);
                     		if(a == null) {
                     			player.sendMessage(plugin.getLanguageManager().getMessage("Edit.Arena-Not-Found").replace("%title%", args[1]));
                     			return true;
@@ -223,8 +221,8 @@ public class PaintballCommand implements CommandExecutor {
                     } else if (args[0].equalsIgnoreCase("reload")) {
                     	player.sendMessage(ChatColor.YELLOW + "Starting reload...");
                     	Main.plugin.reloadConfig();
-                    	arenaManager.getArenas();
-                    	arenaManager.saveArenas();
+                    	plugin.getArenaManager().getArenas();
+                    	plugin.getArenaManager().saveArenas();
                     	player.sendMessage(ChatColor.YELLOW + "Reload finished.");
                     	return true;
                     } else if (args[0].equalsIgnoreCase("info")) {
@@ -233,7 +231,7 @@ public class PaintballCommand implements CommandExecutor {
                             return true;
                         }
                     	
-                    	Arena arena = this.arenaManager.getArenaByTitle(args[1]);
+                    	Arena arena = plugin.getArenaManager().getArenaByTitle(args[1]);
                     	
                     	if(arena == null) {
                     		player.sendMessage(plugin.getLanguageManager().getMessage("Edit.Arena-Not-Found").replace("%title%", args[1]));
@@ -246,6 +244,10 @@ public class PaintballCommand implements CommandExecutor {
                     	sendArenaInfo(player, "Number of signs", String.valueOf(arena.getSigns().size()));
                     	sendArenaInfo(player, "Number of blue spawns", String.valueOf(arena.getBlueTeam().getSpawnLocations().size()));
                     	sendArenaInfo(player, "Number of red spawns", String.valueOf(arena.getRedTeam().getSpawnLocations().size()));
+                    } else if(args[0].equalsIgnoreCase("save")) {
+                    	plugin.getArenaManager().saveArenas();
+                    	player.sendMessage(plugin.getLanguageManager().getMessage("Edit.Force-Save"));
+                    	return true;
                     }
                 }
 
@@ -255,7 +257,7 @@ public class PaintballCommand implements CommandExecutor {
                         return true;
                     }
 
-                    Arena a = this.arenaManager.getArenaByTitle(args[1]);
+                    Arena a = plugin.getArenaManager().getArenaByTitle(args[1]);
 
                     if (a == null) {
                         player.sendMessage(plugin.getLanguageManager().getMessage("Edit.Arena-Not-Found").replace("%title%", args[1]));
@@ -265,7 +267,7 @@ public class PaintballCommand implements CommandExecutor {
                         return true;
                     } else {
                         try {
-							this.arenaManager.addPlayerToArena(player, a);
+                        	plugin.getArenaManager().addPlayerToArena(player, a);
 						} catch (IOException e) {
 							e.printStackTrace();
 						}
@@ -273,20 +275,20 @@ public class PaintballCommand implements CommandExecutor {
                     }
                 } else if (args[0].equalsIgnoreCase("leave")){
                     try {
-						this.arenaManager.removePlayerFromArena(player);
+                    	plugin.getArenaManager().removePlayerFromArena(player);
 					} catch (IOException e) {
 						e.printStackTrace();
 					}
                     return true;
                 } else if (args[0].equalsIgnoreCase("list")){
-                    if(arenaManager.getArena().size() == 0){
+                    if(plugin.getArenaManager().getArena().size() == 0){
                         player.sendMessage(ChatColor.RED + "There are no arenas set up yet!");
                         return true;
                     }
 
                     player.sendMessage(plugin.getLanguageManager().getMessage("List.Title"));
                     int idx = 1;
-                    for(Arena a : arenaManager.getActivatedArenas()){
+                    for(Arena a : plugin.getArenaManager().getActivatedArenas()){
                         player.sendMessage(ChatColor.GREEN + Integer.toString(idx) + ". " + ChatColor.AQUA +
                                 a.getTitle());
                         idx++;
@@ -298,7 +300,7 @@ public class PaintballCommand implements CommandExecutor {
                         return true;
                     }
                 	
-                	Arena a = this.arenaManager.getArenaByTitle(args[1]);
+                	Arena a = plugin.getArenaManager().getArenaByTitle(args[1]);
 
                     if (a == null) {
                         player.sendMessage(plugin.getLanguageManager().getMessage("Edit.Arena-Not-Found").replace("%title%", args[1]));
@@ -311,7 +313,7 @@ public class PaintballCommand implements CommandExecutor {
                                 args[1]);
                     	return true;
                     }
-                    Main.arenaManager.addSpectatorToArena(player, a);
+                    plugin.getArenaManager().addSpectatorToArena(player, a);
                     return true;
                 } else if(args[0].equalsIgnoreCase("leaderboard") || args[0].equalsIgnoreCase("lb")) {
                 	if(!Main.plugin.getConfig().getBoolean("Stats.Track") || Main.db == null) {

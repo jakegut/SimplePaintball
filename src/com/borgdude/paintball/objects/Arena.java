@@ -55,7 +55,7 @@ public class Arena {
     private HashMap<UUID, Gun> gunKits;
     private HashMap<UUID, Integer> spawnTimer = null;
     
-    private PaintballManager paintballManger = Main.paintballManager;
+    private PaintballManager paintballManger;
 
     public Arena(String name, Main plugin) {
         this.title = name;
@@ -68,6 +68,7 @@ public class Arena {
         setSpawnTimer(new HashMap<>());
         pbPlayers = new HashMap<>();
         this.plugin = plugin;
+        this.paintballManger = plugin.getPaintballManager();
     }
 
     public BossBar getBossBar() {
@@ -232,7 +233,7 @@ public class Arena {
 	                    for (UUID id : getPlayers()) {
 	                        Player p = Bukkit.getPlayer(id);
 	                        if (p != null) {
-	                            	p.playSound(p.getLocation(), Sound.BLOCK_METAL_STEP, 1, 1);
+                            	p.playSound(p.getLocation(), Sound.BLOCK_METAL_STEP, 1, 1);
 	                        }
 	                    }
 
@@ -268,8 +269,8 @@ public class Arena {
         setArenaState(ArenaState.IN_GAME);
         addMetrics();
         assignTeams();
-        blueTeam.giveArmor(Color.BLUE);
-        redTeam.giveArmor(Color.RED);
+        blueTeam.giveArmor();
+        redTeam.giveArmor();
         spawnPlayers();
         generateKills();
         setListNames();
@@ -417,8 +418,6 @@ public class Arena {
             p.addPotionEffect(new PotionEffect(PotionEffectType.SATURATION, plugin.getConfig().getInt("game-time") * 20, 5, true));
             p.setLevel(0);
 
-            System.out.println(redTeam);
-            System.out.println(blueTeam);
             if (redTeam.getMembers().size() == blueTeam.getMembers().size()) {
                 // add to a random team
                 if (random.nextBoolean()) {
@@ -443,7 +442,7 @@ public class Arena {
                 }
             }
             p.sendMessage(plugin.getLanguageManager().getMessage("Arena.Join-Team")
-            		.replace("%team%", team));
+            		.replace("%team%", ChatColor.translateAlternateColorCodes('&', team)));
         }
 
     }
@@ -465,7 +464,7 @@ public class Arena {
             ItemMeta im = bed.getItemMeta();
             im.setDisplayName(plugin.getLanguageManager().getMessage("In-Game.Leave-Bed"));
             bed.setItemMeta(im);
-            p.getInventory().setItem(9, bed);
+            p.getInventory().setItem(8, bed);
 
             Team team = getPlayerTeam(p);
             p.teleport(team.getRandomLocation());
@@ -870,15 +869,12 @@ public class Arena {
     }
 
     public Team getPlayerTeam(Player player) {
-        UUID pUUID = player.getUniqueId();
-        for (UUID id : blueTeam.getMembers()) {
-            if (id.equals(pUUID))
-                return blueTeam;
-        }
-        for (UUID id : redTeam.getMembers()) {
-            if (id.equals(pUUID))
-                return redTeam;
-        }
+        
+        if(blueTeam.containsPlayer(player))
+        	return blueTeam;
+        
+        if(redTeam.containsPlayer(player))
+        	return redTeam;
 
         return null;
     }
@@ -952,5 +948,72 @@ public class Arena {
             getBossBar().removePlayer(player);
         }
         updateSigns();
+	}
+
+	public void spawnPlayer(Player player) {
+		new BukkitRunnable() {
+			
+			@Override
+			public void run() {
+				Team t = getPlayerTeam(player);
+				if(t == null) {
+					player.getInventory().clear();
+					player.setExp(0);
+					player.setLevel(0);
+					addLobbyItems(player);
+					player.teleport(getLobbyLocation());
+				} else {
+					addInGameItems(player, t);
+					respawnPlayer(player); // Teleport to team location
+				}
+				
+			}
+		}.runTaskLater(plugin, 10);
+	}
+
+	private void addInGameItems(Player player, Team t) {
+		player.getInventory().setArmorContents(t.generateArmor());
+		Gun gun = getGunKits().get(player.getUniqueId());
+		
+        if(gun == null) {
+        	System.out.println(player.getName() + "'s kit was null");
+        	gun = paintballManger.getGunByName("Regular");
+        }
+        ItemStack is = gun.getInGameItem();
+        player.getInventory().addItem(is);
+        
+        // Add leave bed
+        ItemStack bed = new ItemStack(Material.WHITE_BED);
+        ItemMeta im = bed.getItemMeta();
+        im.setDisplayName(plugin.getLanguageManager().getMessage("In-Game.Leave-Bed"));
+        bed.setItemMeta(im);
+        player.getInventory().setItem(8, bed);
+
+	}
+
+	public void addLobbyItems(Player player) {
+		// This runnable is to place lobby items after 10 ticks as other plugins may
+		// clear inventory 5 ticks after they TP to another world
+		new BukkitRunnable() {
+			public void run() {
+				if (getArenaState().equals(ArenaState.IN_GAME))
+					return;
+
+				ItemStack is = new ItemStack(Material.WHITE_BED);
+				ItemMeta im = is.getItemMeta();
+				im.setDisplayName(plugin.getLanguageManager().getMessage("In-Game.Leave-Bed"));
+				is.setItemMeta(im);
+				player.getInventory().setHeldItemSlot(2);
+				player.getInventory().setItem(2, is);
+
+				int i = 3;
+				for (Gun gun : plugin.getPaintballManager().getGuns()) {
+					ItemStack lobbyItem = gun.getLobbyItem();
+					if (lobbyItem == null)
+						continue;
+					player.getInventory().setItem(i++, lobbyItem);
+				}
+			}
+		}.runTaskLater(plugin, 10);
 	}
 }

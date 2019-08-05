@@ -31,6 +31,7 @@ Edit:
   Now-Editing-Arena: "&aNow editing arena &b%title%"
   Remove-In-Progress: "&eArena is busy"
   Remove-Success: "&9Arena &a%title% &9removed successfully."
+  Force-Save: "&aYou have forced save all arenas..."
 Help: 
   Basic: 
     Join: "&9Join an arena with a given title"

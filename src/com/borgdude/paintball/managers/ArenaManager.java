@@ -25,12 +25,13 @@ public class ArenaManager {
 	private HashMap<String, Arena> arenas;
 	private HashMap<UUID, Arena> currentlyEditing;
 	private Main plugin;
-	private PaintballManager paintballManager = Main.paintballManager;
+	private PaintballManager paintballManager;
 
 	public ArenaManager(HashMap<String, Arena> arenas, Main plugin) {
 		this.arenas = arenas;
 		this.plugin = plugin;
 		this.currentlyEditing = new HashMap<>();
+		this.paintballManager = plugin.getPaintballManager();
 	}
 
 	public HashMap<String, Arena> getArena() {
@@ -71,7 +72,7 @@ public class ArenaManager {
 		player.setLevel(0);
 		a.setGunKit(player, paintballManager.getGunByName("Sniper"));
 		player.sendMessage(plugin.getLanguageManager().getMessage("Join.Success").replace("%title%", a.getTitle()));
-		addLobbyItems(player, a);
+		a.addLobbyItems(player);
 
 		a.checkToStart();
 	}
@@ -94,30 +95,7 @@ public class ArenaManager {
 	}
 
 	private void addLobbyItems(Player player, Arena a) {
-		// This runnable is to place lobby items after 10 ticks as other plugins may
-		// clear inventory 5 ticks after they TP to another world
-		new BukkitRunnable() {
-			public void run() {
-				if (a.getArenaState().equals(ArenaState.IN_GAME))
-					return;
-
-				ItemStack is = new ItemStack(Material.WHITE_BED);
-				ItemMeta im = is.getItemMeta();
-				im.setDisplayName(plugin.getLanguageManager().getMessage("In-Game.Leave-Bed"));
-				is.setItemMeta(im);
-				player.getInventory().setHeldItemSlot(2);
-				player.getInventory().setItem(2, is);
-
-				int i = 3;
-				for (Gun gun : paintballManager.getGuns()) {
-					ItemStack lobbyItem = gun.getLobbyItem();
-					if (lobbyItem == null)
-						continue;
-					player.getInventory().setItem(i, lobbyItem);
-					i++;
-				}
-			}
-		}.runTaskLater(plugin, 10);
+		
 	}
 
 	public void removePlayerFromArena(Player player) throws IOException {
@@ -206,8 +184,8 @@ public class ArenaManager {
 		Arena newArena = new Arena(title, this.plugin);
 		newArena.setMaxPlayers(10);
 		newArena.setMinPlayers(2);
-		newArena.setBlueTeam(new Team());
-		newArena.setRedTeam(new Team());
+		newArena.setBlueTeam(new Team(Color.BLUE));
+		newArena.setRedTeam(new Team(Color.RED));
 		arenas.put(title, newArena);
 
 		Arena returnArena = arenas.get(title);
@@ -249,7 +227,7 @@ public class ArenaManager {
 				a.setActivated(true);
 				ConfigurationSection blueTeam = arena.getConfigurationSection("blue-spawns");
 				if (blueTeam != null) {
-					Team team = new Team();
+					Team team = new Team(Color.BLUE);
 					for (String i : blueTeam.getKeys(false)) {
 						ConfigurationSection loc = blueTeam.getConfigurationSection(i);
 						team.addLocation(LocationUtil.getLocationWithDirection(loc));
@@ -261,7 +239,7 @@ public class ArenaManager {
 
 				ConfigurationSection redTeam = arena.getConfigurationSection("red-spawns");
 				if (redTeam != null) {
-					Team team = new Team();
+					Team team = new Team(Color.RED);
 					for (String i : redTeam.getKeys(false)) {
 						ConfigurationSection loc = redTeam.getConfigurationSection(i);
 						team.addLocation(LocationUtil.getLocationWithDirection(loc));

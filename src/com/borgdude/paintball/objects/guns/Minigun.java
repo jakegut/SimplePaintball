@@ -18,8 +18,11 @@ import com.borgdude.paintball.utils.MathUtil;
 
 public class Minigun implements Gun{
 	
-	private PaintballManager paintballManager = Main.paintballManager;
-	private Main plugin = Main.plugin;
+	private Main plugin;
+	
+	public Minigun(Main p) {
+    	this.plugin = p;
+    }
 
 	@Override
 	public ItemStack getLobbyItem() {

@@ -21,6 +21,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.SignChangeEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryInteractEvent;
@@ -47,14 +48,17 @@ import java.util.UUID;
 
 public class EventClass implements Listener {
 
-    private ArenaManager arenaManager = Main.arenaManager;
-    private PaintballManager paintballManager = Main.paintballManager;
-    private Main plugin = Main.plugin;
+    private ArenaManager arenaManager;
+    private PaintballManager paintballManager;
+    private Main plugin;
     private int spawnTime;
 
-    public EventClass(){
+    public EventClass(Main p){
         super();
-        spawnTime = plugin.getConfig().getInt("Gameplay.Spawn-Time");
+        spawnTime = p.getConfig().getInt("Gameplay.Spawn-Time");
+        this.arenaManager = p.getArenaManager();
+        this.paintballManager = p.getPaintballManager();
+        this.plugin = p;
     }
     
     public void runTimer(final Player player, float fireRate) {
@@ -90,13 +94,21 @@ public class EventClass implements Listener {
     	
     	if (arena == null) return;
     	
-    	Team team = arena.getPlayerTeam(player);
+    	arena.spawnPlayer(player);
     	
-    	if (team != null) 
-    		event.setRespawnLocation(team.getRandomLocation());
-    	else
-    		event.setRespawnLocation(arena.getLobbyLocation());
+    }
+    
+    @EventHandler
+    public void onDeath(PlayerDeathEvent event) {
+    	Player p = (Player) event.getEntity();
     	
+    	if(p == null) return;
+    	
+    	Arena a = plugin.getArenaManager().getPlayerArena(p);
+    	
+    	if(a == null) return;
+    	
+    	event.getDrops().clear();
     }
     
    // @EventHandler

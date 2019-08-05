@@ -13,7 +13,11 @@ import org.bukkit.inventory.ItemStack;
 
 public class GunCommand implements CommandExecutor {
 
-    private PaintballManager paintballManager = Main.paintballManager;
+    private final Main plugin;
+    
+    public GunCommand(Main p) {
+    	this.plugin = p;
+    }
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String s, String[] args){
@@ -27,7 +31,7 @@ public class GunCommand implements CommandExecutor {
 
             if(command.getName().equalsIgnoreCase("gun")){
             	if(args.length >= 1) {
-            		Gun gun = paintballManager.getGunByName(args[0]);
+            		Gun gun = plugin.getPaintballManager().getGunByName(args[0]);
             		if(gun == null) {
             			player.sendMessage(ChatColor.RED + "Gun not found.");
             			return true;
@@ -37,7 +41,7 @@ public class GunCommand implements CommandExecutor {
             		player.getInventory().addItem(is);
             		return true;
             	}
-                ItemStack is = this.paintballManager.getGunByName("Admin").getInGameItem();
+                ItemStack is = plugin.getPaintballManager().getGunByName("Admin").getInGameItem();
                 player.getInventory().addItem(is);
                 return true;
             }

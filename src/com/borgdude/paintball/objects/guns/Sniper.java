@@ -16,8 +16,13 @@ import com.borgdude.paintball.objects.Gun;
 
 public class Sniper implements Gun{
 	
-	private Main plugin = Main.plugin;
-	private PaintballManager paintballManager = Main.paintballManager;
+	private Main plugin;
+	private PaintballManager paintballManager;
+	
+	public Sniper(Main p) {
+    	this.plugin = p;
+    	this.paintballManager = p.getPaintballManager();
+    }
 
 	@Override
 	public ItemStack getLobbyItem() {

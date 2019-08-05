@@ -15,7 +15,11 @@ import com.borgdude.paintball.objects.Arena;
 
 public class PaintballCompleter implements TabCompleter {
 	
-	private ArenaManager arenaManager = Main.arenaManager;
+	private ArenaManager arenaManager;
+	
+	public PaintballCompleter(Main p) {
+		this.arenaManager = p.getArenaManager();
+	}
 
 	@Override
 	public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {

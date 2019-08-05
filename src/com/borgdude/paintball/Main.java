@@ -30,9 +30,9 @@ import java.util.HashMap;
 public class Main extends JavaPlugin {
 
 	public static Main plugin;
-	public static ArenaManager arenaManager;
-	public static PaintballManager paintballManager;
-	public static InventoryManager inventoryManager;
+	private ArenaManager arenaManager;
+	private PaintballManager paintballManager;
+	private InventoryManager inventoryManager;
 	
 	private LanguageManager languageManager;
 	
@@ -70,19 +70,26 @@ public class Main extends JavaPlugin {
 		}
 		inventoryManager = new InventoryManager(this);
 		paintballManager = new PaintballManager();
-		paintballManager.registerGun(new Admin());
-		paintballManager.registerGun(new Sniper());
-		paintballManager.registerGun(new Rocket());
-		paintballManager.registerGun(new Minigun());
+		paintballManager.registerGun(new Admin(this));
+		paintballManager.registerGun(new Sniper(this));
+		paintballManager.registerGun(new Rocket(this));
+		paintballManager.registerGun(new Minigun(this));
 		paintballManager.registerGun(new Shotgun());
 		arenaManager = new ArenaManager(new HashMap<>(), this);
 		arenaManager.getArenas();
-		getCommand("gun").setExecutor(new GunCommand());
+		getCommand("gun").setExecutor(new GunCommand(this));
 		getCommand("pb").setExecutor(new PaintballCommand(this));
-		getCommand("pb").setTabCompleter(new PaintballCompleter());
-		getServer().getPluginManager().registerEvents(new EventClass(), this);
+		getCommand("pb").setTabCompleter(new PaintballCompleter(this));
+		getServer().getPluginManager().registerEvents(new EventClass(this), this);
 		getServer().getConsoleSender().sendMessage(ChatColor.GREEN + "PaintBall Enabled");
 	}
+	
+	
+	public PaintballManager getPaintballManager() { return this.paintballManager; }
+	
+	public InventoryManager getInventoryManager() { return this.inventoryManager; }
+	
+	public ArenaManager getArenaManager() { return this.arenaManager; }
 	
 	public LanguageManager getLanguageManager() { return this.languageManager; }
 
@@ -152,4 +159,7 @@ public class Main extends JavaPlugin {
 	public void setDb(Database db) {
 		this.db = db;
 	}
+
+
+
 }

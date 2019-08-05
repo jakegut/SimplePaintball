@@ -20,9 +20,12 @@ import org.bukkit.util.Vector;
 
 public class Rocket implements Gun {
 
-    private Main plugin = Main.plugin;
-    private PaintballManager paintballManager = Main.paintballManager;
+    private Main plugin;
 
+    public Rocket(Main p) {
+    	this.plugin = p;
+    }
+    
     @Override
     public ItemStack getLobbyItem() {
         ItemStack rocket = new ItemStack(Material.GREEN_WOOL);
@@ -87,7 +90,6 @@ public class Rocket implements Gun {
                 	t = t.multiply(new Vector(0.1, 0.1, 0.1));
                 	player.setVelocity(t);
                 }
-                System.out.println(MathUtil.getMaxHeight(t));
                 player.setFallDistance(MathUtil.getMaxHeight(t));
         	}
         }

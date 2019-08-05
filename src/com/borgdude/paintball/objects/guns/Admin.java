@@ -22,9 +22,13 @@ import java.awt.*;
 
 public class Admin implements Gun {
 
-    private static Main plugin = Main.plugin;
-    private static PaintballManager paintballManager = Main.paintballManager;
+    private Main plugin;
+    private PaintballManager paintballManager;
 
+    public Admin(Main p) {
+    	this.plugin = p;
+    	this.paintballManager = p.getPaintballManager();
+    }
 
     @Override
     public ItemStack getLobbyItem() {
