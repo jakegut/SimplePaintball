@@ -81,16 +81,17 @@ public class Rocket implements Gun {
                 Vector b = ball.getLocation().toVector();
                 Vector t = p.subtract(b).normalize();
                 double dis = n.getLocation().distance(ball.getLocation());
-
+                
                 t = t.multiply(MathUtil.tanh(dis));
                 if(player.getUniqueId().equals(n.getUniqueId())) {
                 	t = t.multiply(new Vector(0.5, 0.5, 0.5));
-                	player.setVelocity(t);
+                	n.setVelocity(t);
+                	n.setFallDistance(MathUtil.getMaxHeight(t));
                 } else {
-                	t = t.multiply(new Vector(0.1, 0.1, 0.1));
-                	player.setVelocity(t);
+                	t = t.multiply(new Vector(0.3, 0.4, 0.3));
+                	n.setVelocity(t);
                 }
-                player.setFallDistance(MathUtil.getMaxHeight(t));
+               
         	}
         }
         
