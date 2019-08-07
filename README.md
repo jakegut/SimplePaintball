@@ -1,4 +1,5 @@
 [![Join our Discord server](https://discordapp.com/api/guilds/547121273684099102/widget.png?style=shield)](https://discordapp.com/invite/FHTtyT5)
+[![Build Status](https://travis-ci.com/jakeryang/SimplePaintball.svg?branch=master)](https://travis-ci.com/jakeryang/SimplePaintball)
 
 # SimplePaintball
 Spigot 1.14 Paintball Plugin. Made with the idea that the Minecraft accounts are shared.
