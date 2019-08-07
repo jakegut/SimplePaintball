@@ -120,7 +120,7 @@ public class EventClass implements Listener {
     		
     		if(arena == null) return;
     		
-    		player.setHealth(20);
+    		event.setCancelled(true);
     	}
     }
 
