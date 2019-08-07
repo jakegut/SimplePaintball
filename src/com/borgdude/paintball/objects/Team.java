@@ -24,6 +24,7 @@ public class Team {
     public Team(ArrayList<Location> locations, Color color){
         spawnLocations = locations;
         members = new HashSet<>();
+        this.color = color;
     }
 
     public HashSet<UUID> getMembers() {
