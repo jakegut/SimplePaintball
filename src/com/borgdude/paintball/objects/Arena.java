@@ -563,6 +563,7 @@ public class Arena {
     	if(team == null) {
     		for (UUID id : getPlayers()) {
                 Player p = Bukkit.getPlayer(id);
+                if(p == null) continue;
                 EconomyResponse r = Main.econ.depositPlayer(p, amount/2);
                 if(r.transactionSuccess()) {
                     p.sendMessage(plugin.getLanguageManager().getMessage("Arena.Reward-Player")
@@ -575,6 +576,7 @@ public class Arena {
     	} else {
     		for (UUID id : team.getMembers()) {
     			Player p = Bukkit.getPlayer(id);
+    			if(p == null) continue;
                 EconomyResponse r = Main.econ.depositPlayer(p, amount);
                 if(r.transactionSuccess()) {
                 	p.sendMessage(plugin.getLanguageManager().getMessage("Arena.Reward-Player")
