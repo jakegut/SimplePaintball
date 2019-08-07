@@ -111,7 +111,7 @@ public class EventClass implements Listener {
     	event.getDrops().clear();
     }
     
-   // @EventHandler
+    @EventHandler
     public void onEntityDamange(EntityDamageEvent event) {
     	if(event.getEntity() instanceof Player) {
     		Player player = (Player) event.getEntity();
