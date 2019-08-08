@@ -280,11 +280,7 @@ public class PaintballCommand implements CommandExecutor {
                         return true;
                     }
                 } else if (args[0].equalsIgnoreCase("leave")) {
-                    try {
-                        plugin.getArenaManager().removePlayerFromArena(player);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
+                    plugin.getArenaManager().removePlayerFromArena(player);
                     return true;
                 } else if (args[0].equalsIgnoreCase("list")) {
                     if (plugin.getArenaManager().getArena().size() == 0) {
