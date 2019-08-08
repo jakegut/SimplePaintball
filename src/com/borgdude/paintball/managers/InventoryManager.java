@@ -12,11 +12,11 @@ import org.bukkit.inventory.ItemStack;
 import com.borgdude.paintball.Main;
 
 public class InventoryManager {
-	private Main plugin;
-	
-	public InventoryManager(Main plugin) {
-		this.plugin = plugin;
-	}
+    private Main plugin;
+
+    public InventoryManager(Main plugin) {
+        this.plugin = plugin;
+    }
 //	
 //	public void saveInventory(Player p) throws IOException {
 //		System.out.println("Using ");

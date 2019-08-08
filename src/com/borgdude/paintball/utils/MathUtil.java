@@ -11,13 +11,15 @@ public class MathUtil {
     public static float getRandomComp(float accuracy) {
         return (float) (Math.random() * (accuracy * 2) - accuracy);
     }
-    
+
     public static double tanh(double x) {
-    	if(x < 0 || x > 5) return 0;
-    	else return -x + 5;
+        if (x < 0 || x > 5)
+            return 0;
+        else
+            return -x + 5;
     }
-    
+
     public static int getMaxHeight(Vector v) {
-    	return (int) (- (v.getY() * v.getY()) / (2 * 0.08));
+        return (int) (-(v.getY() * v.getY()) / (2 * 0.08));
     }
 }

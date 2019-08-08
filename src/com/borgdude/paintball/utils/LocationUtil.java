@@ -8,8 +8,7 @@ import org.bukkit.plugin.Plugin;
 
 public class LocationUtil {
 
-    public static void saveLocation(String p, Location location, FileConfiguration config)
-    {
+    public static void saveLocation(String p, Location location, FileConfiguration config) {
         config.set(p + ".X", Integer.valueOf(location.getBlockX()));
         config.set(p + ".Y", Integer.valueOf(location.getBlockY()));
         config.set(p + ".Z", Integer.valueOf(location.getBlockZ()));
@@ -28,13 +27,12 @@ public class LocationUtil {
 //        return null;
 //    }
 
-    public static Location getLocationWithDirection(ConfigurationSection section)
-    {
-        try
-        {
-            return new Location(Bukkit.getWorld(section.getString("World")), section.getInt("X"), section.getInt("Y"), section.getInt("Z"), section.getInt("Yaw"), section.getInt("Pitch"));
+    public static Location getLocationWithDirection(ConfigurationSection section) {
+        try {
+            return new Location(Bukkit.getWorld(section.getString("World")), section.getInt("X"), section.getInt("Y"),
+                    section.getInt("Z"), section.getInt("Yaw"), section.getInt("Pitch"));
+        } catch (Exception e) {
         }
-        catch (Exception e) {}
         return null;
     }
 

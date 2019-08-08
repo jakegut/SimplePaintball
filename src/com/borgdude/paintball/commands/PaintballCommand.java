@@ -20,31 +20,29 @@ import org.bukkit.entity.Player;
 
 public class PaintballCommand implements CommandExecutor {
 
-	
     private final Main plugin;
-    
-    
+
     public PaintballCommand(Main plugin) {
-    	this.plugin = plugin;
+        this.plugin = plugin;
     }
-    
+
     private void sendHelpCommand(Player p, String command, String description) {
-    	p.sendMessage(ChatColor.GREEN + command + " - " + description);
+        p.sendMessage(ChatColor.GREEN + command + " - " + description);
     }
 
     @Override
-    public boolean onCommand(CommandSender sender, Command command, String s, String[] args){
-        if(sender instanceof Player){
+    public boolean onCommand(CommandSender sender, Command command, String s, String[] args) {
+        if (sender instanceof Player) {
             Player player = (Player) sender;
 
-            if(command.getName().equalsIgnoreCase("pb")){
-            	if(args.length <= 0) {
-            		Bukkit.dispatchCommand(player, "pb help");
-            		return true;
-            	}
-                if(player.hasPermission("paintball.admin")){
-                    if(args[0].equalsIgnoreCase("create")){
-                        if(args.length < 2 || args[1].length() < 2){
+            if (command.getName().equalsIgnoreCase("pb")) {
+                if (args.length <= 0) {
+                    Bukkit.dispatchCommand(player, "pb help");
+                    return true;
+                }
+                if (player.hasPermission("paintball.admin")) {
+                    if (args[0].equalsIgnoreCase("create")) {
+                        if (args.length < 2 || args[1].length() < 2) {
                             player.sendMessage(ChatColor.RED + "Usage: /pb create <title>");
                             return true;
                         }
@@ -52,26 +50,26 @@ public class PaintballCommand implements CommandExecutor {
                         String title = args[1];
 
                         Arena a = plugin.getArenaManager().createArena(player, title);
-                        
-                        String msg = plugin.getLanguageManager().getMessage("Edit.Created-Arena")
-                        		.replace("%title%", a.getTitle());
+
+                        String msg = plugin.getLanguageManager().getMessage("Edit.Created-Arena").replace("%title%",
+                                a.getTitle());
                         player.sendMessage(msg);
-                        
+
                         return true;
-                    } else if(args[0].equals("remove")) {
-                    	if(args.length < 2 || args[1].length() < 2){
+                    } else if (args[0].equals("remove")) {
+                        if (args.length < 2 || args[1].length() < 2) {
                             player.sendMessage(ChatColor.RED + "Usage: /pb remove <title>");
                             return true;
                         }
-                    	
-                    	String title = args[1];
-                    	
-                    	player.sendMessage(plugin.getArenaManager().removeArena(title));
-                    	
-                    	return true;
-                    } else if (args[0].equalsIgnoreCase("edit")){
 
-                        if(args.length < 2 || args[1].length() < 2){
+                        String title = args[1];
+
+                        player.sendMessage(plugin.getArenaManager().removeArena(title));
+
+                        return true;
+                    } else if (args[0].equalsIgnoreCase("edit")) {
+
+                        if (args.length < 2 || args[1].length() < 2) {
                             player.sendMessage(ChatColor.RED + "Usage: /pb edit <title>");
                             return true;
                         }
@@ -80,179 +78,185 @@ public class PaintballCommand implements CommandExecutor {
 
                         Arena a = plugin.getArenaManager().getArenaByTitle(title);
 
-                        if(a != null){
-                        	plugin.getArenaManager().setCurrentlyEditing(player, a);
+                        if (a != null) {
+                            plugin.getArenaManager().setCurrentlyEditing(player, a);
                             return true;
                         } else {
-                            player.sendMessage(plugin.getLanguageManager().getMessage("Edit.Arena-Not-Found").replace("%title%", title));
+                            player.sendMessage(plugin.getLanguageManager().getMessage("Edit.Arena-Not-Found")
+                                    .replace("%title%", title));
                             return true;
                         }
-                    } else if (args[0].equalsIgnoreCase("set")){
+                    } else if (args[0].equalsIgnoreCase("set")) {
 
                         Arena a = plugin.getArenaManager().getCurrentlyEditing(player);
 
-                        if(a == null){
+                        if (a == null) {
                             player.sendMessage(ChatColor.RED + "You need to be editing an arena: /pb edit <title>");
                             return true;
                         }
 
-
-                        if(args.length < 2 || args[1].length() < 2){
+                        if (args.length < 2 || args[1].length() < 2) {
                             player.sendMessage(ChatColor.RED + "Usage: /pb set <option> <add.>");
                             return true;
                         }
 
-                        if(args[1].equalsIgnoreCase("max")){
-                            if(args.length < 3)
+                        if (args[1].equalsIgnoreCase("max")) {
+                            if (args.length < 3)
                                 return false;
 
                             int max = Integer.valueOf(args[2]);
 
-                            if(max < a.getMinPlayers()){
+                            if (max < a.getMinPlayers()) {
                                 player.sendMessage(ChatColor.RED + "Invalid number...try again");
                                 return true;
                             } else {
                                 a.setMaxPlayers(max);
-                                player.sendMessage(ChatColor.GREEN + "Set max number to: " + max + " for arena: " +
-                                        a.getTitle());
+                                player.sendMessage(
+                                        ChatColor.GREEN + "Set max number to: " + max + " for arena: " + a.getTitle());
                                 a.updateSigns();
                                 return true;
                             }
-                        } else if(args[1].equalsIgnoreCase("min")){
-                            if(args.length < 3)
+                        } else if (args[1].equalsIgnoreCase("min")) {
+                            if (args.length < 3)
                                 return false;
 
                             int min = Integer.valueOf(args[2]);
 
-                            if(min < 2 || min > a.getMaxPlayers()){
+                            if (min < 2 || min > a.getMaxPlayers()) {
                                 player.sendMessage(ChatColor.RED + "Invalid number...try again");
                                 return true;
                             } else {
                                 a.setMinPlayers(min);
-                                player.sendMessage(ChatColor.GREEN + "Set min number to: " + min + " for arena: " +
-                                        a.getTitle());
+                                player.sendMessage(
+                                        ChatColor.GREEN + "Set min number to: " + min + " for arena: " + a.getTitle());
                                 return true;
                             }
-                        } else if(args[1].equalsIgnoreCase("blue")){
+                        } else if (args[1].equalsIgnoreCase("blue")) {
                             Location loc = player.getLocation();
                             a.getBlueTeam().addLocation(loc);
-                            player.sendMessage(ChatColor.GREEN + "Added spawn to " + ChatColor.BLUE + "blue" +
-                                    ChatColor.GREEN + "team. Spawn count: " + ChatColor.AQUA +
-                                    a.getBlueTeam().getSpawnLocations().size());
+                            player.sendMessage(ChatColor.GREEN + "Added spawn to " + ChatColor.BLUE + "blue"
+                                    + ChatColor.GREEN + "team. Spawn count: " + ChatColor.AQUA
+                                    + a.getBlueTeam().getSpawnLocations().size());
                             return true;
-                        } else if(args[1].equalsIgnoreCase("red")){
+                        } else if (args[1].equalsIgnoreCase("red")) {
                             Location loc = player.getLocation();
                             a.getRedTeam().addLocation(loc);
-                            player.sendMessage(ChatColor.GREEN + "Added spawn to " + ChatColor.RED + "red" +
-                                    ChatColor.GREEN + "team. Spawn count: " + ChatColor.AQUA +
-                                    a.getRedTeam().getSpawnLocations().size());
+                            player.sendMessage(ChatColor.GREEN + "Added spawn to " + ChatColor.RED + "red"
+                                    + ChatColor.GREEN + "team. Spawn count: " + ChatColor.AQUA
+                                    + a.getRedTeam().getSpawnLocations().size());
                             return true;
-                        } else if(args[1].equalsIgnoreCase("lobby")){
+                        } else if (args[1].equalsIgnoreCase("lobby")) {
                             Location loc = player.getLocation();
                             a.setLobbyLocation(loc);
-                            player.sendMessage(ChatColor.GREEN + "Changed lobby location for: " + ChatColor.AQUA +
-                                    a.getTitle());
+                            player.sendMessage(
+                                    ChatColor.GREEN + "Changed lobby location for: " + ChatColor.AQUA + a.getTitle());
                             return true;
-                        } else if(args[1].equalsIgnoreCase("end")){
+                        } else if (args[1].equalsIgnoreCase("end")) {
                             Location loc = player.getLocation();
                             a.setEndLocation(loc);
-                            player.sendMessage(ChatColor.GREEN + "Changed end location for: " + ChatColor.AQUA +
-                                    a.getTitle());
+                            player.sendMessage(
+                                    ChatColor.GREEN + "Changed end location for: " + ChatColor.AQUA + a.getTitle());
                             return true;
-                        } else if(args[1].equalsIgnoreCase("activate")){
+                        } else if (args[1].equalsIgnoreCase("activate")) {
                             a.setActivated(player);
                             return true;
                         }
                     } else if (args[0].equalsIgnoreCase("reset")) {
-                    	Arena a = plugin.getArenaManager().getCurrentlyEditing(player);
+                        Arena a = plugin.getArenaManager().getCurrentlyEditing(player);
 
-                        if(a == null){
+                        if (a == null) {
                             player.sendMessage(ChatColor.RED + "You need to be editing an arena: /pb edit <title>");
                             return true;
                         }
 
-
-                        if(args.length < 2 || args[1].length() < 2){
+                        if (args.length < 2 || args[1].length() < 2) {
                             player.sendMessage(ChatColor.RED + "Usage: /pb reset <blue | red>");
                             return true;
                         }
-                        
+
                         String changedTeam = "?????";
-                        
-                        if(args[1].equalsIgnoreCase("red")) {
-                        	a.getRedTeam().getSpawnLocations().clear();
-                        	
-                        	changedTeam = ChatColor.RED + "Red Team";
-                        } else if(args[1].equalsIgnoreCase("blue")){
+
+                        if (args[1].equalsIgnoreCase("red")) {
+                            a.getRedTeam().getSpawnLocations().clear();
+
+                            changedTeam = ChatColor.RED + "Red Team";
+                        } else if (args[1].equalsIgnoreCase("blue")) {
                             a.getBlueTeam().getSpawnLocations().clear();
-                            
+
                             changedTeam = ChatColor.BLUE + "Blue Team";
                         }
-                        
+
                         a.setActivated(false);
-                        player.sendMessage(ChatColor.GREEN + "The spawn locations for " + changedTeam +
-                    			ChatColor.GREEN + " have been cleared and the arena has been " + ChatColor.YELLOW + "deactivated." +
-                    			ChatColor.GREEN + "Please add blue/red spawns and run " + ChatColor.YELLOW + "/pb set activate " + ChatColor.GREEN + "when ready");
+                        player.sendMessage(ChatColor.GREEN + "The spawn locations for " + changedTeam + ChatColor.GREEN
+                                + " have been cleared and the arena has been " + ChatColor.YELLOW + "deactivated."
+                                + ChatColor.GREEN + "Please add blue/red spawns and run " + ChatColor.YELLOW
+                                + "/pb set activate " + ChatColor.GREEN + "when ready");
                         return true;
                     } else if (args[0].equalsIgnoreCase("start")) {
-                    	
-                    	Arena a = null;
-                    	if(args.length < 2) {
-                    		a = plugin.getArenaManager().getPlayerArena(player);
-                    		if(a == null) {
-                    			player.sendMessage(ChatColor.RED + "You're not in an arena, please join an arena or specify an arena (/pb start [title]");
-                    			return true;
-                    		}
-                    	} else {
-                    		a = plugin.getArenaManager().getArenaByTitle(args[1]);
-                    		if(a == null) {
-                    			player.sendMessage(plugin.getLanguageManager().getMessage("Edit.Arena-Not-Found").replace("%title%", args[1]));
-                    			return true;
-                    		}
-                    	}
-                    	
-                    	if(a.getArenaState().equals(ArenaState.STARTING)) {
-                			if(a.getTimer() > 5)
-                				a.setTimer(5);
-                		} else {
-                			player.sendMessage(ChatColor.RED + "Arena needs to be in a state of starting to force start.");
-                		}
-                		return true;
+
+                        Arena a = null;
+                        if (args.length < 2) {
+                            a = plugin.getArenaManager().getPlayerArena(player);
+                            if (a == null) {
+                                player.sendMessage(ChatColor.RED
+                                        + "You're not in an arena, please join an arena or specify an arena (/pb start [title]");
+                                return true;
+                            }
+                        } else {
+                            a = plugin.getArenaManager().getArenaByTitle(args[1]);
+                            if (a == null) {
+                                player.sendMessage(plugin.getLanguageManager().getMessage("Edit.Arena-Not-Found")
+                                        .replace("%title%", args[1]));
+                                return true;
+                            }
+                        }
+
+                        if (a.getArenaState().equals(ArenaState.STARTING)) {
+                            if (a.getTimer() > 5)
+                                a.setTimer(5);
+                        } else {
+                            player.sendMessage(
+                                    ChatColor.RED + "Arena needs to be in a state of starting to force start.");
+                        }
+                        return true;
                     } else if (args[0].equalsIgnoreCase("reload")) {
-                    	player.sendMessage(ChatColor.YELLOW + "Starting reload...");
-                    	Main.plugin.reloadConfig();
-                    	plugin.getArenaManager().getArenas();
-                    	plugin.getArenaManager().saveArenas();
-                    	player.sendMessage(ChatColor.YELLOW + "Reload finished.");
-                    	return true;
+                        player.sendMessage(ChatColor.YELLOW + "Starting reload...");
+                        Main.plugin.reloadConfig();
+                        plugin.getArenaManager().getArenas();
+                        plugin.getArenaManager().saveArenas();
+                        player.sendMessage(ChatColor.YELLOW + "Reload finished.");
+                        return true;
                     } else if (args[0].equalsIgnoreCase("info")) {
-                    	if(args.length < 2 || args[1].length() < 2){
+                        if (args.length < 2 || args[1].length() < 2) {
                             player.sendMessage(ChatColor.RED + "Usage: /pb info <title>");
                             return true;
                         }
-                    	
-                    	Arena arena = plugin.getArenaManager().getArenaByTitle(args[1]);
-                    	
-                    	if(arena == null) {
-                    		player.sendMessage(plugin.getLanguageManager().getMessage("Edit.Arena-Not-Found").replace("%title%", args[1]));
+
+                        Arena arena = plugin.getArenaManager().getArenaByTitle(args[1]);
+
+                        if (arena == null) {
+                            player.sendMessage(plugin.getLanguageManager().getMessage("Edit.Arena-Not-Found")
+                                    .replace("%title%", args[1]));
                             return true;
-                    	}
-                    	
-                    	sendArenaInfo(player, "Title", arena.getTitle());
-                    	sendArenaInfo(player, "Max Players", String.valueOf(arena.getMaxPlayers()));
-                    	sendArenaInfo(player, "Min Players", String.valueOf(arena.getMinPlayers()));
-                    	sendArenaInfo(player, "Number of signs", String.valueOf(arena.getSigns().size()));
-                    	sendArenaInfo(player, "Number of blue spawns", String.valueOf(arena.getBlueTeam().getSpawnLocations().size()));
-                    	sendArenaInfo(player, "Number of red spawns", String.valueOf(arena.getRedTeam().getSpawnLocations().size()));
-                    } else if(args[0].equalsIgnoreCase("save")) {
-                    	plugin.getArenaManager().saveArenas();
-                    	player.sendMessage(plugin.getLanguageManager().getMessage("Edit.Force-Save"));
-                    	return true;
+                        }
+
+                        sendArenaInfo(player, "Title", arena.getTitle());
+                        sendArenaInfo(player, "Max Players", String.valueOf(arena.getMaxPlayers()));
+                        sendArenaInfo(player, "Min Players", String.valueOf(arena.getMinPlayers()));
+                        sendArenaInfo(player, "Number of signs", String.valueOf(arena.getSigns().size()));
+                        sendArenaInfo(player, "Number of blue spawns",
+                                String.valueOf(arena.getBlueTeam().getSpawnLocations().size()));
+                        sendArenaInfo(player, "Number of red spawns",
+                                String.valueOf(arena.getRedTeam().getSpawnLocations().size()));
+                    } else if (args[0].equalsIgnoreCase("save")) {
+                        plugin.getArenaManager().saveArenas();
+                        player.sendMessage(plugin.getLanguageManager().getMessage("Edit.Force-Save"));
+                        return true;
                     }
                 }
 
-                if(args[0].equalsIgnoreCase("join")){
-                    if(args.length < 2 || args[1].length() < 2){
+                if (args[0].equalsIgnoreCase("join")) {
+                    if (args.length < 2 || args[1].length() < 2) {
                         player.sendMessage(ChatColor.RED + "Usage: /pb join <title>");
                         return true;
                     }
@@ -260,113 +264,128 @@ public class PaintballCommand implements CommandExecutor {
                     Arena a = plugin.getArenaManager().getArenaByTitle(args[1]);
 
                     if (a == null) {
-                        player.sendMessage(plugin.getLanguageManager().getMessage("Edit.Arena-Not-Found").replace("%title%", args[1]));
+                        player.sendMessage(plugin.getLanguageManager().getMessage("Edit.Arena-Not-Found")
+                                .replace("%title%", args[1]));
                         return true;
-                    } else if (!a.isActivated()){
-                        player.sendMessage(plugin.getLanguageManager().getMessage("Edit.Arena-Not-Activated").replace("%title%", args[1]));
+                    } else if (!a.isActivated()) {
+                        player.sendMessage(plugin.getLanguageManager().getMessage("Edit.Arena-Not-Activated")
+                                .replace("%title%", args[1]));
                         return true;
                     } else {
                         try {
-                        	plugin.getArenaManager().addPlayerToArena(player, a);
-						} catch (IOException e) {
-							e.printStackTrace();
-						}
+                            plugin.getArenaManager().addPlayerToArena(player, a);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
                         return true;
                     }
-                } else if (args[0].equalsIgnoreCase("leave")){
+                } else if (args[0].equalsIgnoreCase("leave")) {
                     try {
-                    	plugin.getArenaManager().removePlayerFromArena(player);
-					} catch (IOException e) {
-						e.printStackTrace();
-					}
+                        plugin.getArenaManager().removePlayerFromArena(player);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                     return true;
-                } else if (args[0].equalsIgnoreCase("list")){
-                    if(plugin.getArenaManager().getArena().size() == 0){
+                } else if (args[0].equalsIgnoreCase("list")) {
+                    if (plugin.getArenaManager().getArena().size() == 0) {
                         player.sendMessage(ChatColor.RED + "There are no arenas set up yet!");
                         return true;
                     }
 
                     player.sendMessage(plugin.getLanguageManager().getMessage("List.Title"));
                     int idx = 1;
-                    for(Arena a : plugin.getArenaManager().getActivatedArenas()){
-                        player.sendMessage(ChatColor.GREEN + Integer.toString(idx) + ". " + ChatColor.AQUA +
-                                a.getTitle());
+                    for (Arena a : plugin.getArenaManager().getActivatedArenas()) {
+                        player.sendMessage(
+                                ChatColor.GREEN + Integer.toString(idx) + ". " + ChatColor.AQUA + a.getTitle());
                         idx++;
-                       
+
                     }
                 } else if (args[0].equalsIgnoreCase("spectate")) {
-                	if(args.length < 2 || args[1].length() < 2){
+                    if (args.length < 2 || args[1].length() < 2) {
                         player.sendMessage(ChatColor.RED + "Usage: /pb spectate <title>");
                         return true;
                     }
-                	
-                	Arena a = plugin.getArenaManager().getArenaByTitle(args[1]);
+
+                    Arena a = plugin.getArenaManager().getArenaByTitle(args[1]);
 
                     if (a == null) {
-                        player.sendMessage(plugin.getLanguageManager().getMessage("Edit.Arena-Not-Found").replace("%title%", args[1]));
+                        player.sendMessage(plugin.getLanguageManager().getMessage("Edit.Arena-Not-Found")
+                                .replace("%title%", args[1]));
                         return true;
-                    } else if (!a.isActivated()){
-                        player.sendMessage(plugin.getLanguageManager().getMessage("Edit.Arena-Not-Activated").replace("%title%", args[1]));
+                    } else if (!a.isActivated()) {
+                        player.sendMessage(plugin.getLanguageManager().getMessage("Edit.Arena-Not-Activated")
+                                .replace("%title%", args[1]));
                         return true;
                     } else if (!a.getArenaState().equals(ArenaState.IN_GAME)) {
-                    	player.sendMessage(ChatColor.RED + "This arena is not in game: " + ChatColor.YELLOW +
-                                args[1]);
-                    	return true;
+                        player.sendMessage(ChatColor.RED + "This arena is not in game: " + ChatColor.YELLOW + args[1]);
+                        return true;
                     }
                     plugin.getArenaManager().addSpectatorToArena(player, a);
                     return true;
-                } else if(args[0].equalsIgnoreCase("leaderboard") || args[0].equalsIgnoreCase("lb")) {
-                	if(!Main.plugin.getConfig().getBoolean("Stats.Track") || Main.db == null) {
-                		player.sendMessage(plugin.getLanguageManager().getMessage("Command.Disabled"));
-                		return true;
-                	}
-                	
-                	if(args.length < 2 || args[1].length() < 2){
+                } else if (args[0].equalsIgnoreCase("leaderboard") || args[0].equalsIgnoreCase("lb")) {
+                    if (!Main.plugin.getConfig().getBoolean("Stats.Track") || Main.db == null) {
+                        player.sendMessage(plugin.getLanguageManager().getMessage("Command.Disabled"));
+                        return true;
+                    }
+
+                    if (args.length < 2 || args[1].length() < 2) {
                         player.sendMessage(ChatColor.RED + "Usage: /pb leaderboard <wins | kills>");
                         return true;
                     }
-                	
-                	if(args[1].equalsIgnoreCase("wins")) {
-                		player.sendMessage(plugin.getLanguageManager().getMessage("Leaderboard.Title").replace("%stat%", "Wins"));
-                		List<PlayerStats> stats = Main.db.getTopWins(10);
-                		int i = 1;
-                		for(PlayerStats stat : stats) {
-                			player.sendMessage(ChatColor.GREEN + String.valueOf(i++) + ". " + ChatColor.BLUE + stat.name + ": " + ChatColor.GREEN + stat.wins + " wins");
-                		}
-                		return true;
-                	} else if (args[1].equalsIgnoreCase("kills")) {
-                		player.sendMessage(plugin.getLanguageManager().getMessage("Leaderboard.Title").replace("%stat%", "Kills"));
-                		List<PlayerStats> stats = Main.db.getTopKills(10);
-                		int i = 1;
-                		for(PlayerStats stat : stats) {
-                			System.out.println(stat);
-                			player.sendMessage(ChatColor.GREEN + String.valueOf(i++) + ". " + ChatColor.BLUE + stat.name + ": " + ChatColor.GREEN + stat.kills + " kills");
-                		}
-                		return true;
-                	} else {
-                		 player.sendMessage(ChatColor.RED + "Usage: /pb leaderboard <wins | kills>");
-                         return true;
-                	}
-                	
-                	
+
+                    if (args[1].equalsIgnoreCase("wins")) {
+                        player.sendMessage(
+                                plugin.getLanguageManager().getMessage("Leaderboard.Title").replace("%stat%", "Wins"));
+                        List<PlayerStats> stats = Main.db.getTopWins(10);
+                        int i = 1;
+                        for (PlayerStats stat : stats) {
+                            player.sendMessage(ChatColor.GREEN + String.valueOf(i++) + ". " + ChatColor.BLUE + stat.name
+                                    + ": " + ChatColor.GREEN + stat.wins + " wins");
+                        }
+                        return true;
+                    } else if (args[1].equalsIgnoreCase("kills")) {
+                        player.sendMessage(
+                                plugin.getLanguageManager().getMessage("Leaderboard.Title").replace("%stat%", "Kills"));
+                        List<PlayerStats> stats = Main.db.getTopKills(10);
+                        int i = 1;
+                        for (PlayerStats stat : stats) {
+                            System.out.println(stat);
+                            player.sendMessage(ChatColor.GREEN + String.valueOf(i++) + ". " + ChatColor.BLUE + stat.name
+                                    + ": " + ChatColor.GREEN + stat.kills + " kills");
+                        }
+                        return true;
+                    } else {
+                        player.sendMessage(ChatColor.RED + "Usage: /pb leaderboard <wins | kills>");
+                        return true;
+                    }
+
                 } else if (args[0].equalsIgnoreCase("help")) {
-                	player.sendMessage(ChatColor.YELLOW + "--- Simple Paintball Commands ---");
-                	sendHelpCommand(player, "/pb join <title>", plugin.getLanguageManager().getMessage("Help.Basic.Join"));
-                	sendHelpCommand(player, "/pb spectate <title>", plugin.getLanguageManager().getMessage("Help.Basic.Spectate"));
-                	sendHelpCommand(player, "/pb list", plugin.getLanguageManager().getMessage("Help.Basic.List"));
-                	sendHelpCommand(player, "/pb leaderboard < kills | wins >", plugin.getLanguageManager().getMessage("Help.Basic.Leaderboard"));
-                	if(player.hasPermission("paintball.admin")) {
-                		player.sendMessage(ChatColor.RED + "Admin Commands ---");
-                		sendHelpCommand(player, "/pb create <title>", "Create an arena with a given title");
-                		sendHelpCommand(player, "/pb edit <title>", "Edit an arena with a given title");
-                		sendHelpCommand(player, "/pb set <red | blue>", "Add a blue or red spawn to your currently editing arena");
-                		sendHelpCommand(player, "/pb set <min | max>", "Set the minimum or maximum number of players of an arena");
-                		sendHelpCommand(player, "/pb set end", "Set the location of where to teleport when the game ends");
-                		sendHelpCommand(player, "/pb set lobby", "Set the location of where to teleport when players wait for the game to start");
-                		sendHelpCommand(player, "/pb set activate", "Activate the arena for players to join, must have set all teleport locations first");
-                		sendHelpCommand(player, "/pb reset <red | blue>", "Reset the locations of the red/blue spawns. This will deactivate the arean");
-                	}
-                	return true;
+                    player.sendMessage(ChatColor.YELLOW + "--- Simple Paintball Commands ---");
+                    sendHelpCommand(player, "/pb join <title>",
+                            plugin.getLanguageManager().getMessage("Help.Basic.Join"));
+                    sendHelpCommand(player, "/pb spectate <title>",
+                            plugin.getLanguageManager().getMessage("Help.Basic.Spectate"));
+                    sendHelpCommand(player, "/pb list", plugin.getLanguageManager().getMessage("Help.Basic.List"));
+                    sendHelpCommand(player, "/pb leaderboard < kills | wins >",
+                            plugin.getLanguageManager().getMessage("Help.Basic.Leaderboard"));
+                    if (player.hasPermission("paintball.admin")) {
+                        player.sendMessage(ChatColor.RED + "Admin Commands ---");
+                        sendHelpCommand(player, "/pb create <title>", "Create an arena with a given title");
+                        sendHelpCommand(player, "/pb edit <title>", "Edit an arena with a given title");
+                        sendHelpCommand(player, "/pb set <red | blue>",
+                                "Add a blue or red spawn to your currently editing arena");
+                        sendHelpCommand(player, "/pb set <min | max>",
+                                "Set the minimum or maximum number of players of an arena");
+                        sendHelpCommand(player, "/pb set end",
+                                "Set the location of where to teleport when the game ends");
+                        sendHelpCommand(player, "/pb set lobby",
+                                "Set the location of where to teleport when players wait for the game to start");
+                        sendHelpCommand(player, "/pb set activate",
+                                "Activate the arena for players to join, must have set all teleport locations first");
+                        sendHelpCommand(player, "/pb reset <red | blue>",
+                                "Reset the locations of the red/blue spawns. This will deactivate the arean");
+                    }
+                    return true;
                 }
 
             }
@@ -374,7 +393,7 @@ public class PaintballCommand implements CommandExecutor {
         return false;
     }
 
-	private void sendArenaInfo(Player p, String type, String info) {
-		p.sendMessage(ChatColor.BLUE + type + ": " + ChatColor.GREEN + info);
-	}
+    private void sendArenaInfo(Player p, String type, String info) {
+        p.sendMessage(ChatColor.BLUE + type + ": " + ChatColor.GREEN + info);
+    }
 }

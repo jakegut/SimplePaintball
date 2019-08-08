@@ -29,137 +29,145 @@ import java.util.HashMap;
 
 public class Main extends JavaPlugin {
 
-	public static Main plugin;
-	private ArenaManager arenaManager;
-	private PaintballManager paintballManager;
-	private InventoryManager inventoryManager;
-	
-	private LanguageManager languageManager;
-	
-	
-	private File arenaConfigFile;
-	private FileConfiguration arenaConfig;
-	public static Database db;
+    public static Main plugin;
+    private ArenaManager arenaManager;
+    private PaintballManager paintballManager;
+    private InventoryManager inventoryManager;
 
-	public static Metrics metrics = null;
-	public static Economy econ = null;
+    private LanguageManager languageManager;
 
-	@Override
-	public void onEnable() {
-		plugin = this;
-		metrics = new Metrics(this);
-		try {
-			createCustomConfigs();
-		} catch (IOException | InvalidConfigurationException e) {
-			e.printStackTrace();
-			getServer().getConsoleSender().sendMessage(ChatColor.RED + "Simple Paintball ran to an error ... disabling");
-			return;
-		}
-		getConfig().options().copyDefaults(true);
-		saveDefaultConfig();
-		matchConfig();
-		languageManager = new LanguageManager(this);
-		if (!setupEconomy()) {
-			getServer().getConsoleSender().sendMessage(ChatColor.YELLOW + "Vault Economy Disabled");
-		}
-		if(getConfig().getBoolean("Stats.Track")) {
-			setDb(new SQLite(this));
-			db.load();
-		} else {
-			getServer().getConsoleSender().sendMessage(ChatColor.YELLOW + "Simple Paintball Stats Disabled");
-		}
-		inventoryManager = new InventoryManager(this);
-		paintballManager = new PaintballManager();
-		paintballManager.registerGun(new Admin(this));
-		paintballManager.registerGun(new Sniper(this));
-		paintballManager.registerGun(new Rocket(this));
-		paintballManager.registerGun(new Minigun(this));
-		paintballManager.registerGun(new Shotgun());
-		arenaManager = new ArenaManager(new HashMap<>(), this);
-		arenaManager.getArenas();
-		getCommand("gun").setExecutor(new GunCommand(this));
-		getCommand("pb").setExecutor(new PaintballCommand(this));
-		getCommand("pb").setTabCompleter(new PaintballCompleter(this));
-		getServer().getPluginManager().registerEvents(new EventClass(this), this);
-		getServer().getConsoleSender().sendMessage(ChatColor.GREEN + "PaintBall Enabled");
-	}
-	
-	
-	public PaintballManager getPaintballManager() { return this.paintballManager; }
-	
-	public InventoryManager getInventoryManager() { return this.inventoryManager; }
-	
-	public ArenaManager getArenaManager() { return this.arenaManager; }
-	
-	public LanguageManager getLanguageManager() { return this.languageManager; }
+    private File arenaConfigFile;
+    private FileConfiguration arenaConfig;
+    public static Database db;
 
-	private void createCustomConfigs() throws FileNotFoundException, IOException, InvalidConfigurationException {
-		arenaConfigFile = new File(getDataFolder(), "arenas.yml");
-		if(!arenaConfigFile.exists()) {
-			arenaConfigFile.getParentFile().mkdirs();
-			saveResource("arenas.yml", false);
-		}
-		
-		arenaConfig = YamlConfiguration.loadConfiguration(arenaConfigFile);
-		arenaConfig.addDefault("arenas", " ");
-		arenaConfig.options().copyDefaults(true);
-		
-	}
-	
-	public FileConfiguration getArenaConfig() { return this.arenaConfig; }
-	
-	public void saveArenaConfig() throws IOException {
-		getArenaConfig().save(this.arenaConfigFile);
-	}
+    public static Metrics metrics = null;
+    public static Economy econ = null;
 
-	// From https://github.com/MilkBowl/VaultAPI/
-	private boolean setupEconomy() {
-		if (getServer().getPluginManager().getPlugin("Vault") == null) {
-			return false;
-		}
-		RegisteredServiceProvider<Economy> rsp = getServer().getServicesManager().getRegistration(Economy.class);
-		if (rsp == null) {
-			return false;
-		}
-		econ = rsp.getProvider();
-		return econ != null;
-	}
+    @Override
+    public void onEnable() {
+        plugin = this;
+        metrics = new Metrics(this);
+        try {
+            createCustomConfigs();
+        } catch (IOException | InvalidConfigurationException e) {
+            e.printStackTrace();
+            getServer().getConsoleSender()
+                    .sendMessage(ChatColor.RED + "Simple Paintball ran to an error ... disabling");
+            return;
+        }
+        getConfig().options().copyDefaults(true);
+        saveDefaultConfig();
+        matchConfig();
+        languageManager = new LanguageManager(this);
+        if (!setupEconomy()) {
+            getServer().getConsoleSender().sendMessage(ChatColor.YELLOW + "Vault Economy Disabled");
+        }
+        if (getConfig().getBoolean("Stats.Track")) {
+            setDb(new SQLite(this));
+            db.load();
+        } else {
+            getServer().getConsoleSender().sendMessage(ChatColor.YELLOW + "Simple Paintball Stats Disabled");
+        }
+        inventoryManager = new InventoryManager(this);
+        paintballManager = new PaintballManager();
+        paintballManager.registerGun(new Admin(this));
+        paintballManager.registerGun(new Sniper(this));
+        paintballManager.registerGun(new Rocket(this));
+        paintballManager.registerGun(new Minigun(this));
+        paintballManager.registerGun(new Shotgun());
+        arenaManager = new ArenaManager(new HashMap<>(), this);
+        arenaManager.getArenas();
+        getCommand("gun").setExecutor(new GunCommand(this));
+        getCommand("pb").setExecutor(new PaintballCommand(this));
+        getCommand("pb").setTabCompleter(new PaintballCompleter(this));
+        getServer().getPluginManager().registerEvents(new EventClass(this), this);
+        getServer().getConsoleSender().sendMessage(ChatColor.GREEN + "PaintBall Enabled");
+    }
 
-	// From https://bukkit.org/threads/make-your-custom-config-update-and-copy-delete-the-defaults.373956/
-	private void matchConfig() {
-		try {
-			File file = new File(plugin.getDataFolder().getAbsolutePath(), "config.yml");
-			if (file != null) {
-				YamlConfiguration defConfig = YamlConfiguration.loadConfiguration(file);
-				for (String key : defConfig.getConfigurationSection("").getKeys(false))
-					if (!getConfig().contains(key))
-						getConfig().set(key, defConfig.getConfigurationSection(key));
+    public PaintballManager getPaintballManager() {
+        return this.paintballManager;
+    }
 
-				saveConfig();
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
+    public InventoryManager getInventoryManager() {
+        return this.inventoryManager;
+    }
 
-	@Override
-	public void onDisable() {
-		for (Arena arena : arenaManager.getArena().values()) {
-			arena.kickPlayers();
-		}
-		reloadConfig();
-		arenaManager.saveArenas();
-		getServer().getConsoleSender().sendMessage(ChatColor.RED + "PaintBall Disabled");
-	}
+    public ArenaManager getArenaManager() {
+        return this.arenaManager;
+    }
 
-	public Database getDb() {
-		return db;
-	}
+    public LanguageManager getLanguageManager() {
+        return this.languageManager;
+    }
 
-	public void setDb(Database db) {
-		this.db = db;
-	}
+    private void createCustomConfigs() throws FileNotFoundException, IOException, InvalidConfigurationException {
+        arenaConfigFile = new File(getDataFolder(), "arenas.yml");
+        if (!arenaConfigFile.exists()) {
+            arenaConfigFile.getParentFile().mkdirs();
+            saveResource("arenas.yml", false);
+        }
 
+        arenaConfig = YamlConfiguration.loadConfiguration(arenaConfigFile);
+        arenaConfig.addDefault("arenas", " ");
+        arenaConfig.options().copyDefaults(true);
 
+    }
+
+    public FileConfiguration getArenaConfig() {
+        return this.arenaConfig;
+    }
+
+    public void saveArenaConfig() throws IOException {
+        getArenaConfig().save(this.arenaConfigFile);
+    }
+
+    // From https://github.com/MilkBowl/VaultAPI/
+    private boolean setupEconomy() {
+        if (getServer().getPluginManager().getPlugin("Vault") == null) {
+            return false;
+        }
+        RegisteredServiceProvider<Economy> rsp = getServer().getServicesManager().getRegistration(Economy.class);
+        if (rsp == null) {
+            return false;
+        }
+        econ = rsp.getProvider();
+        return econ != null;
+    }
+
+    // From
+    // https://bukkit.org/threads/make-your-custom-config-update-and-copy-delete-the-defaults.373956/
+    private void matchConfig() {
+        try {
+            File file = new File(plugin.getDataFolder().getAbsolutePath(), "config.yml");
+            if (file != null) {
+                YamlConfiguration defConfig = YamlConfiguration.loadConfiguration(file);
+                for (String key : defConfig.getConfigurationSection("").getKeys(false))
+                    if (!getConfig().contains(key))
+                        getConfig().set(key, defConfig.getConfigurationSection(key));
+
+                saveConfig();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void onDisable() {
+        for (Arena arena : arenaManager.getArena().values()) {
+            arena.kickPlayers();
+        }
+        reloadConfig();
+        arenaManager.saveArenas();
+        getServer().getConsoleSender().sendMessage(ChatColor.RED + "PaintBall Disabled");
+    }
+
+    public Database getDb() {
+        return db;
+    }
+
+    public void setDb(Database db) {
+        this.db = db;
+    }
 
 }

@@ -13,29 +13,29 @@ import java.util.HashSet;
 import java.util.UUID;
 
 public class Team {
-	
+
     private HashSet<UUID> members;
     private Color color;
 
-    public Team(Color color){
+    public Team(Color color) {
         this(new ArrayList<>(), color);
     }
-    
-    public Team(ArrayList<Location> locations, Color color){
+
+    public Team(ArrayList<Location> locations, Color color) {
         spawnLocations = locations;
         members = new HashSet<>();
         this.color = color;
     }
 
     public HashSet<UUID> getMembers() {
-		return members;
-	}
+        return members;
+    }
 
-	public void setMembers(HashSet<UUID> members) {
-		this.members = members;
-	}
+    public void setMembers(HashSet<UUID> members) {
+        this.members = members;
+    }
 
-	public ItemStack[] generateArmor(){
+    public ItemStack[] generateArmor() {
         ItemStack[] r = new ItemStack[4];
 
         ItemStack helmet = new ItemStack(Material.LEATHER_HELMET);
@@ -77,16 +77,16 @@ public class Team {
         return r;
     }
 
-    public void giveArmor(){
+    public void giveArmor() {
         ItemStack[] armorSet = generateArmor();
-        for(UUID id : getMembers()){
+        for (UUID id : getMembers()) {
             Player p = Bukkit.getPlayer(id);
             p.getInventory().setArmorContents(armorSet);
         }
     }
-    
+
     public boolean containsPlayer(Player p) {
-    	return members.contains(p.getUniqueId());
+        return members.contains(p.getUniqueId());
     }
 
     public ArrayList<Location> getSpawnLocations() {
@@ -99,20 +99,20 @@ public class Team {
 
     private ArrayList<Location> spawnLocations;
 
-    public void addMember(Player player){
+    public void addMember(Player player) {
         UUID pUUID = player.getUniqueId();
-        if(!members.contains(pUUID)){
+        if (!members.contains(pUUID)) {
             members.add(pUUID);
         }
     }
 
-    public void addLocation(Location loc){
-        if(!spawnLocations.contains(loc))
+    public void addLocation(Location loc) {
+        if (!spawnLocations.contains(loc))
             spawnLocations.add(loc);
     }
 
-    public Location getRandomLocation(){
-        int index = (int)(Math.random()* (spawnLocations.size() - 1));
+    public Location getRandomLocation() {
+        int index = (int) (Math.random() * (spawnLocations.size() - 1));
         return spawnLocations.get(index);
     }
 }

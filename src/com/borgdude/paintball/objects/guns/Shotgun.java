@@ -18,53 +18,52 @@ import com.borgdude.paintball.objects.Gun;
 import com.borgdude.paintball.utils.MathUtil;
 
 public class Shotgun implements Gun {
-	
 
-	@Override
-	public ItemStack getLobbyItem() {
-		ItemStack shot = new ItemStack(Material.GRAY_WOOL);
+    @Override
+    public ItemStack getLobbyItem() {
+        ItemStack shot = new ItemStack(Material.GRAY_WOOL);
         ItemMeta sm = shot.getItemMeta();
         sm.setDisplayName(ChatColor.GRAY + getName());
         shot.setItemMeta(sm);
-		return shot;
-	}
+        return shot;
+    }
 
-	@Override
-	public ItemStack getInGameItem() {
-		ItemStack is = new ItemStack(Material.IRON_HOE);
-		ItemMeta im = is.getItemMeta();
-		im.setDisplayName(ChatColor.GRAY + "PaintBall Shotgun");
-		is.setItemMeta(im);
-		return is;
-	}
+    @Override
+    public ItemStack getInGameItem() {
+        ItemStack is = new ItemStack(Material.IRON_HOE);
+        ItemMeta im = is.getItemMeta();
+        im.setDisplayName(ChatColor.GRAY + "PaintBall Shotgun");
+        is.setItemMeta(im);
+        return is;
+    }
 
-	@Override
-	public int getCooldown() {
-		return 15;
-	}
+    @Override
+    public int getCooldown() {
+        return 15;
+    }
 
-	@Override
-	public void fire(Player player) { 
-    	
-    	float accuracy = 0.15F;
-        
+    @Override
+    public void fire(Player player) {
+
+        float accuracy = 0.15F;
+
         Snowball snowball = null;
         Vector velocity = null;
-        
-        for (int i = 0; i < 4; i++) { //Set i to 0 and as long as it is less than 5 add one to it then run the loop
-            snowball = player.launchProjectile(Snowball.class); //set the snowball variable
-            velocity = player.getLocation().getDirection().multiply(1.2); //set the velocity variable
-            velocity.add(MathUtil.getRandomVector(accuracy)); //set it's modified velocity
+
+        for (int i = 0; i < 4; i++) { // Set i to 0 and as long as it is less than 5 add one to it then run the loop
+            snowball = player.launchProjectile(Snowball.class); // set the snowball variable
+            velocity = player.getLocation().getDirection().multiply(1.2); // set the velocity variable
+            velocity.add(MathUtil.getRandomVector(accuracy)); // set it's modified velocity
 //            velocity.add(new Vector(0.25, 0.12, 0.25));
-            snowball.setVelocity(velocity); //set the snowball's new velocity
+            snowball.setVelocity(velocity); // set the snowball's new velocity
 //                System.out.print(velocity.toString());
         }
         player.getLocation().getWorld().playSound(player.getLocation(), Sound.ENTITY_ZOMBIE_ATTACK_IRON_DOOR, 2, 0.75f);
-		
-	}
 
-	@Override
-	public void onHit(Player player, Snowball ball) {
+    }
+
+    @Override
+    public void onHit(Player player, Snowball ball) {
 //		Vector s = ball.getVelocity().normalize().multiply(0.5);
 //		Block hitBlock = ball.getLocation().add(s).getBlock();
 //		System.out.println(hitBlock.getLocation().toString());
@@ -86,12 +85,12 @@ public class Shotgun implements Gun {
 //		
 //		Bukkit.getConsoleSender().sendMessage(n.toString());
 
-		player.getLocation().getWorld().playSound(ball.getLocation(), Sound.BLOCK_ANVIL_FALL, 1, 0.25f);
-	}
+        player.getLocation().getWorld().playSound(ball.getLocation(), Sound.BLOCK_ANVIL_FALL, 1, 0.25f);
+    }
 
-	@Override
-	public String getName() {
-		return "Shotgun";
-	}
+    @Override
+    public String getName() {
+        return "Shotgun";
+    }
 
 }

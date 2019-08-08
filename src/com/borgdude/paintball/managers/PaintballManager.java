@@ -20,7 +20,7 @@ public class PaintballManager {
 
     private ArrayList<Gun> guns;
 
-    public PaintballManager(){
+    public PaintballManager() {
         cooldown = new HashMap<>();
         projectiles = new HashMap<>();
         guns = new ArrayList<>();
@@ -42,15 +42,15 @@ public class PaintballManager {
         this.projectiles = projectiles;
     }
 
-    public void registerGun(Gun gun){
-        if(!getGuns().contains(gun)){
+    public void registerGun(Gun gun) {
+        if (!getGuns().contains(gun)) {
             getGuns().add(gun);
         }
     }
 
-    public Gun getGunByName(String n){
-        for(Gun gun : getGuns()){
-            if(gun.getName().equalsIgnoreCase(n))
+    public Gun getGunByName(String n) {
+        for (Gun gun : getGuns()) {
+            if (gun.getName().equalsIgnoreCase(n))
                 return gun;
         }
 

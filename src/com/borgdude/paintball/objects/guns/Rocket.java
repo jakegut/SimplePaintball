@@ -23,9 +23,9 @@ public class Rocket implements Gun {
     private Main plugin;
 
     public Rocket(Main p) {
-    	this.plugin = p;
+        this.plugin = p;
     }
-    
+
     @Override
     public ItemStack getLobbyItem() {
         ItemStack rocket = new ItemStack(Material.GREEN_WOOL);
@@ -55,46 +55,46 @@ public class Rocket implements Gun {
         Snowball snowball = null;
         Vector velocity = null;
 
-        snowball = player.launchProjectile(Snowball.class); //set the snowball variable
-        velocity = player.getLocation().getDirection().multiply(1.2);//set the velocity variable
+        snowball = player.launchProjectile(Snowball.class); // set the snowball variable
+        velocity = player.getLocation().getDirection().multiply(1.2);// set the velocity variable
         snowball.setVelocity(velocity);
 
-        player.getLocation().getWorld().playSound(player.getLocation(), Sound.ENTITY_FIREWORK_ROCKET_LARGE_BLAST, 2, 0.5f);
+        player.getLocation().getWorld().playSound(player.getLocation(), Sound.ENTITY_FIREWORK_ROCKET_LARGE_BLAST, 2,
+                0.5f);
     }
 
     @Override
     public void onHit(Player player, Snowball ball) {
 
-    	if (ball.hasMetadata("fired")) {
-        	player.getLocation().getWorld().playSound(ball.getLocation(), Sound.BLOCK_ANVIL_FALL, 1, 0.25f);
-        	return;
+        if (ball.hasMetadata("fired")) {
+            player.getLocation().getWorld().playSound(ball.getLocation(), Sound.BLOCK_ANVIL_FALL, 1, 0.25f);
+            return;
         }
-    	
+
         player.getLocation().getWorld().playSound(ball.getLocation(), Sound.ENTITY_GENERIC_EXPLODE, 1f, 1.25f);
-        
-        
-        for(Entity e : ball.getNearbyEntities(12, 12, 12)) {
-        	if(e instanceof Player) {
-        		Player n = (Player) e;
-        		Vector p = n.getLocation().toVector();
+
+        for (Entity e : ball.getNearbyEntities(12, 12, 12)) {
+            if (e instanceof Player) {
+                Player n = (Player) e;
+                Vector p = n.getLocation().toVector();
                 p.add(new Vector(0, 0.5, 0));
                 Vector b = ball.getLocation().toVector();
                 Vector t = p.subtract(b).normalize();
                 double dis = n.getLocation().distance(ball.getLocation());
-                
+
                 t = t.multiply(MathUtil.tanh(dis));
-                if(player.getUniqueId().equals(n.getUniqueId())) {
-                	t = t.multiply(new Vector(0.5, 0.5, 0.5));
-                	n.setVelocity(t);
-                	n.setFallDistance(MathUtil.getMaxHeight(t));
+                if (player.getUniqueId().equals(n.getUniqueId())) {
+                    t = t.multiply(new Vector(0.5, 0.5, 0.5));
+                    n.setVelocity(t);
+                    n.setFallDistance(MathUtil.getMaxHeight(t));
                 } else {
-                	t = t.multiply(new Vector(0.3, 0.4, 0.3));
-                	n.setVelocity(t);
+                    t = t.multiply(new Vector(0.3, 0.4, 0.3));
+                    n.setVelocity(t);
                 }
-               
-        	}
+
+            }
         }
-        
+
         Location spawnLocation = ball.getLocation();
 
         int numberOfBalls = 8;
