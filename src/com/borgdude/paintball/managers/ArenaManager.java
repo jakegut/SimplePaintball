@@ -124,8 +124,8 @@ public class ArenaManager {
         if (a == null)
             return false;
 
-        player.teleport(a.getEndLocation());
         a.getSpectators().remove(player.getUniqueId());
+        player.teleport(a.getEndLocation());
         player.setGameMode(Bukkit.getDefaultGameMode());
 
         return true;
@@ -147,7 +147,7 @@ public class ArenaManager {
         UUID pUUID = player.getUniqueId();
 
         for (Arena a : getArena().values()) {
-            if (a.getPlayers().contains(pUUID))
+            if (a.getSpectators().contains(pUUID))
                 return a;
         }
 

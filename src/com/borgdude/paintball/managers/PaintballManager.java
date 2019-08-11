@@ -7,23 +7,24 @@ import org.bukkit.scheduler.BukkitTask;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 public class PaintballManager {
 
     private HashMap<Player, Integer> cooldown;
     private Map<Integer, BukkitTask> projectiles = new HashMap<Integer, BukkitTask>();
-
-    public ArrayList<Gun> getGuns() {
-        return guns;
-    }
-
-    private ArrayList<Gun> guns;
+    private Set<Gun> guns;
 
     public PaintballManager() {
         cooldown = new HashMap<>();
         projectiles = new HashMap<>();
-        guns = new ArrayList<>();
+        guns = new HashSet<>();
+    }
+
+    public Set<Gun> getGuns() {
+        return guns;
     }
 
     public HashMap<Player, Integer> getCooldown() {
@@ -43,9 +44,7 @@ public class PaintballManager {
     }
 
     public void registerGun(Gun gun) {
-        if (!getGuns().contains(gun)) {
-            getGuns().add(gun);
-        }
+        getGuns().add(gun);
     }
 
     public Gun getGunByName(String n) {

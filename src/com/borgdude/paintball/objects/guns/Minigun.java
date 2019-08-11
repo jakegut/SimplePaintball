@@ -15,7 +15,7 @@ import com.borgdude.paintball.managers.PaintballManager;
 import com.borgdude.paintball.objects.Gun;
 import com.borgdude.paintball.utils.MathUtil;
 
-public class Minigun implements Gun {
+public class Minigun extends Gun {
 
     private Main plugin;
 

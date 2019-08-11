@@ -267,7 +267,6 @@ public class Arena {
     }
 
     public void startGame() {
-        setArenaState(ArenaState.IN_GAME);
         addMetrics();
         assignTeams();
         blueTeam.giveArmor();
@@ -277,6 +276,7 @@ public class Arena {
         setListNames();
         setGameScoreboard();
         setTotalTime(getGameTime());
+        setArenaState(ArenaState.IN_GAME);
         BukkitRunnable runnable = new BukkitRunnable() {
             @Override
             public void run() {
@@ -675,7 +675,7 @@ public class Arena {
         player.setScoreboard(Bukkit.getScoreboardManager().getNewScoreboard());
     }
 
-    public void kickPlayers() {
+    public void kickPlayers() {        
         for (UUID id : getPlayers()) {
             Player p = Bukkit.getPlayer(id);
             if(p == null) continue;
@@ -715,20 +715,20 @@ public class Arena {
             }
         }));
 
-        getGunKits().clear();
         getPlayers().clear();
         getSpectators().clear();
         getKills().clear();
+        getGunKits().clear();
     }
 
     public void removePlayerInGame(Player p) {
         Team team = getPlayerTeam(p);
         team.getMembers().remove(p.getUniqueId());
-        getPlayers().remove(p.getUniqueId());
-        getKills().remove(p.getUniqueId());
         p.teleport(getEndLocation());
         p.setGameMode(Bukkit.getDefaultGameMode());
         p.removePotionEffect(PotionEffectType.SATURATION);
+        getPlayers().remove(p.getUniqueId());
+        getKills().remove(p.getUniqueId());
         restoreInventory(p);
         p.sendMessage(plugin.getLanguageManager().getMessage("Arena.Leave"));
         p.setPlayerListName(ChatColor.RESET + p.getName());

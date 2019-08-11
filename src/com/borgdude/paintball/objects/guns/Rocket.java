@@ -18,7 +18,7 @@ import org.bukkit.material.Wool;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.util.Vector;
 
-public class Rocket implements Gun {
+public class Rocket extends Gun {
 
     private Main plugin;
 

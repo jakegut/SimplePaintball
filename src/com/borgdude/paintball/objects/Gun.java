@@ -4,17 +4,26 @@ import org.bukkit.entity.Player;
 import org.bukkit.entity.Snowball;
 import org.bukkit.inventory.ItemStack;
 
-public interface Gun {
+public abstract class Gun {
 
-    ItemStack getLobbyItem();
+    public abstract ItemStack getLobbyItem();
 
-    ItemStack getInGameItem();
+    public abstract ItemStack getInGameItem();
 
-    int getCooldown();
+    public abstract int getCooldown();
 
-    void fire(final Player player);
+    public abstract void fire(final Player player);
 
-    void onHit(Player player, Snowball ball);
+    public abstract void onHit(Player player, Snowball ball);
 
-    String getName();
+    public abstract String getName();
+    
+    public String toString() {
+        if(getName() == null) return "";
+        else return getName();
+    }
+    
+    public int hashCode() {
+        return toString().hashCode();
+    }
 }

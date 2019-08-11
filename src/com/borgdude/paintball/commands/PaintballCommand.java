@@ -313,10 +313,13 @@ public class PaintballCommand implements CommandExecutor {
                                 .replace("%title%", args[1]));
                         return true;
                     } else if (!a.getArenaState().equals(ArenaState.IN_GAME)) {
-                        player.sendMessage(ChatColor.RED + "This arena is not in game: " + ChatColor.YELLOW + args[1]);
+                        player.sendMessage(plugin.getLanguageManager().getMessage("Spectate.Arena-Not-In-Game")
+                                .replace("%title%", args[1]));
                         return true;
                     }
-                    plugin.getArenaManager().addSpectatorToArena(player, a);
+                    
+                    if(plugin.getArenaManager().getSpectatorArena(player) == null && plugin.getConfig().getBoolean("Arena-Spectate"))
+                        plugin.getArenaManager().addSpectatorToArena(player, a);
                     return true;
                 } else if (args[0].equalsIgnoreCase("leaderboard") || args[0].equalsIgnoreCase("lb")) {
                     if (!Main.plugin.getConfig().getBoolean("Stats.Track") || Main.db == null) {

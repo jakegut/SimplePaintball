@@ -17,6 +17,7 @@ import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.RegisteredServiceProvider;
+import org.bukkit.plugin.ServicePriority;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.awt.*;
@@ -75,6 +76,7 @@ public class Main extends JavaPlugin {
         paintballManager.registerGun(new Rocket(this));
         paintballManager.registerGun(new Minigun(this));
         paintballManager.registerGun(new Shotgun());
+        getServer().getServicesManager().register(PaintballManager.class, this.paintballManager, this, ServicePriority.Normal);
         arenaManager = new ArenaManager(new HashMap<>(), this);
         arenaManager.getArenas();
         getCommand("gun").setExecutor(new GunCommand(this));

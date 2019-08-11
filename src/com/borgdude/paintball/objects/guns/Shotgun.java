@@ -17,7 +17,7 @@ import com.borgdude.paintball.managers.PaintballManager;
 import com.borgdude.paintball.objects.Gun;
 import com.borgdude.paintball.utils.MathUtil;
 
-public class Shotgun implements Gun {
+public class Shotgun extends Gun {
 
     @Override
     public ItemStack getLobbyItem() {

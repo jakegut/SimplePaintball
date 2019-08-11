@@ -1,6 +1,7 @@
 game-time: 240
 lobby-time: 60
 locale: enUS
+Arena-Spectate: true
 Stats:
   Track: false
 Gameplay:

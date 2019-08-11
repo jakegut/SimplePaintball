@@ -22,6 +22,7 @@ Arena:
   Tie-Kills: "&aIt was a tie with &e%kills% &a%verb%!"
   Win-Default: "%team% &awins by default!"
   Win-Kills: "%team% &ateam won with &e%kills% &a%verb%!"
+  Teleport-Not-Allowed: "&cYou're not allowed to teleport while in an arena"
 Command: 
   Disabled: "&eThis command has been disabled"
 Edit: 
@@ -51,3 +52,4 @@ List:
   Title: "&aList of activated arenas:"
 Spectate: 
   Success: "&aYou are spectating arena: &b%title%"
+  Arena-Not-In-Game: "&cArena &e%title% &cnot in game"

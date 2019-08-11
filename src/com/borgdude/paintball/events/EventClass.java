@@ -30,6 +30,8 @@ import org.bukkit.event.player.PlayerGameModeChangeEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
+import org.bukkit.event.player.PlayerTeleportEvent;
+import org.bukkit.event.player.PlayerTeleportEvent.TeleportCause;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.metadata.FixedMetadataValue;
@@ -414,6 +416,25 @@ public class EventClass implements Listener {
         Arena a = this.arenaManager.getPlayerArena(p);
         if (a != null)
             this.arenaManager.removePlayerFromArena(p);
+    }
+    
+    @EventHandler
+    public void onPlayerTeleport(PlayerTeleportEvent event) {
+        Player p = event.getPlayer();
+        TeleportCause tc = event.getCause();
+        
+        Arena a = arenaManager.getPlayerArena(p);
+        
+        if(a == null) a = arenaManager.getSpectatorArena(p);
+       
+        if(a != null)
+            if(a.getArenaState().equals(ArenaState.IN_GAME) && tc.equals(TeleportCause.COMMAND)) {
+                event.setCancelled(true);
+                p.sendMessage(plugin.getLanguageManager().getMessage("Arena.Teleport-Not-Allowed"));
+            }
+                
+        
+        
     }
 
     public static boolean isNamedItem(ItemStack item, String name) {

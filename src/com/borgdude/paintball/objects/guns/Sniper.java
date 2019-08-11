@@ -14,7 +14,7 @@ import com.borgdude.paintball.Main;
 import com.borgdude.paintball.managers.PaintballManager;
 import com.borgdude.paintball.objects.Gun;
 
-public class Sniper implements Gun {
+public class Sniper extends Gun {
 
     private Main plugin;
     private PaintballManager paintballManager;

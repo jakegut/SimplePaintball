@@ -20,7 +20,7 @@ import org.bukkit.util.Vector;
 
 import java.awt.*;
 
-public class Admin implements Gun {
+public class Admin extends Gun {
 
     private Main plugin;
     private PaintballManager paintballManager;
