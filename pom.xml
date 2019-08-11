@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>SimplePaintball</groupId>
 	<artifactId>SimplePaintball</artifactId>
-	<version>0.3.1-beta</version>
+	<version>0.3.2-beta</version>
 	<name>SimplePaintball</name>
 	<build>
 		<sourceDirectory>src</sourceDirectory>
@@ -46,25 +46,25 @@
 				</configuration>
 			</plugin>
 			<plugin>
-				<artifactId>maven-antrun-plugin</artifactId>
-				<version>1.7</version>
-				<executions>
-					<execution>
-						<phase>package</phase>
-						<configuration>
-							<tasks>
-								<copy file="target/SimplePaintball-0.3.1-beta.jar"
-									todir="D:\1.14Dev\plugins" />
-								<copy file="target/SimplePaintball-0.3.1-beta.jar"
-									todir="D:\1.13Dev\plugins" />
-							</tasks>
-						</configuration>
-						<goals>
-							<goal>run</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>1.7</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <configuration>
+                            <tasks>
+                                <copy file="target/${project.artifactId}-${project.version}.jar"
+                                    todir="D:\1.14Dev\plugins" />
+                                <copy file="target/${project.artifactId}-${project.version}.jar"
+                                    todir="D:\1.13Dev\plugins" />
+                            </tasks>
+                        </configuration>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
 		</plugins>
 	</build>
 	<organization>
