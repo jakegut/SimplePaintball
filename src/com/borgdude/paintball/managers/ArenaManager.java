@@ -90,7 +90,7 @@ public class ArenaManager {
 
         player.setGameMode(GameMode.SPECTATOR);
         a.getSpectators().add(player.getUniqueId());
-        player.teleport(a.getBlueTeam().getRandomLocation());
+        player.teleport(a.getRandomLocation());
         player.sendMessage(plugin.getLanguageManager().getMessage("Spectate.Success").replace("%title%", a.getTitle()));
     }
 
@@ -184,8 +184,6 @@ public class ArenaManager {
         Arena newArena = new Arena(title, this.plugin);
         newArena.setMaxPlayers(10);
         newArena.setMinPlayers(2);
-        newArena.setBlueTeam(new Team(Color.BLUE));
-        newArena.setRedTeam(new Team(Color.RED));
         arenas.put(title, newArena);
 
         Arena returnArena = arenas.get(title);
@@ -225,29 +223,39 @@ public class ArenaManager {
                 a.setMinPlayers(arena.getInt("min-players"));
                 a.checkMinMax();
                 a.setActivated(true);
-                ConfigurationSection blueTeam = arena.getConfigurationSection("blue-spawns");
-                if (blueTeam != null) {
-                    Team team = new Team(Color.BLUE);
-                    for (String i : blueTeam.getKeys(false)) {
-                        ConfigurationSection loc = blueTeam.getConfigurationSection(i);
-                        team.addLocation(LocationUtil.getLocationWithDirection(loc));
+                for(Team t : a.getTeams().values()) {
+                    ConfigurationSection teamSpawns = arena.getConfigurationSection( t.getName().toLowerCase() + "-spawns");
+                    if(teamSpawns != null) {
+                        for(String i : teamSpawns.getKeys(false)) {
+                            ConfigurationSection location = teamSpawns.getConfigurationSection(i);
+                            t.addLocation(LocationUtil.getLocationWithDirection(location));
+                        }
                     }
-                    a.setBlueTeam(team);
-                } else {
-                    plugin.getServer().getConsoleSender().sendMessage(ChatColor.RED + "BLUE SPAWNS NOT FOUND!!!!!");
                 }
-
-                ConfigurationSection redTeam = arena.getConfigurationSection("red-spawns");
-                if (redTeam != null) {
-                    Team team = new Team(Color.RED);
-                    for (String i : redTeam.getKeys(false)) {
-                        ConfigurationSection loc = redTeam.getConfigurationSection(i);
-                        team.addLocation(LocationUtil.getLocationWithDirection(loc));
-                    }
-                    a.setRedTeam(team);
-                } else {
-                    plugin.getServer().getConsoleSender().sendMessage(ChatColor.RED + "RED SPAWNS NOT FOUND!!!!!");
-                }
+                
+//                ConfigurationSection blueTeam = arena.getConfigurationSection("blue-spawns");
+//                if (blueTeam != null) {
+//                    Team team = new Team(Color.BLUE);
+//                    for (String i : blueTeam.getKeys(false)) {
+//                        ConfigurationSection loc = blueTeam.getConfigurationSection(i);
+//                        team.addLocation(LocationUtil.getLocationWithDirection(loc));
+//                    }
+//                    a.setBlueTeam(team);
+//                } else {
+//                    plugin.getServer().getConsoleSender().sendMessage(ChatColor.RED + "BLUE SPAWNS NOT FOUND!!!!!");
+//                }
+//
+//                ConfigurationSection redTeam = arena.getConfigurationSection("red-spawns");
+//                if (redTeam != null) {
+//                    Team team = new Team(Color.RED);
+//                    for (String i : redTeam.getKeys(false)) {
+//                        ConfigurationSection loc = redTeam.getConfigurationSection(i);
+//                        team.addLocation(LocationUtil.getLocationWithDirection(loc));
+//                    }
+//                    a.setRedTeam(team);
+//                } else {
+//                    plugin.getServer().getConsoleSender().sendMessage(ChatColor.RED + "RED SPAWNS NOT FOUND!!!!!");
+//                }
 
                 ArrayList<Sign> signs = new ArrayList<>();
                 ConfigurationSection signSection = arena.getConfigurationSection("signs");
@@ -290,18 +298,27 @@ public class ArenaManager {
             plugin.getArenaConfig().set(p + ".min-players", a.getMinPlayers());
             LocationUtil.saveLocation(p + ".end-location", a.getEndLocation(), plugin.getArenaConfig());
             LocationUtil.saveLocation(p + ".lobby-location", a.getLobbyLocation(), plugin.getArenaConfig());
-            plugin.getArenaConfig().set(p + ".blue-spawns", null);
             int i = 0;
-            for (Location loc : a.getBlueTeam().getSpawnLocations()) {
-                LocationUtil.saveLocation(p + ".blue-spawns." + String.valueOf(i), loc, plugin.getArenaConfig());
-                i++;
+            for(Team t : a.getTeams().values()) {
+                i = 0;
+                plugin.getArenaConfig().set(p + "." + t.getName().toLowerCase() + "-spawns", null);
+                if(t.getSpawnLocations().size() > 0) {
+                    for(Location loc : t.getSpawnLocations()) {
+                        LocationUtil.saveLocation(p + "." + t.getName().toLowerCase() + "-spawns." + String.valueOf(i), loc, plugin.getArenaConfig());
+                        i++;
+                    }
+                }
             }
-            plugin.getArenaConfig().set(p + ".red-spawns", null);
-            i = 0;
-            for (Location loc : a.getRedTeam().getSpawnLocations()) {
-                LocationUtil.saveLocation(p + ".red-spawns." + String.valueOf(i), loc, plugin.getArenaConfig());
-                i++;
-            }
+//            for (Location loc : a.getBlueTeam().getSpawnLocations()) {
+//                LocationUtil.saveLocation(p + ".blue-spawns." + String.valueOf(i), loc, plugin.getArenaConfig());
+//                i++;
+//            }
+//            plugin.getArenaConfig().set(p + ".red-spawns", null);
+//            i = 0;
+//            for (Location loc : a.getRedTeam().getSpawnLocations()) {
+//                LocationUtil.saveLocation(p + ".red-spawns." + String.valueOf(i), loc, plugin.getArenaConfig());
+//                i++;
+//            }
             plugin.getArenaConfig().set(p + ".signs", null);
             i = 0;
             for (Sign s : a.getSigns()) {

@@ -2,10 +2,12 @@ package com.borgdude.paintball.objects;
 
 import com.borgdude.paintball.Main;
 import com.borgdude.paintball.managers.PaintballManager;
+import com.borgdude.paintball.utils.ColorUtil;
 import com.borgdude.paintball.utils.PaintballPlayer;
 
 import net.milkbowl.vault.economy.EconomyResponse;
 
+import org.apache.commons.lang.StringUtils;
 import org.bstats.bukkit.Metrics;
 import org.bukkit.*;
 import org.bukkit.block.Block;
@@ -29,6 +31,7 @@ import org.bukkit.scoreboard.Scoreboard;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.Map.Entry;
 import java.util.concurrent.Callable;
 
 public class Arena {
@@ -36,8 +39,7 @@ public class Arena {
     private String title;
     private Location endLocation;
     private Location lobbyLocation;
-    private Team blueTeam;
-    private Team redTeam;
+    private HashMap<String, Team> teams;
     private int minPlayers;
     private int maxPlayers;
     private ArrayList<Sign> signs;
@@ -69,6 +71,18 @@ public class Arena {
         pbPlayers = new HashMap<>();
         this.plugin = plugin;
         this.paintballManger = plugin.getPaintballManager();
+        initializeTeams();
+    }
+
+    private void initializeTeams() {
+        teams = new HashMap<>();
+        for(ChatColor cc : ChatColor.values()) {
+            Color c = ColorUtil.translateChatColorToColor(cc);
+            if(c != null) {
+                Team t = new Team(cc, ColorUtil.ChatColorToString(cc));
+                teams.put(t.getName(), t);
+            }
+        }
     }
 
     public BossBar getBossBar() {
@@ -223,19 +237,16 @@ public class Arena {
                                 String.valueOf(getTimer()));
                         for (UUID id : getPlayers()) {
                             Player p = Bukkit.getPlayer(id);
-                            if (p != null) {
+                            if (p != null)
                                 p.sendMessage(msg);
-
-                            }
                         }
                     }
 
                     if (getTimer() <= 5)
                         for (UUID id : getPlayers()) {
                             Player p = Bukkit.getPlayer(id);
-                            if (p != null) {
+                            if (p != null)
                                 p.playSound(p.getLocation(), Sound.BLOCK_METAL_STEP, 1, 1);
-                            }
                         }
 
                     updateBossbar();
@@ -252,7 +263,9 @@ public class Arena {
         } else {
             String msg = plugin.getLanguageManager().getMessage("Arena.Not-Enough-Players");
             for (UUID id : getPlayers()) {
-                Bukkit.getServer().getPlayer(id).sendMessage(msg);
+                Player p = Bukkit.getPlayer(id);
+                if (p != null)
+                    p.sendMessage(msg);
             }
         }
     }
@@ -269,8 +282,10 @@ public class Arena {
     public void startGame() {
         addMetrics();
         assignTeams();
-        blueTeam.giveArmor();
-        redTeam.giveArmor();
+        for(Team t : teams.values())
+            t.giveArmor();
+//        blueTeam.giveArmor();
+//        redTeam.giveArmor();
         spawnPlayers();
         generateKills();
         setListNames();
@@ -286,7 +301,9 @@ public class Arena {
                 if (getTimer() == getTotalTime()) {
                     String msg = plugin.getLanguageManager().getMessage("Arena.Game-Started");
                     for (UUID id : getPlayers()) {
-                        Bukkit.getServer().getPlayer(id).sendMessage(msg);
+                        Player p = Bukkit.getPlayer(id);
+                        if (p != null)
+                            p.sendMessage(msg);
                     }
                 }
 
@@ -298,29 +315,52 @@ public class Arena {
                             .replace("%unit%", plugin.getLanguageManager().getMessage("Arena.Minute-Unit"));
 
                     for (UUID id : getPlayers()) {
-                        Bukkit.getServer().getPlayer(id).sendMessage(msg);
+                        Player p = Bukkit.getPlayer(id);
+                        if (p != null)
+                            p.sendMessage(msg);
                     }
                 } else if (getTimer() == 30 || getTimer() == 15 || getTimer() <= 5) {
                     String msg = plugin.getLanguageManager().getMessage("Arena.End-Countdown")
                             .replace("%time%", String.valueOf(getTimer()))
                             .replace("%unit%", plugin.getLanguageManager().getMessage("Arena.Second-Unit"));
                     for (UUID id : getPlayers()) {
-                        Bukkit.getServer().getPlayer(id).sendMessage(msg);
+                        Player p = Bukkit.getPlayer(id);
+                        if (p != null)
+                            p.sendMessage(msg);
                     }
                 }
 
                 decreaseSpawnTime();
                 updateBossbar();
+                
+                Team checkWinningTeam = null;
 
-                if (blueTeam.getMembers().size() == 0) {
-                    stopGame(redTeam);
+                for(Team t : teams.values()) {
+                    if(t.getMembers().size() > 0) {
+                        if(checkWinningTeam == null)
+                            checkWinningTeam = t;
+                        else {
+                            checkWinningTeam = null; // No Winning team as there are more than one team with 1 or more players
+                            break;
+                        }
+                    }
+                }
+                
+                if(checkWinningTeam != null) {
+                    stopGame(checkWinningTeam);
                     cancel();
                 }
-
-                if (redTeam.getMembers().size() == 0) {
-                    stopGame(blueTeam);
-                    cancel();
-                }
+                    
+                
+//                if (blueTeam.getMembers().size() == 0) {
+//                    stopGame(redTeam);
+//                    cancel();
+//                }
+//
+//                if (redTeam.getMembers().size() == 0) {
+//                    stopGame(blueTeam);
+//                    cancel();
+//                }
 
                 if (getTimer() <= 0) {
                     stopGame();
@@ -362,28 +402,37 @@ public class Arena {
     }
 
     private void setGameScoreboard() {
+        board = Bukkit.getScoreboardManager().getNewScoreboard();
+        Objective obj = board.registerNewObjective("Paintball", "dummy");
+        obj.setDisplayName("Paintball");
+        obj.setDisplaySlot(DisplaySlot.SIDEBAR);
+        int score = 15;
+        for(Team t : teams.values()) {
+            if(t.getMembers().size() == 0) continue;
+            org.bukkit.scoreboard.Team killCounter = board.registerNewTeam(t.getScoreboardID());
+            killCounter.addEntry(ChatColor.BLACK + "" + t.getChatColor() + "");
+            killCounter.setPrefix(t.getName() + " " + plugin.getLanguageManager().getMessage("In-Game.Kills").toLowerCase() + ": " + "0");
+            obj.getScore(ChatColor.BLACK + "" + t.getChatColor() + "").setScore(score--);
+        }
+        
+//        org.bukkit.scoreboard.Team blueKillCounter = board.registerNewTeam("blueKillCounter");
+//        blueKillCounter.addEntry(ChatColor.BLACK + "" + ChatColor.BLUE + "");
+//        blueKillCounter.setPrefix(
+//                "Blue " + plugin.getLanguageManager().getMessage("In-Game.Kills").toLowerCase() + ": " + "0");
+//
+//        obj.getScore(ChatColor.BLACK + "" + ChatColor.BLUE + "").setScore(15);
+//
+//        org.bukkit.scoreboard.Team redTeamCounter = board.registerNewTeam("redKillCounter");
+//        redTeamCounter.addEntry(ChatColor.BLACK + "" + ChatColor.RED + "");
+//        redTeamCounter.setPrefix(
+//                "Red " + plugin.getLanguageManager().getMessage("In-Game.Kills").toLowerCase() + ": " + "0");
+//
+//        obj.getScore(ChatColor.BLACK + "" + ChatColor.RED + "").setScore(14);
+        
         for (UUID id : getPlayers()) {
             Player p = Bukkit.getPlayer(id);
             if (p != null) {
-                board = Bukkit.getScoreboardManager().getNewScoreboard();
-                Objective obj = board.registerNewObjective("Paintball", "dummy");
-                obj.setDisplayName("Paintball");
-                obj.setDisplaySlot(DisplaySlot.SIDEBAR);
-
-                org.bukkit.scoreboard.Team blueKillCounter = board.registerNewTeam("blueKillCounter");
-                blueKillCounter.addEntry(ChatColor.BLACK + "" + ChatColor.BLUE + "");
-                blueKillCounter.setPrefix(
-                        "Blue " + plugin.getLanguageManager().getMessage("In-Game.Kills").toLowerCase() + ": " + "0");
-
-                obj.getScore(ChatColor.BLACK + "" + ChatColor.BLUE + "").setScore(15);
-
-                org.bukkit.scoreboard.Team redTeamCounter = board.registerNewTeam("redKillCounter");
-                redTeamCounter.addEntry(ChatColor.BLACK + "" + ChatColor.RED + "");
-                redTeamCounter.setPrefix(
-                        "Red " + plugin.getLanguageManager().getMessage("In-Game.Kills").toLowerCase() + ": " + "0");
-
-                obj.getScore(ChatColor.BLACK + "" + ChatColor.RED + "").setScore(14);
-
+                
                 p.setScoreboard(board);
 
             }
@@ -392,8 +441,15 @@ public class Arena {
 
     public void updateScoreboard() {
 //        Bukkit.getConsoleSender().sendMessage("Updated scoreboard for arena...");
-        int blueKills = getTotalTeamKills(getBlueTeam());
-        int redKills = getTotalTeamKills(getRedTeam());
+        HashMap<String, Integer> killsMap = new HashMap<>();
+        HashMap<String, String> scoreboardIdToName = new HashMap<>();
+        for(Team t : teams.values()) {
+            if(t.getMembers().size() > 0) {
+                killsMap.put(t.getScoreboardID(), getTotalTeamKills(t));
+                scoreboardIdToName.put(t.getScoreboardID(), t.getName());
+            }
+                
+        }
         Bukkit.getScheduler().runTaskAsynchronously(plugin, new Runnable() {
             @Override
             public void run() {
@@ -401,14 +457,20 @@ public class Arena {
                     Player p = Bukkit.getPlayer(id);
                     if (p != null) {
                         Scoreboard board = p.getScoreboard();
+                        for(Entry<String, Integer> entry : killsMap.entrySet()) {
+                            board.getTeam(entry.getKey()).setPrefix(scoreboardIdToName.get(entry.getKey()) + 
+                                    plugin.getLanguageManager().getMessage("In-Game.Kills").toLowerCase() + ": " +
+                                    String.valueOf(entry.getValue()));
+                        }
+                        
 
-                        board.getTeam("blueKillCounter").setPrefix(
-                                "Blue " + plugin.getLanguageManager().getMessage("In-Game.Kills").toLowerCase() + ": "
-                                        + String.valueOf(blueKills));
-
-                        board.getTeam("redKillCounter").setPrefix(
-                                "Red " + plugin.getLanguageManager().getMessage("In-Game.Kills").toLowerCase() + ": "
-                                        + String.valueOf(redKills));
+//                        board.getTeam("blueKillCounter").setPrefix(
+//                                "Blue " + plugin.getLanguageManager().getMessage("In-Game.Kills").toLowerCase() + ": "
+//                                        + String.valueOf(blueKills));
+//
+//                        board.getTeam("redKillCounter").setPrefix(
+//                                "Red " + plugin.getLanguageManager().getMessage("In-Game.Kills").toLowerCase() + ": "
+//                                        + String.valueOf(redKills));
                     }
                 }
             }
@@ -421,44 +483,68 @@ public class Arena {
         // if both teams have the same amount of players....
         for (UUID id : getPlayers()) {
             Player p = Bukkit.getServer().getPlayer(id);
+            if(p == null) continue;
             p.getInventory().clear();
             p.addPotionEffect(new PotionEffect(PotionEffectType.SATURATION, plugin.getConfig().getInt("game-time") * 20,
                     5, true));
             p.setLevel(0);
 
-            if (redTeam.getMembers().size() == blueTeam.getMembers().size()) {
-                // add to a random team
-                if (random.nextBoolean()) {
-                    // add to red
-                    redTeam.addMember(p);
-                    team = "&c&lRed";
-                } else {
-                    // add to blue
-                    blueTeam.addMember(p);
-                    team = "&b&lBlue";
-                }
-            } else {
-                // add to the team with the smaller amount of players
-                if (redTeam.getMembers().size() < blueTeam.getMembers().size()) {
-                    // add to red
-                    redTeam.addMember(p);
-                    team = "&c&lRed";
-                } else {
-                    // add to blue
-                    blueTeam.addMember(p);
-                    team = "&b&lBlue";
-                }
-            }
+            List<Team> teamsToPlaceOn = getLowestMemberTeams();
+            Collections.shuffle(teamsToPlaceOn);
+            Team t = teamsToPlaceOn.get(random.nextInt(teamsToPlaceOn.size()));
+            team = t.getName();
+            
+//            if (redTeam.getMembers().size() == blueTeam.getMembers().size()) {
+//                // add to a random team
+//                if (random.nextBoolean()) {
+//                    // add to red
+//                    redTeam.addMember(p);
+//                    team = "&c&lRed";
+//                } else {
+//                    // add to blue
+//                    blueTeam.addMember(p);
+//                    team = "&b&lBlue";
+//                }
+//            } else {
+//                // add to the team with the smaller amount of players
+//                if (redTeam.getMembers().size() < blueTeam.getMembers().size()) {
+//                    // add to red
+//                    redTeam.addMember(p);
+//                    team = "&c&lRed";
+//                } else {
+//                    // add to blue
+//                    blueTeam.addMember(p);
+//                    team = "&b&lBlue";
+//                }
+//            }
             p.sendMessage(plugin.getLanguageManager().getMessage("Arena.Join-Team").replace("%team%",
                     ChatColor.translateAlternateColorCodes('&', team)));
         }
 
     }
 
+    private List<Team> getLowestMemberTeams() {
+        int minTeam = 0;
+        
+        List<Team> listTeams = new ArrayList<>(teams.values());
+        
+        listTeams.removeIf(t -> t.getSpawnLocations().size() == 0);
+        
+        for(Team t : listTeams) {
+            minTeam = Math.min(minTeam, t.getMembers().size());
+        }
+        
+        final int min = minTeam;
+        
+        listTeams.removeIf(t -> t.getMembers().size() > min);
+        return listTeams;
+    }
+
     public void spawnPlayers() {
         for (UUID id : getPlayers()) {
             Player p = Bukkit.getPlayer(id);
-            if(p == null) continue;
+            if (p == null)
+                continue;
             Gun gun = getGunKits().get(p.getUniqueId());
             if (gun == null) {
                 System.out.println(p.getName() + "'s kit was null");
@@ -481,18 +567,14 @@ public class Arena {
     }
 
     public void setListNames() {
-        for (UUID pID : redTeam.getMembers()) {
-            Player p = Bukkit.getPlayer(pID);
-            if (p != null) {
-                p.setDisplayName(ChatColor.RED + p.getName() + ChatColor.RESET);
-                p.setPlayerListName(ChatColor.RED + p.getName() + ChatColor.RESET);
-            }
-        }
-        for (UUID pID : blueTeam.getMembers()) {
-            Player p = Bukkit.getPlayer(pID);
-            if (p != null) {
-                p.setDisplayName(ChatColor.BLUE + p.getName() + ChatColor.RESET);
-                p.setPlayerListName(ChatColor.BLUE + p.getName() + ChatColor.RESET);
+        
+        for(Team t : teams.values()) {
+            for(UUID id : t.getMembers()) {
+                Player p = Bukkit.getPlayer(id);
+                if(p != null) {
+                    p.setDisplayName(t.getChatColor() + p.getName() + ChatColor.RESET);
+                    p.setDisplayName(t.getChatColor() + p.getName() + ChatColor.RESET);
+                }
             }
         }
     }
@@ -510,8 +592,10 @@ public class Arena {
         announceWinner(team);
         setStats(team);
         kickPlayers();
-        blueTeam.getMembers().clear();
-        redTeam.getMembers().clear();
+        for(Team t : teams.values())
+            team.getMembers().clear();
+//        blueTeam.getMembers().clear();
+//        redTeam.getMembers().clear();
 //        removeScoreboard();
         setArenaState(ArenaState.WAITING_FOR_PLAYERS);
         updateSigns();
@@ -555,8 +639,10 @@ public class Arena {
         Team team = announceWinner();
         setStats(team);
         kickPlayers();
-        blueTeam.getMembers().clear();
-        redTeam.getMembers().clear();
+        for(Team t : teams.values())
+            t.getMembers().clear();
+//        blueTeam.getMembers().clear();
+//        redTeam.getMembers().clear();
 //        removeScoreboard();
         setArenaState(ArenaState.WAITING_FOR_PLAYERS);
         updateSigns();
@@ -605,12 +691,14 @@ public class Arena {
     public void announceWinner(Team team) {
         String teamMsg = "";
 
-        if (team.equals(blueTeam))
-            teamMsg = ChatColor.BLUE + "Blue";
-        else if (team.equals(redTeam))
-            teamMsg = ChatColor.RED + "Red";
-        else
-            return;
+        if(team == null) return;
+        
+        teamMsg = team.getChatName();
+        
+//        if (team.equals(blueTeam))
+//            teamMsg = ChatColor.BLUE + "Blue";
+//        else if (team.equals(redTeam))
+//            teamMsg = ChatColor.RED + "Red";
 
         String msg = plugin.getLanguageManager().getMessage("Arena.Win-Default").replace("%team%", teamMsg);
         for (UUID id : getPlayers()) {
@@ -620,20 +708,27 @@ public class Arena {
     }
 
     public Team announceWinner() {
-        int bKills = getTotalTeamKills(blueTeam);
-        int rKills = getTotalTeamKills(redTeam);
-        int winningKills = bKills;
+//        int bKills = getTotalTeamKills(blueTeam);
+//        int rKills = getTotalTeamKills(redTeam);
+        int winningKills = 0;
         Team winningTeam = null;
         String teamMsg = "";
-        if (bKills > rKills) {
-            teamMsg = ChatColor.BLUE + "Blue";
-            winningKills = bKills;
-            winningTeam = blueTeam;
-        } else {
-            teamMsg = ChatColor.RED + "Red";
-            winningKills = rKills;
-            winningTeam = redTeam;
+        for(Team t : teams.values()) {
+            int kills = getTotalTeamKills(t);
+            if(kills > winningKills) {
+                winningTeam = t;
+                teamMsg = t.getChatName();
+            }
         }
+//        if (bKills > rKills) {
+//            teamMsg = ChatColor.BLUE + "Blue";
+//            winningKills = bKills;
+//            winningTeam = blueTeam;
+//        } else {
+//            teamMsg = ChatColor.RED + "Red";
+//            winningKills = rKills;
+//            winningTeam = redTeam;
+//        }
 
         String msg = "";
 
@@ -675,10 +770,11 @@ public class Arena {
         player.setScoreboard(Bukkit.getScoreboardManager().getNewScoreboard());
     }
 
-    public void kickPlayers() {        
+    public void kickPlayers() {
         for (UUID id : getPlayers()) {
             Player p = Bukkit.getPlayer(id);
-            if(p == null) continue;
+            if (p == null)
+                continue;
             p.setGameMode(Bukkit.getDefaultGameMode());
             p.removePotionEffect(PotionEffectType.SATURATION);
             p.teleport(getEndLocation());
@@ -690,7 +786,8 @@ public class Arena {
 
         for (UUID id : getSpectators()) {
             Player p = Bukkit.getPlayer(id);
-            if(p == null) continue;
+            if (p == null)
+                continue;
             p.teleport(getEndLocation());
             p.setGameMode(Bukkit.getDefaultGameMode());
         }
@@ -778,15 +875,30 @@ public class Arena {
             return;
         }
 
-        if (blueTeam.getSpawnLocations().size() == 0) {
-            player.sendMessage(ChatColor.RED + "No blue team spawn locations set. Use: /pb set blue");
+        int teamSpawnsSet = 0;
+        
+        for(Team t : teams.values()) {
+            if(t.getSpawnLocations().size() > 0)
+                teamSpawnsSet++;
+            if(teamSpawnsSet >= 2)
+                break;
+        }
+        
+        if(teamSpawnsSet < 2) {
+            player.sendMessage(ChatColor.RED + "Not enough team spawns set, add more spawns for other teams to continue.");
             return;
         }
-
-        if (redTeam.getSpawnLocations().size() == 0) {
-            player.sendMessage(ChatColor.RED + "No red team spawn locations set. Use: /pb set red");
-            return;
-        }
+        
+        
+//        if (blueTeam.getSpawnLocations().size() == 0) {
+//            player.sendMessage(ChatColor.RED + "No blue team spawn locations set. Use: /pb set blue");
+//            return;
+//        }
+//
+//        if (redTeam.getSpawnLocations().size() == 0) {
+//            player.sendMessage(ChatColor.RED + "No red team spawn locations set. Use: /pb set red");
+//            return;
+//        }
 
         activated = true;
         player.sendMessage(
@@ -815,22 +927,6 @@ public class Arena {
 
     public void setLobbyLocation(Location lobbyLocation) {
         this.lobbyLocation = lobbyLocation;
-    }
-
-    public Team getBlueTeam() {
-        return blueTeam;
-    }
-
-    public void setBlueTeam(Team blueTeam) {
-        this.blueTeam = blueTeam;
-    }
-
-    public Team getRedTeam() {
-        return redTeam;
-    }
-
-    public void setRedTeam(Team redTeam) {
-        this.redTeam = redTeam;
     }
 
     public int getMinPlayers() {
@@ -887,12 +983,10 @@ public class Arena {
     }
 
     public Team getPlayerTeam(Player player) {
-
-        if (blueTeam.containsPlayer(player))
-            return blueTeam;
-
-        if (redTeam.containsPlayer(player))
-            return redTeam;
+        
+        for(Team t : teams.values())
+            if(t.containsPlayer(player))
+                return t;
 
         return null;
     }
@@ -1034,5 +1128,19 @@ public class Arena {
                 }
             }
         }.runTaskLater(plugin, 10);
+    }
+
+    public Location getRandomLocation() {
+        List<Location> locations = new ArrayList<>();
+        for(Team t : teams.values()) {
+            for(Location l : t.getSpawnLocations())
+                locations.add(l);
+        }
+        
+        return locations.get(new Random().nextInt(locations.size()));
+    }
+
+    public HashMap<String, Team> getTeams() {
+        return this.teams;
     }
 }

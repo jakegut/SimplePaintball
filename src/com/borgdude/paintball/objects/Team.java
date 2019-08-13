@@ -1,6 +1,8 @@
 package com.borgdude.paintball.objects;
 
+import org.apache.commons.lang.StringUtils;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -8,23 +10,30 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
 
+import com.borgdude.paintball.utils.ColorUtil;
+
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Random;
 import java.util.UUID;
 
 public class Team {
 
     private HashSet<UUID> members;
     private Color color;
+    private ChatColor chatColor;
+    private String name;
 
-    public Team(Color color) {
-        this(new ArrayList<>(), color);
+    public Team(ChatColor color, String name) {
+        this(new ArrayList<>(), color, name);
     }
 
-    public Team(ArrayList<Location> locations, Color color) {
+    public Team(ArrayList<Location> locations, ChatColor color, String name) {
         spawnLocations = locations;
         members = new HashSet<>();
-        this.color = color;
+        this.color = ColorUtil.translateChatColorToColor(color);
+        this.chatColor = color;
+        this.name = StringUtils.capitalize(name);
     }
 
     public HashSet<UUID> getMembers() {
@@ -112,7 +121,23 @@ public class Team {
     }
 
     public Location getRandomLocation() {
-        int index = (int) (Math.random() * (spawnLocations.size() - 1));
-        return spawnLocations.get(index);
+        Random r = new Random();
+        return spawnLocations.get(r.nextInt(spawnLocations.size()));
+    }
+    
+    public String getName() {
+        return this.name;
+    }
+    
+    public String getChatName() {
+        return this.chatColor + this.name;
+    }
+    
+    public ChatColor getChatColor() {
+        return this.chatColor;
+    }
+    
+    public String getScoreboardID() {
+        return this.getName().toLowerCase() + "KillCounter";
     }
 }

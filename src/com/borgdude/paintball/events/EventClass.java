@@ -298,10 +298,8 @@ public class EventClass implements Listener {
                     Bukkit.getScheduler().runTaskAsynchronously(plugin, new Runnable() {
                         @Override
                         public void run() {
-                            ChatColor cs = shooterA.getPlayerTeam(shooter).equals(shooterA.getBlueTeam())
-                                    ? ChatColor.BLUE
-                                    : ChatColor.RED;
-                            ChatColor ch = cs.equals(ChatColor.BLUE) ? ChatColor.RED : ChatColor.BLUE;
+                            ChatColor cs = shooterA.getPlayerTeam(shooter).getChatColor();
+                            ChatColor ch = shooterA.getPlayerTeam(hit).getChatColor();
                             for (UUID id : shooterA.getPlayers()) {
                                 Player p = Bukkit.getServer().getPlayer(id);
                                 p.sendMessage(cs + shooter.getName() + ChatColor.GREEN + " "

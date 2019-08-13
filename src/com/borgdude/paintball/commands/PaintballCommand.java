@@ -5,10 +5,12 @@ import com.borgdude.paintball.database.PlayerStats;
 import com.borgdude.paintball.managers.ArenaManager;
 import com.borgdude.paintball.objects.Arena;
 import com.borgdude.paintball.objects.ArenaState;
+import com.borgdude.paintball.objects.Team;
 
 import java.io.IOException;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -131,20 +133,20 @@ public class PaintballCommand implements CommandExecutor {
                                         ChatColor.GREEN + "Set min number to: " + min + " for arena: " + a.getTitle());
                                 return true;
                             }
-                        } else if (args[1].equalsIgnoreCase("blue")) {
-                            Location loc = player.getLocation();
-                            a.getBlueTeam().addLocation(loc);
-                            player.sendMessage(ChatColor.GREEN + "Added spawn to " + ChatColor.BLUE + "blue"
-                                    + ChatColor.GREEN + "team. Spawn count: " + ChatColor.AQUA
-                                    + a.getBlueTeam().getSpawnLocations().size());
-                            return true;
-                        } else if (args[1].equalsIgnoreCase("red")) {
-                            Location loc = player.getLocation();
-                            a.getRedTeam().addLocation(loc);
-                            player.sendMessage(ChatColor.GREEN + "Added spawn to " + ChatColor.RED + "red"
-                                    + ChatColor.GREEN + "team. Spawn count: " + ChatColor.AQUA
-                                    + a.getRedTeam().getSpawnLocations().size());
-                            return true;
+//                        } else if (args[1].equalsIgnoreCase("blue")) {
+//                            Location loc = player.getLocation();
+//                            a.getBlueTeam().addLocation(loc);
+//                            player.sendMessage(ChatColor.GREEN + "Added spawn to " + ChatColor.BLUE + "blue"
+//                                    + ChatColor.GREEN + "team. Spawn count: " + ChatColor.AQUA
+//                                    + a.getBlueTeam().getSpawnLocations().size());
+//                            return true;
+//                        } else if (args[1].equalsIgnoreCase("red")) {
+//                            Location loc = player.getLocation();
+//                            a.getRedTeam().addLocation(loc);
+//                            player.sendMessage(ChatColor.GREEN + "Added spawn to " + ChatColor.RED + "red"
+//                                    + ChatColor.GREEN + "team. Spawn count: " + ChatColor.AQUA
+//                                    + a.getRedTeam().getSpawnLocations().size());
+//                            return true;
                         } else if (args[1].equalsIgnoreCase("lobby")) {
                             Location loc = player.getLocation();
                             a.setLobbyLocation(loc);
@@ -160,6 +162,17 @@ public class PaintballCommand implements CommandExecutor {
                         } else if (args[1].equalsIgnoreCase("activate")) {
                             a.setActivated(player);
                             return true;
+                        } else {
+                            Team t = a.getTeams().get(StringUtils.capitalize(args[1]));
+                            if(t == null) {
+                                player.sendMessage(ChatColor.RED + "Command not found. Usage: /pb set <option>");
+                                return true;
+                            }
+                            
+                            Location loc = player.getLocation();
+                            t.addLocation(loc);
+                            player.sendMessage(ChatColor.GREEN + "Added spawn for " + t.getChatName() + ChatColor.GREEN + " team. Spawn Count : " + ChatColor.AQUA + 
+                                    t.getSpawnLocations().size());
                         }
                     } else if (args[0].equalsIgnoreCase("reset")) {
                         Arena a = plugin.getArenaManager().getCurrentlyEditing(player);
@@ -168,28 +181,41 @@ public class PaintballCommand implements CommandExecutor {
                             player.sendMessage(ChatColor.RED + "You need to be editing an arena: /pb edit <title>");
                             return true;
                         }
+                        
+                        if(a.getArenaState().equals(ArenaState.IN_GAME)) {
+                            player.sendMessage(ChatColor.RED + "Arena is currently in game, please wait");
+                        }
 
                         if (args.length < 2 || args[1].length() < 2) {
-                            player.sendMessage(ChatColor.RED + "Usage: /pb reset <blue | red>");
+                            player.sendMessage(ChatColor.RED + "Usage: /pb reset <team>");
                             return true;
                         }
 
                         String changedTeam = "?????";
 
-                        if (args[1].equalsIgnoreCase("red")) {
-                            a.getRedTeam().getSpawnLocations().clear();
-
-                            changedTeam = ChatColor.RED + "Red Team";
-                        } else if (args[1].equalsIgnoreCase("blue")) {
-                            a.getBlueTeam().getSpawnLocations().clear();
-
-                            changedTeam = ChatColor.BLUE + "Blue Team";
+                        Team t = a.getTeams().get(StringUtils.capitalize(args[1]));
+                        if(t == null) {
+                            player.sendMessage(ChatColor.RED + "Team not found");
+                            return true;
                         }
+                        
+                        t.getSpawnLocations().clear();
+                        changedTeam = t.getChatName() + " Team";
+                        
+//                        if (args[1].equalsIgnoreCase("red")) {
+//                            a.getRedTeam().getSpawnLocations().clear();
+//
+//                            changedTeam = ChatColor.RED + "Red Team";
+//                        } else if (args[1].equalsIgnoreCase("blue")) {
+//                            a.getBlueTeam().getSpawnLocations().clear();
+//
+//                            changedTeam = ChatColor.BLUE + "Blue Team";
+//                        }
 
                         a.setActivated(false);
                         player.sendMessage(ChatColor.GREEN + "The spawn locations for " + changedTeam + ChatColor.GREEN
                                 + " have been cleared and the arena has been " + ChatColor.YELLOW + "deactivated."
-                                + ChatColor.GREEN + "Please add blue/red spawns and run " + ChatColor.YELLOW
+                                + ChatColor.GREEN + "Please add team spawns and run " + ChatColor.YELLOW
                                 + "/pb set activate " + ChatColor.GREEN + "when ready");
                         return true;
                     } else if (args[0].equalsIgnoreCase("start")) {
@@ -244,10 +270,12 @@ public class PaintballCommand implements CommandExecutor {
                         sendArenaInfo(player, "Max Players", String.valueOf(arena.getMaxPlayers()));
                         sendArenaInfo(player, "Min Players", String.valueOf(arena.getMinPlayers()));
                         sendArenaInfo(player, "Number of signs", String.valueOf(arena.getSigns().size()));
-                        sendArenaInfo(player, "Number of blue spawns",
-                                String.valueOf(arena.getBlueTeam().getSpawnLocations().size()));
-                        sendArenaInfo(player, "Number of red spawns",
-                                String.valueOf(arena.getRedTeam().getSpawnLocations().size()));
+                        String t = "";
+                        for(Team team : arena.getTeams().values()) {
+                            t += team.getChatColor() + "(" + team.getName() + ": " + team.getSpawnLocations().size() + ")  ";
+                        }
+                        sendArenaInfo(player, "Teams", t);
+                        
                     } else if (args[0].equalsIgnoreCase("save")) {
                         plugin.getArenaManager().saveArenas();
                         player.sendMessage(plugin.getLanguageManager().getMessage("Edit.Force-Save"));
@@ -318,7 +346,7 @@ public class PaintballCommand implements CommandExecutor {
                         return true;
                     }
                     
-                    if(plugin.getArenaManager().getSpectatorArena(player) == null && plugin.getConfig().getBoolean("Arena-Spectate"))
+                    if(plugin.getConfig().getBoolean("Arena-Spectate"))
                         plugin.getArenaManager().addSpectatorToArena(player, a);
                     return true;
                 } else if (args[0].equalsIgnoreCase("leaderboard") || args[0].equalsIgnoreCase("lb")) {
