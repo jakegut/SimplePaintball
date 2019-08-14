@@ -138,6 +138,6 @@ public class Team {
     }
     
     public String getScoreboardID() {
-        return this.getName().toLowerCase() + "KillCounter";
+        return this.getName().toLowerCase() + "PBKC";
     }
 }

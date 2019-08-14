@@ -27,7 +27,6 @@ public class ColorUtil {
         default:
             break;
         }
-
         return null;
     }
 

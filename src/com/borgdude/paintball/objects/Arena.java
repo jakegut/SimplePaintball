@@ -76,9 +76,9 @@ public class Arena {
 
     private void initializeTeams() {
         teams = new HashMap<>();
-        for(ChatColor cc : ChatColor.values()) {
+        for (ChatColor cc : ChatColor.values()) {
             Color c = ColorUtil.translateChatColorToColor(cc);
-            if(c != null) {
+            if (c != null) {
                 Team t = new Team(cc, ColorUtil.ChatColorToString(cc));
                 teams.put(t.getName(), t);
             }
@@ -282,7 +282,7 @@ public class Arena {
     public void startGame() {
         addMetrics();
         assignTeams();
-        for(Team t : teams.values())
+        for (Team t : teams.values())
             t.giveArmor();
 //        blueTeam.giveArmor();
 //        redTeam.giveArmor();
@@ -332,26 +332,26 @@ public class Arena {
 
                 decreaseSpawnTime();
                 updateBossbar();
-                
+
                 Team checkWinningTeam = null;
 
-                for(Team t : teams.values()) {
-                    if(t.getMembers().size() > 0) {
-                        if(checkWinningTeam == null)
+                for (Team t : teams.values()) {
+                    if (t.getMembers().size() > 0) {
+                        if (checkWinningTeam == null)
                             checkWinningTeam = t;
                         else {
-                            checkWinningTeam = null; // No Winning team as there are more than one team with 1 or more players
+                            checkWinningTeam = null; // No Winning team as there are more than one team with 1 or more
+                                                     // players
                             break;
                         }
                     }
                 }
-                
-                if(checkWinningTeam != null) {
+
+                if (checkWinningTeam != null) {
                     stopGame(checkWinningTeam);
                     cancel();
                 }
-                    
-                
+
 //                if (blueTeam.getMembers().size() == 0) {
 //                    stopGame(redTeam);
 //                    cancel();
@@ -407,14 +407,16 @@ public class Arena {
         obj.setDisplayName("Paintball");
         obj.setDisplaySlot(DisplaySlot.SIDEBAR);
         int score = 15;
-        for(Team t : teams.values()) {
-            if(t.getMembers().size() == 0) continue;
+        for (Team t : teams.values()) {
+            if (t.getMembers().size() == 0)
+                continue;
             org.bukkit.scoreboard.Team killCounter = board.registerNewTeam(t.getScoreboardID());
             killCounter.addEntry(ChatColor.BLACK + "" + t.getChatColor() + "");
-            killCounter.setPrefix(t.getName() + " " + plugin.getLanguageManager().getMessage("In-Game.Kills").toLowerCase() + ": " + "0");
+            killCounter.setPrefix(t.getChatName() + " " + ChatColor.RESET
+                    + plugin.getLanguageManager().getMessage("In-Game.Kills").toLowerCase() + ": " + "0");
             obj.getScore(ChatColor.BLACK + "" + t.getChatColor() + "").setScore(score--);
         }
-        
+
 //        org.bukkit.scoreboard.Team blueKillCounter = board.registerNewTeam("blueKillCounter");
 //        blueKillCounter.addEntry(ChatColor.BLACK + "" + ChatColor.BLUE + "");
 //        blueKillCounter.setPrefix(
@@ -428,11 +430,11 @@ public class Arena {
 //                "Red " + plugin.getLanguageManager().getMessage("In-Game.Kills").toLowerCase() + ": " + "0");
 //
 //        obj.getScore(ChatColor.BLACK + "" + ChatColor.RED + "").setScore(14);
-        
+
         for (UUID id : getPlayers()) {
             Player p = Bukkit.getPlayer(id);
             if (p != null) {
-                
+
                 p.setScoreboard(board);
 
             }
@@ -443,12 +445,12 @@ public class Arena {
 //        Bukkit.getConsoleSender().sendMessage("Updated scoreboard for arena...");
         HashMap<String, Integer> killsMap = new HashMap<>();
         HashMap<String, String> scoreboardIdToName = new HashMap<>();
-        for(Team t : teams.values()) {
-            if(t.getMembers().size() > 0) {
+        for (Team t : teams.values()) {
+            if (t.getMembers().size() > 0) {
                 killsMap.put(t.getScoreboardID(), getTotalTeamKills(t));
-                scoreboardIdToName.put(t.getScoreboardID(), t.getName());
+                scoreboardIdToName.put(t.getScoreboardID(), t.getChatName());
             }
-                
+
         }
         Bukkit.getScheduler().runTaskAsynchronously(plugin, new Runnable() {
             @Override
@@ -457,12 +459,12 @@ public class Arena {
                     Player p = Bukkit.getPlayer(id);
                     if (p != null) {
                         Scoreboard board = p.getScoreboard();
-                        for(Entry<String, Integer> entry : killsMap.entrySet()) {
-                            board.getTeam(entry.getKey()).setPrefix(scoreboardIdToName.get(entry.getKey()) + 
-                                    plugin.getLanguageManager().getMessage("In-Game.Kills").toLowerCase() + ": " +
-                                    String.valueOf(entry.getValue()));
+                        for (Entry<String, Integer> entry : killsMap.entrySet()) {
+                            board.getTeam(entry.getKey())
+                                    .setPrefix(scoreboardIdToName.get(entry.getKey()) + " " + ChatColor.RESET
+                                            + plugin.getLanguageManager().getMessage("In-Game.Kills").toLowerCase()
+                                            + ": " + String.valueOf(entry.getValue()));
                         }
-                        
 
 //                        board.getTeam("blueKillCounter").setPrefix(
 //                                "Blue " + plugin.getLanguageManager().getMessage("In-Game.Kills").toLowerCase() + ": "
@@ -483,17 +485,23 @@ public class Arena {
         // if both teams have the same amount of players....
         for (UUID id : getPlayers()) {
             Player p = Bukkit.getServer().getPlayer(id);
-            if(p == null) continue;
+            if (p == null)
+                continue;
             p.getInventory().clear();
             p.addPotionEffect(new PotionEffect(PotionEffectType.SATURATION, plugin.getConfig().getInt("game-time") * 20,
                     5, true));
             p.setLevel(0);
 
             List<Team> teamsToPlaceOn = getLowestMemberTeams();
+            System.out.println("Teams:");
+            for (Team t : teamsToPlaceOn) {
+                System.out.println("\t" + t.getName());
+            }
             Collections.shuffle(teamsToPlaceOn);
             Team t = teamsToPlaceOn.get(random.nextInt(teamsToPlaceOn.size()));
             team = t.getName();
-            
+            t.addMember(p);
+
 //            if (redTeam.getMembers().size() == blueTeam.getMembers().size()) {
 //                // add to a random team
 //                if (random.nextBoolean()) {
@@ -524,18 +532,18 @@ public class Arena {
     }
 
     private List<Team> getLowestMemberTeams() {
-        int minTeam = 0;
-        
+        int minTeam = getMaxPlayers();
+
         List<Team> listTeams = new ArrayList<>(teams.values());
-        
+
         listTeams.removeIf(t -> t.getSpawnLocations().size() == 0);
-        
-        for(Team t : listTeams) {
+
+        for (Team t : listTeams) {
             minTeam = Math.min(minTeam, t.getMembers().size());
         }
-        
+
         final int min = minTeam;
-        
+
         listTeams.removeIf(t -> t.getMembers().size() > min);
         return listTeams;
     }
@@ -567,12 +575,12 @@ public class Arena {
     }
 
     public void setListNames() {
-        
-        for(Team t : teams.values()) {
-            for(UUID id : t.getMembers()) {
+
+        for (Team t : teams.values()) {
+            for (UUID id : t.getMembers()) {
                 Player p = Bukkit.getPlayer(id);
-                if(p != null) {
-                    p.setDisplayName(t.getChatColor() + p.getName() + ChatColor.RESET);
+                if (p != null) {
+                    p.setPlayerListName(t.getChatColor() + p.getName() + ChatColor.RESET);
                     p.setDisplayName(t.getChatColor() + p.getName() + ChatColor.RESET);
                 }
             }
@@ -592,8 +600,8 @@ public class Arena {
         announceWinner(team);
         setStats(team);
         kickPlayers();
-        for(Team t : teams.values())
-            team.getMembers().clear();
+        for (Team t : teams.values())
+            t.getMembers().clear();
 //        blueTeam.getMembers().clear();
 //        redTeam.getMembers().clear();
 //        removeScoreboard();
@@ -639,7 +647,7 @@ public class Arena {
         Team team = announceWinner();
         setStats(team);
         kickPlayers();
-        for(Team t : teams.values())
+        for (Team t : teams.values())
             t.getMembers().clear();
 //        blueTeam.getMembers().clear();
 //        redTeam.getMembers().clear();
@@ -691,10 +699,11 @@ public class Arena {
     public void announceWinner(Team team) {
         String teamMsg = "";
 
-        if(team == null) return;
-        
+        if (team == null)
+            return;
+
         teamMsg = team.getChatName();
-        
+
 //        if (team.equals(blueTeam))
 //            teamMsg = ChatColor.BLUE + "Blue";
 //        else if (team.equals(redTeam))
@@ -713,9 +722,9 @@ public class Arena {
         int winningKills = 0;
         Team winningTeam = null;
         String teamMsg = "";
-        for(Team t : teams.values()) {
+        for (Team t : teams.values()) {
             int kills = getTotalTeamKills(t);
-            if(kills > winningKills) {
+            if (kills > winningKills) {
                 winningTeam = t;
                 teamMsg = t.getChatName();
             }
@@ -876,20 +885,20 @@ public class Arena {
         }
 
         int teamSpawnsSet = 0;
-        
-        for(Team t : teams.values()) {
-            if(t.getSpawnLocations().size() > 0)
+
+        for (Team t : teams.values()) {
+            if (t.getSpawnLocations().size() > 0)
                 teamSpawnsSet++;
-            if(teamSpawnsSet >= 2)
+            if (teamSpawnsSet >= 2)
                 break;
         }
-        
-        if(teamSpawnsSet < 2) {
-            player.sendMessage(ChatColor.RED + "Not enough team spawns set, add more spawns for other teams to continue.");
+
+        if (teamSpawnsSet < 2) {
+            player.sendMessage(
+                    ChatColor.RED + "Not enough team spawns set, add more spawns for other teams to continue.");
             return;
         }
-        
-        
+
 //        if (blueTeam.getSpawnLocations().size() == 0) {
 //            player.sendMessage(ChatColor.RED + "No blue team spawn locations set. Use: /pb set blue");
 //            return;
@@ -983,9 +992,9 @@ public class Arena {
     }
 
     public Team getPlayerTeam(Player player) {
-        
-        for(Team t : teams.values())
-            if(t.containsPlayer(player))
+
+        for (Team t : teams.values())
+            if (t.containsPlayer(player))
                 return t;
 
         return null;
@@ -1132,11 +1141,11 @@ public class Arena {
 
     public Location getRandomLocation() {
         List<Location> locations = new ArrayList<>();
-        for(Team t : teams.values()) {
-            for(Location l : t.getSpawnLocations())
+        for (Team t : teams.values()) {
+            for (Location l : t.getSpawnLocations())
                 locations.add(l);
         }
-        
+
         return locations.get(new Random().nextInt(locations.size()));
     }
 
