@@ -6,6 +6,7 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.block.Block;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Snowball;
 import org.bukkit.inventory.ItemStack;
@@ -63,7 +64,7 @@ public class Shotgun extends Gun {
     }
 
     @Override
-    public void onHit(Player player, Snowball ball) {
+    public void onHit(Player player, Snowball ball, Block block, Entity entity) {
 //		Vector s = ball.getVelocity().normalize().multiply(0.5);
 //		Block hitBlock = ball.getLocation().add(s).getBlock();
 //		System.out.println(hitBlock.getLocation().toString());

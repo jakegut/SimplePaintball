@@ -1,5 +1,7 @@
 package com.borgdude.paintball.objects;
 
+import org.bukkit.block.Block;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Snowball;
 import org.bukkit.inventory.ItemStack;
@@ -14,7 +16,7 @@ public abstract class Gun {
 
     public abstract void fire(final Player player);
 
-    public abstract void onHit(Player player, Snowball ball);
+    public abstract void onHit(Player player, Snowball ball, Block block, Entity entity);
 
     public abstract String getName();
     

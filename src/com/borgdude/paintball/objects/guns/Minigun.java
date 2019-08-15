@@ -4,6 +4,8 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.Sound;
+import org.bukkit.block.Block;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Snowball;
 import org.bukkit.inventory.ItemStack;
@@ -81,7 +83,7 @@ public class Minigun extends Gun {
     }
 
     @Override
-    public void onHit(Player player, Snowball ball) {
+    public void onHit(Player player, Snowball ball, Block block, Entity entity) {
         // TODO Auto-generated method stub
 
     }

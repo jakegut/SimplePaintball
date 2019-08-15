@@ -9,6 +9,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
+import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Snowball;
@@ -64,7 +65,7 @@ public class Rocket extends Gun {
     }
 
     @Override
-    public void onHit(Player player, Snowball ball) {
+    public void onHit(Player player, Snowball ball, Block block, Entity entity) {
 
         if (ball.hasMetadata("fired")) {
             player.getLocation().getWorld().playSound(ball.getLocation(), Sound.BLOCK_ANVIL_FALL, 1, 0.25f);

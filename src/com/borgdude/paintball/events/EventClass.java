@@ -336,7 +336,7 @@ public class EventClass implements Listener {
                 continue;
 
             if (im.getDisplayName().equals(gm.getDisplayName())) {
-                gun.onHit(player, ball);
+                gun.onHit(player, ball, event.getHitBlock(), event.getHitEntity());
                 break;
             }
         }
