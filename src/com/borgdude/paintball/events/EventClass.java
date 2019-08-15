@@ -316,9 +316,6 @@ public class EventClass implements Listener {
 
     @EventHandler
     public void onSnowHit(ProjectileHitEvent event) {
-        if (event.getHitBlock() == null)
-            return;
-
         if (!(event.getEntity() instanceof Snowball))
             return;
 
