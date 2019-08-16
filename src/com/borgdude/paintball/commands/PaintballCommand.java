@@ -173,6 +173,7 @@ public class PaintballCommand implements CommandExecutor {
                             t.addLocation(loc);
                             player.sendMessage(ChatColor.GREEN + "Added spawn for " + t.getChatName() + ChatColor.GREEN + " team. Spawn Count : " + ChatColor.AQUA + 
                                     t.getSpawnLocations().size());
+                            return true;
                         }
                     } else if (args[0].equalsIgnoreCase("reset")) {
                         Arena a = plugin.getArenaManager().getCurrentlyEditing(player);

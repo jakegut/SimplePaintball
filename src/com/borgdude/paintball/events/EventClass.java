@@ -318,7 +318,10 @@ public class EventClass implements Listener {
     public void onSnowHit(ProjectileHitEvent event) {
         if (!(event.getEntity() instanceof Snowball))
             return;
-
+        
+        if(!(event.getEntity().getShooter() instanceof Player))
+            return;
+        
         Player player = (Player) event.getEntity().getShooter();
         Snowball ball = (Snowball) event.getEntity();
 
