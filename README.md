@@ -36,5 +36,10 @@ This repository utlizes Maven to build the JAR file. In Eclipse the process is s
 
 ### Note
 In the pom.xml file, there's a section where it copies the built jar files to a certain directories (the plugin directory of my dev servers). These options are for me, but you can change them anyway you want. You might get an error if the path specified doesn't exist on your computer.
-In the future, an API will be introduced for people to be able to make custom weapons and be able to use them.
+
+## API
+As of v0.3.3-alpha.2, an API has been tested and created to add additional weapons to the game. If you would like to know how to add custom weapons look at the example repo: https://github.com/jakeryang/SimpleGun. 
+
+### Note
+You can replace any of the existing weapons by giving it the same name. Through the `getName()` method of the `Gun` class, which you extend to create a custom weapon, give it an existing name, such as `RocketLauncher` and it will replace the existing Rocket Launcher.
 
