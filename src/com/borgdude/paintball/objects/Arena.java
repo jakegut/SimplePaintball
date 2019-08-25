@@ -28,6 +28,8 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scoreboard.DisplaySlot;
 import org.bukkit.scoreboard.Objective;
 import org.bukkit.scoreboard.Scoreboard;
+import org.bukkit.scoreboard.Team.Option;
+import org.bukkit.scoreboard.Team.OptionStatus;
 
 import java.io.IOException;
 import java.util.*;
@@ -434,11 +436,19 @@ public class Arena {
         for (UUID id : getPlayers()) {
             Player p = Bukkit.getPlayer(id);
             if (p != null) {
-
+                if(!plugin.getConfig().getBoolean("Nametag-Visible"))
+                    setNameplate(p, board);
                 p.setScoreboard(board);
 
             }
         }
+    }
+
+    private void setNameplate(Player p, Scoreboard board) {
+        Team t = getPlayerTeam(p);
+        org.bukkit.scoreboard.Team sTeam = board.getTeam(t.getScoreboardID());
+        sTeam.setOption(Option.NAME_TAG_VISIBILITY, OptionStatus.FOR_OWN_TEAM);
+        sTeam.addEntry(p.getName());
     }
 
     public void updateScoreboard() {
