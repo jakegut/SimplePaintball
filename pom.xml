@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>SimplePaintball</groupId>
 	<artifactId>SimplePaintball</artifactId>
-	<version>0.3.4-alpha</version>
+	<version>0.3.4-alpha.1</version>
 	<name>SimplePaintball</name>
 	<build>
 		<sourceDirectory>src</sourceDirectory>

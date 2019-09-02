@@ -447,7 +447,7 @@ public class Arena {
     private void setNameplate(Player p, Scoreboard board) {
         Team t = getPlayerTeam(p);
         org.bukkit.scoreboard.Team sTeam = board.getTeam(t.getScoreboardID());
-        sTeam.setOption(Option.NAME_TAG_VISIBILITY, OptionStatus.FOR_OWN_TEAM);
+        sTeam.setOption(Option.NAME_TAG_VISIBILITY, OptionStatus.FOR_OTHER_TEAMS);
         sTeam.addEntry(p.getName());
     }
 
@@ -735,6 +735,7 @@ public class Arena {
         for (Team t : teams.values()) {
             int kills = getTotalTeamKills(t);
             if (kills > winningKills) {
+                winningKills = kills;
                 winningTeam = t;
                 teamMsg = t.getChatName();
             }
