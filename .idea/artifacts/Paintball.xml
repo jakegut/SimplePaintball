@@ -1,8 +1,0 @@
-<component name="ArtifactManager">
-  <artifact type="jar" name="Paintball">
-    <output-path>D:/SpigotDevelopment/plugins</output-path>
-    <root id="archive" name="Paintball.jar">
-      <element id="module-output" name="SimplePaintball" />
-    </root>
-  </artifact>
-</component>

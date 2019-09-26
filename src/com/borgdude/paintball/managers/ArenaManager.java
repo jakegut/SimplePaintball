@@ -3,7 +3,6 @@ package com.borgdude.paintball.managers;
 import com.borgdude.paintball.Main;
 import com.borgdude.paintball.objects.Arena;
 import com.borgdude.paintball.objects.ArenaState;
-import com.borgdude.paintball.objects.Gun;
 import com.borgdude.paintball.objects.Team;
 import com.borgdude.paintball.utils.LocationUtil;
 import org.bukkit.*;
@@ -13,9 +12,6 @@ import org.bukkit.block.data.BlockData;
 import org.bukkit.block.data.Directional;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.scheduler.BukkitRunnable;
 
 import java.io.IOException;
 import java.util.*;
@@ -197,14 +193,14 @@ public class ArenaManager {
             return plugin.getLanguageManager().getMessage("Edit.Arena-Not-Found").replace("%title%", title);
         if (!remove.getArenaState().equals(ArenaState.WAITING_FOR_PLAYERS))
             return plugin.getLanguageManager().getMessage("Edit.Remove-In-Progress");
-        for (Sign s : remove.getSigns()) {
-            BlockData d = s.getBlockData();
+        for (Location loc : remove.getSignLocations()) {
+            BlockData d = loc.getBlock().getBlockData();
             if (d instanceof Directional) {
                 Directional directional = (Directional) d;
-                Block blockBehind = s.getBlock().getRelative(directional.getFacing().getOppositeFace());
+                Block blockBehind = loc.getBlock().getRelative(directional.getFacing().getOppositeFace());
                 blockBehind.setType(Material.AIR);
             }
-            s.getBlock().setType(Material.AIR);
+            loc.getBlock().setType(Material.AIR);
         }
         arenas.remove(title);
         return plugin.getLanguageManager().getMessage("Edit.Remove-Success").replace("%title%", title);
@@ -224,52 +220,31 @@ public class ArenaManager {
                 a.checkMinMax();
                 a.setActivated(true);
                 for(Team t : a.getTeams().values()) {
-                    ConfigurationSection teamSpawns = arena.getConfigurationSection( t.getName().toLowerCase() + "-spawns");
-                    if(teamSpawns != null) {
-                        for(String i : teamSpawns.getKeys(false)) {
+                    ConfigurationSection teamSpawns = arena.getConfigurationSection(t.getName().toLowerCase() + "-spawns");
+                    if (teamSpawns != null) {
+                        for (String i : teamSpawns.getKeys(false)) {
                             ConfigurationSection location = teamSpawns.getConfigurationSection(i);
                             t.addLocation(LocationUtil.getLocationWithDirection(location));
                         }
                     }
                 }
-                
-//                ConfigurationSection blueTeam = arena.getConfigurationSection("blue-spawns");
-//                if (blueTeam != null) {
-//                    Team team = new Team(Color.BLUE);
-//                    for (String i : blueTeam.getKeys(false)) {
-//                        ConfigurationSection loc = blueTeam.getConfigurationSection(i);
-//                        team.addLocation(LocationUtil.getLocationWithDirection(loc));
-//                    }
-//                    a.setBlueTeam(team);
-//                } else {
-//                    plugin.getServer().getConsoleSender().sendMessage(ChatColor.RED + "BLUE SPAWNS NOT FOUND!!!!!");
-//                }
-//
-//                ConfigurationSection redTeam = arena.getConfigurationSection("red-spawns");
-//                if (redTeam != null) {
-//                    Team team = new Team(Color.RED);
-//                    for (String i : redTeam.getKeys(false)) {
-//                        ConfigurationSection loc = redTeam.getConfigurationSection(i);
-//                        team.addLocation(LocationUtil.getLocationWithDirection(loc));
-//                    }
-//                    a.setRedTeam(team);
-//                } else {
-//                    plugin.getServer().getConsoleSender().sendMessage(ChatColor.RED + "RED SPAWNS NOT FOUND!!!!!");
-//                }
 
-                ArrayList<Sign> signs = new ArrayList<>();
+                ArrayList<Location> signs = new ArrayList<>();
                 ConfigurationSection signSection = arena.getConfigurationSection("signs");
                 if (signSection != null) {
                     for (String i : signSection.getKeys(false)) {
                         ConfigurationSection section = signSection.getConfigurationSection(i);
                         Location loc = LocationUtil.getLocationWithDirection(section);
-                        World w = loc.getWorld();
-                        Block b = w.getBlockAt(loc);
-                        if (b.getState() instanceof Sign)
-                            signs.add((Sign) b.getState());
+                        signs.add(loc);
+//                        World w = loc.getWorld();
+//                        if(w == null) continue;
+//                        Block b = w.getBlockAt(loc);
+//                        if(b == null) continue;
+//                        if (b.getState() instanceof Sign)
+//                            signs.add((Sign) b.getState());
                     }
                 }
-                a.setSigns(signs);
+                a.setSignLocations(signs);
                 a.updateSigns();
                 as.put(a.getTitle(), a);
             }
@@ -321,8 +296,8 @@ public class ArenaManager {
 //            }
             plugin.getArenaConfig().set(p + ".signs", null);
             i = 0;
-            for (Sign s : a.getSigns()) {
-                LocationUtil.saveLocation(p + ".signs." + String.valueOf(i), s.getLocation(), plugin.getArenaConfig());
+            for (Location loc : a.getSignLocations()) {
+                LocationUtil.saveLocation(p + ".signs." + String.valueOf(i), loc, plugin.getArenaConfig());
                 i++;
             }
         }

@@ -7,7 +7,6 @@ import com.borgdude.paintball.utils.PaintballPlayer;
 
 import net.milkbowl.vault.economy.EconomyResponse;
 
-import org.apache.commons.lang.StringUtils;
 import org.bstats.bukkit.Metrics;
 import org.bukkit.*;
 import org.bukkit.block.Block;
@@ -21,7 +20,6 @@ import org.bukkit.boss.BossBar;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.material.MaterialData;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -31,7 +29,6 @@ import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.Team.Option;
 import org.bukkit.scoreboard.Team.OptionStatus;
 
-import java.io.IOException;
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.concurrent.Callable;
@@ -44,7 +41,7 @@ public class Arena {
     private HashMap<String, Team> teams;
     private int minPlayers;
     private int maxPlayers;
-    private ArrayList<Sign> signs;
+    private ArrayList<Location> signLocations;
     private ArenaState arenaState;
     private Set<UUID> players;
     private HashMap<UUID, PaintballPlayer> pbPlayers;
@@ -67,7 +64,7 @@ public class Arena {
         setSpectators(new HashSet<>());
         kills = new HashMap<>();
         arenaState = ArenaState.WAITING_FOR_PLAYERS;
-        signs = new ArrayList<>();
+        signLocations = new ArrayList<>();
         setGunKits(new HashMap<>());
         setSpawnTimer(new HashMap<>());
         pbPlayers = new HashMap<>();
@@ -163,17 +160,22 @@ public class Arena {
         this.activated = activated;
     }
 
-    public ArrayList<Sign> getSigns() {
-        return signs;
+    public ArrayList<Location> getSignLocations() {
+        return signLocations;
     }
 
-    public void setSigns(ArrayList<Sign> signs) {
-        this.signs = signs;
+    public void setSignLocations(ArrayList<Location> signLocations) {
+        this.signLocations = signLocations;
     }
 
     public void updateSigns() {
         // int i = 0;
-        for (Sign s : getSigns()) {
+        for (Location loc : getSignLocations()) {
+            Block b = loc.getBlock();
+            Sign s = null;
+            if(b == null) continue;
+            if (b.getState() instanceof Sign)
+                s = (Sign) b.getState();
             s.setLine(0, ChatColor.BLUE + "[PaintBall]");
             s.setLine(1, ChatColor.GREEN + getTitle());
             s.setLine(2, plugin.getLanguageManager().getMessage("Arena.State." + getArenaState().getFormattedName()));

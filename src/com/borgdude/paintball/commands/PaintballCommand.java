@@ -2,7 +2,6 @@ package com.borgdude.paintball.commands;
 
 import com.borgdude.paintball.Main;
 import com.borgdude.paintball.database.PlayerStats;
-import com.borgdude.paintball.managers.ArenaManager;
 import com.borgdude.paintball.objects.Arena;
 import com.borgdude.paintball.objects.ArenaState;
 import com.borgdude.paintball.objects.Team;
@@ -14,7 +13,6 @@ import org.apache.commons.lang.StringUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
-import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -270,7 +268,7 @@ public class PaintballCommand implements CommandExecutor {
                         sendArenaInfo(player, "Title", arena.getTitle());
                         sendArenaInfo(player, "Max Players", String.valueOf(arena.getMaxPlayers()));
                         sendArenaInfo(player, "Min Players", String.valueOf(arena.getMinPlayers()));
-                        sendArenaInfo(player, "Number of signs", String.valueOf(arena.getSigns().size()));
+                        sendArenaInfo(player, "Number of signs", String.valueOf(arena.getSignLocations().size()));
                         String t = "";
                         for(Team team : arena.getTeams().values()) {
                             t += team.getChatColor() + "(" + team.getName() + ": " + team.getSpawnLocations().size() + ")  ";
