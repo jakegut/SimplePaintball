@@ -32,6 +32,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.scheduler.BukkitRunnable;
 
 //import java.util.ArrayList;
+import java.util.Objects;
 import java.util.UUID;
 
 public class EventClass implements Listener {
@@ -55,7 +56,7 @@ public class EventClass implements Listener {
             public void run() {
                 int timeLeft = paintballManager.getCooldown().get(player);
 
-                float exp = (float) (1 - timeLeft / fireRate);
+                float exp = 1 - timeLeft / fireRate;
 
                 exp = (float) ((exp > 1.0) ? 1.0 : exp);
 
@@ -89,10 +90,7 @@ public class EventClass implements Listener {
 
     @EventHandler
     public void onDeath(PlayerDeathEvent event) {
-        Player p = (Player) event.getEntity();
-
-        if (p == null)
-            return;
+        Player p = event.getEntity();
 
         Arena a = plugin.getArenaManager().getPlayerArena(p);
 
@@ -281,17 +279,15 @@ public class EventClass implements Listener {
 
                     hitA.updateScoreboard();
 
-                    Bukkit.getScheduler().runTaskAsynchronously(plugin, new Runnable() {
-                        @Override
-                        public void run() {
-                            ChatColor cs = shooterA.getPlayerTeam(shooter).getChatColor();
-                            ChatColor ch = shooterA.getPlayerTeam(hit).getChatColor();
-                            for (UUID id : shooterA.getPlayers()) {
-                                Player p = Bukkit.getServer().getPlayer(id);
-                                p.sendMessage(cs + shooter.getName() + ChatColor.GREEN + " "
-                                        + plugin.getLanguageManager().getMessage("In-Game.Killed").toLowerCase() + " "
-                                        + ch + hit.getName());
-                            }
+                    Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+                        ChatColor cs = shooterA.getPlayerTeam(shooter).getChatColor();
+                        ChatColor ch = shooterA.getPlayerTeam(hit).getChatColor();
+                        for (UUID id : shooterA.getPlayers()) {
+                            Player p = Bukkit.getServer().getPlayer(id);
+                            if(p == null) continue;
+                            p.sendMessage(cs + shooter.getName() + ChatColor.GREEN + " "
+                                    + plugin.getLanguageManager().getMessage("In-Game.Killed").toLowerCase() + " "
+                                    + ch + hit.getName());
                         }
                     });
                 }
@@ -342,7 +338,7 @@ public class EventClass implements Listener {
         if (!event.getPlayer().hasPermission("paintball.admin"))
             return;
 
-        if (event.getLine(0).equalsIgnoreCase("pb join")) {
+        if (Objects.requireNonNull(event.getLine(0)).equalsIgnoreCase("pb join")) {
             if (event.getLine(1) == null)
                 return;
 
@@ -372,6 +368,7 @@ public class EventClass implements Listener {
 
         Player p = event.getPlayer();
         Block b = event.getClickedBlock();
+        if(b == null) return;
         if (b.getState() instanceof Sign) {
 
             Sign sign = (Sign) b.getState();
@@ -422,10 +419,7 @@ public class EventClass implements Listener {
     }
 
     public static boolean isNamedItem(ItemStack item, String name) {
-        if (item.hasItemMeta() && item.getItemMeta().hasDisplayName()
-                && ChatColor.stripColor(item.getItemMeta().getDisplayName()).equals(ChatColor.stripColor(name))) {
-            return true;
-        }
-        return false;
+        return item.hasItemMeta() && item.getItemMeta().hasDisplayName()
+                && ChatColor.stripColor(item.getItemMeta().getDisplayName()).equals(ChatColor.stripColor(name));
     }
 }

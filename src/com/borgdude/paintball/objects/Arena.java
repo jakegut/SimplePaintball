@@ -812,6 +812,7 @@ public class Arena {
                 continue;
             p.teleport(getEndLocation());
             p.setGameMode(Bukkit.getDefaultGameMode());
+            removeScoreboard(p);
         }
 
         removeBossbar();
@@ -1164,5 +1165,9 @@ public class Arena {
 
     public HashMap<String, Team> getTeams() {
         return this.teams;
+    }
+
+    public Scoreboard getScoreboard() {
+        return this.board;
     }
 }

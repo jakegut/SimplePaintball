@@ -18,3 +18,6 @@ permissions:
   paintball.admin:
     default: op
     description: admin commands
+  paintball.gun.*:
+    default: true
+    description: Permissions for specific guns

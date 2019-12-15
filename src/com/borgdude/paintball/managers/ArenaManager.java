@@ -71,6 +71,7 @@ public class ArenaManager {
         a.addLobbyItems(player);
 
         a.checkToStart();
+
     }
 
     public void addSpectatorToArena(Player player, Arena a) {
@@ -87,6 +88,8 @@ public class ArenaManager {
         player.setGameMode(GameMode.SPECTATOR);
         a.getSpectators().add(player.getUniqueId());
         player.teleport(a.getRandomLocation());
+        if(a.getScoreboard() != null)
+            player.setScoreboard(a.getScoreboard());
         player.sendMessage(plugin.getLanguageManager().getMessage("Spectate.Success").replace("%title%", a.getTitle()));
     }
 
@@ -123,7 +126,7 @@ public class ArenaManager {
         a.getSpectators().remove(player.getUniqueId());
         player.teleport(a.getEndLocation());
         player.setGameMode(Bukkit.getDefaultGameMode());
-
+        player.setScoreboard(Bukkit.getScoreboardManager().getNewScoreboard());
         return true;
 
     }
