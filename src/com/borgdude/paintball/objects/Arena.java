@@ -169,13 +169,22 @@ public class Arena {
     }
 
     public void updateSigns() {
-        // int i = 0;
-        for (Location loc : getSignLocations()) {
+        ArrayList<Location> toRemove = new ArrayList<>();
+         for (Location loc : getSignLocations()) {
+            if(loc == null) continue;
+            if(loc.getWorld() == null){
+                toRemove.add(loc);
+                continue;
+            }
             Block b = loc.getBlock();
             Sign s = null;
             if(b == null) continue;
             if (b.getState() instanceof Sign)
                 s = (Sign) b.getState();
+            else{
+                toRemove.add(loc);
+                continue;
+            }
             s.setLine(0, ChatColor.BLUE + "[PaintBall]");
             s.setLine(1, ChatColor.GREEN + getTitle());
             s.setLine(2, plugin.getLanguageManager().getMessage("Arena.State." + getArenaState().getFormattedName()));
@@ -185,6 +194,7 @@ public class Arena {
 //            i++;
 //            Bukkit.getConsoleSender().sendMessage("Updated sign number " + i + "for arena " + getTitle());
         }
+        getSignLocations().removeAll(toRemove);
     }
 
     private void updateBlock(Sign s) {
