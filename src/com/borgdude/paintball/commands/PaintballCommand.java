@@ -159,6 +159,7 @@ public class PaintballCommand implements CommandExecutor {
                             return true;
                         } else if (args[1].equalsIgnoreCase("activate")) {
                             a.setActivated(player);
+                            plugin.getArenaManager().saveArenas();
                             return true;
                         } else {
                             Team t = a.getTeams().get(StringUtils.capitalize(args[1]));
