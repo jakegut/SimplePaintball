@@ -2,6 +2,7 @@ package com.borgdude.paintball.commands;
 
 import com.borgdude.paintball.Main;
 import com.borgdude.paintball.managers.PaintballManager;
+import com.borgdude.paintball.objects.ArenaState;
 import com.borgdude.paintball.objects.Gun;
 
 import org.bukkit.ChatColor;

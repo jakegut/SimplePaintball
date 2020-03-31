@@ -8,6 +8,7 @@ import com.borgdude.paintball.managers.*;
 import com.borgdude.paintball.objects.Arena;
 import com.borgdude.paintball.objects.guns.*;
 
+import com.borgdude.paintball.utils.LoggerUtil;
 import net.milkbowl.vault.economy.Economy;
 
 import org.bstats.bukkit.Metrics;
@@ -37,6 +38,8 @@ public class Main extends JavaPlugin {
 
     private LanguageManager languageManager;
 
+    private LoggerUtil logger;
+
     private File arenaConfigFile;
     private FileConfiguration arenaConfig;
     public static Database db;
@@ -48,6 +51,7 @@ public class Main extends JavaPlugin {
     public void onEnable() {
         plugin = this;
         metrics = new Metrics(this);
+        logger = new LoggerUtil(this);
         try {
             createCustomConfigs();
         } catch (IOException | InvalidConfigurationException e) {
@@ -84,7 +88,10 @@ public class Main extends JavaPlugin {
         getCommand("pb").setTabCompleter(new PaintballCompleter(this));
         getServer().getPluginManager().registerEvents(new EventClass(this), this);
         getServer().getConsoleSender().sendMessage(ChatColor.GREEN + "PaintBall Enabled");
+
     }
+
+    public LoggerUtil getPluginLogger() { return this.logger; }
 
     public PaintballManager getPaintballManager() {
         return this.paintballManager;
@@ -107,12 +114,12 @@ public class Main extends JavaPlugin {
         if (!arenaConfigFile.exists()) {
             arenaConfigFile.getParentFile().mkdirs();
             saveResource("arenas.yml", false);
+            arenaConfig = YamlConfiguration.loadConfiguration(arenaConfigFile);
+            arenaConfig.addDefault("arenas", " ");
+            arenaConfig.options().copyDefaults(true);
+        } else {
+            arenaConfig = YamlConfiguration.loadConfiguration(arenaConfigFile);
         }
-
-        arenaConfig = YamlConfiguration.loadConfiguration(arenaConfigFile);
-        arenaConfig.addDefault("arenas", " ");
-        arenaConfig.options().copyDefaults(true);
-
     }
 
     public FileConfiguration getArenaConfig() {

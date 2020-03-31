@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>SimplePaintball</groupId>
 	<artifactId>SimplePaintball</artifactId>
-	<version>0.3.4-alpha.3</version>
+	<version>0.3.4-alpha.5</version>
 	<name>SimplePaintball</name>
 	<build>
 		<sourceDirectory>src</sourceDirectory>
@@ -56,7 +56,7 @@
                                 <copy file="target/${project.artifactId}-${project.version}.jar"
                                     todir="D:\1.14Dev\plugins" />
                                 <copy file="target/${project.artifactId}-${project.version}.jar"
-                                    todir="D:\1.13Dev\plugins" />
+                                    todir="D:\1.15Dev\plugins" />
                             </tasks>
                         </configuration>
                         <goals>

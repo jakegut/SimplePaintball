@@ -256,6 +256,7 @@ public class ArenaManager {
     }
 
     public void getArenas() {
+        plugin.getPluginLogger().log("Loading arenas...");
         this.arenas = new HashMap<>();
         ConfigurationSection arena = plugin.getConfig().getConfigurationSection("arenas");
         if (arena != null) {
@@ -263,7 +264,27 @@ public class ArenaManager {
             plugin.getConfig().set("arenas", null);
             plugin.saveConfig();
         }
-        arenas.putAll(getArenas(plugin.getArenaConfig().getConfigurationSection("arenas")));
+
+        arena = plugin.getArenaConfig().getConfigurationSection("arenas");
+        if(arena != null)
+            arenas.putAll(getArenas(plugin.getArenaConfig().getConfigurationSection("arenas")));
+
+        for(Arena a : arenas.values()){
+            plugin.getPluginLogger().log("\tTitle: " + a.getTitle());
+            plugin.getPluginLogger().log("\tSpawns:");
+            for(Team t : a.getTeams().values()){
+                plugin.getPluginLogger().log("\t\tTeam: " + t.getName());
+                for(Location loc : t.getSpawnLocations()) {
+                    plugin.getPluginLogger().log("\t\t\tLocation: " + loc);
+                }
+            }
+            plugin.getPluginLogger().log("\tSigns:");
+            for(Location loc : a.getSignLocations()) {
+                plugin.getPluginLogger().log("\t\tLocation: " + loc);
+            }
+        }
+
+        plugin.getPluginLogger().log("Loading arenas...DONE");
     }
 
     public void saveArenas() {

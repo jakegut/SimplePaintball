@@ -3,6 +3,7 @@ lobby-time: 60
 locale: enUS
 Arena-Spectate: true
 Nametag-Visible: true
+Debug: false
 Stats:
   Track: false
 Gameplay:

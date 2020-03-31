@@ -28,12 +28,8 @@ public class LocationUtil {
 //    }
 
     public static Location getLocationWithDirection(ConfigurationSection section) {
-        try {
-            return new Location(Bukkit.getWorld(section.getString("World")), section.getInt("X"), section.getInt("Y"),
-                    section.getInt("Z"), section.getInt("Yaw"), section.getInt("Pitch"));
-        } catch (Exception e) {
-        }
-        return null;
+        return new Location(Bukkit.getWorld(section.getString("World")), section.getInt("X"), section.getInt("Y"),
+            section.getInt("Z"), section.getInt("Yaw"), section.getInt("Pitch"));
     }
 
 }

@@ -1,10 +1,8 @@
 package com.borgdude.paintball.objects.guns;
 
 import com.borgdude.paintball.Main;
-import com.borgdude.paintball.managers.PaintballManager;
 import com.borgdude.paintball.objects.Gun;
 import com.borgdude.paintball.utils.MathUtil;
-
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -15,7 +13,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.entity.Snowball;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.material.Wool;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.util.Vector;
 
@@ -108,7 +105,7 @@ public class Rocket extends Gun {
             double vecZ = Math.sin(Math.toRadians(i * deg));
             snowball.setVelocity(new Vector(vecX, vecY, vecZ).multiply(0.35D).add(MathUtil.getRandomVector(0.2f)));
             snowball.setShooter(player);
-            snowball.setMetadata("fired", new FixedMetadataValue(plugin, new Boolean(true)));
+            snowball.setMetadata("fired", new FixedMetadataValue(plugin, Boolean.TRUE));
         }
     }
 

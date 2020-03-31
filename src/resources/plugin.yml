@@ -4,7 +4,7 @@ main: com.borgdude.paintball.Main
 name: Simple_PaintBall
 version: "${project.version}"
 api-version: 1.13
-softdepend: [Vault]
+softdepend: [Vault, Multiverse-Core]
 
 commands:
   gun:
